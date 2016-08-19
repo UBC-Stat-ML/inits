@@ -236,6 +236,7 @@ class Instantiator {
     return defaultInitializationStrategy
   }
   
+  
   @Data
   static class InstantiationContext {
     val Instantiator instantiator
@@ -249,12 +250,35 @@ class Instantiator {
       return arguments.argumentValue
     }
     
+    def QualifiedName qualifiedName() {
+      return arguments.getQName()
+    }
+    
     def InstantiationStrategy getInstantiationStrategy(Type type) {
       return instantiator.getInstantiationStrategy(type)
     }
     
+    def <T> Optional<T> instantiateChild(Type type, Arguments arguments) {
+      // using _init because we do not want to save the result tree
+      // that would interfere with outer call
+      val InitTree result = instantiator._init(type, arguments)
+      if (result.initResult.success) {
+        return result.initResult.result as Optional
+      } else {
+        return Optional.empty
+      }
+    }
+    
+    def Arguments getChildArguments(String name, List<String> contents) {
+      return arguments.createChildren(name, Optional.of(contents), false)
+    }
+    
     def InstantiationContext implementationContext(Type implementationType, boolean consumeValue) {
-      return new InstantiationContext(instantiator, implementationType, arguments.consumeValue)
+      return new InstantiationContext(
+        instantiator, 
+        implementationType, 
+        if (consumeValue) arguments.consumeValue else arguments
+      )
     }
     
     def Class<?> rawType() {

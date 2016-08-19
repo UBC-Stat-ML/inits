@@ -46,9 +46,7 @@ class Arguments {
       if (result.childrenKeys.contains(currentChildName)) {
         result = result.child(currentChildName)
       } else {
-        val Arguments child = new Arguments(Optional.empty, result.qName.child(currentChildName))
-        result.addChild(currentChildName, child)
-        result = child
+        result = result.createChildren(currentChildName, Optional.empty, true)
       }
     }
     return result
@@ -77,11 +75,22 @@ class Arguments {
     val List<String> value
   }
   
-  def void addChild(String name, Arguments item) {
+//  def void addChild(String name, Arguments item) {
+//    if (children.containsKey(name)) {
+//      throw new RuntimeException
+//    }
+//    children.put(name, item)
+//  }
+
+  def Arguments createChildren(String name, Optional<List<String>> value, boolean addToParent) {
     if (children.containsKey(name)) {
       throw new RuntimeException
     }
-    children.put(name, item)
+    val Arguments child = new Arguments(value, qName.child(name))
+    if (addToParent) {
+      children.put(name, child)
+    }
+    return child
   }
   
   def Arguments child(String string) {
@@ -126,5 +135,9 @@ class Arguments {
       children.get(key).toString(result)
     }
   }
+  
+//  def getQName() {
+//    return qName
+//  }
   
 }

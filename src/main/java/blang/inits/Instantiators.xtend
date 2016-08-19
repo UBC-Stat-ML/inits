@@ -9,6 +9,7 @@ import blang.inits.strategies.parsers.BooleanParser
 import java.util.Random
 import blang.inits.strategies.parsers.LongParser
 import java.util.Map
+import java.io.File
 
 class Instantiators {
   
@@ -34,11 +35,12 @@ class Instantiators {
     strategies => [
     
       put(String, new OneArgConstructor<String>(String, new StringParser))
+      put(File,   new OneArgConstructor<String>(String, new StringParser))
     
       put(Integer, new OneArgConstructor<Integer>(int, new IntParser))
-      put(Double, new OneArgConstructor<Double>(double, new DoubleParser))
+      put(Double,  new OneArgConstructor<Double>( double, new DoubleParser))
       put(Boolean, new OneArgConstructor<Boolean>(boolean, new BooleanParser))
-      put(Long, new OneArgConstructor<Long>(long, new LongParser)) 
+      put(Long,    new OneArgConstructor<Long>(   long, new LongParser)) 
     
       put(Random, new OneArgConstructor<Long>(long, new LongParser))
       

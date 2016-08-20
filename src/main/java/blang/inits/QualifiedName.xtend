@@ -6,7 +6,7 @@ import java.util.ArrayList
 import com.google.common.base.Joiner
 import org.eclipse.xtend.lib.annotations.Accessors
 
-@Data
+@Data // important to keep: used in hash maps
 class QualifiedName {
   @Accessors(PUBLIC_GETTER)
   val List<String> path

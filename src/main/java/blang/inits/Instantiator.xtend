@@ -17,8 +17,9 @@ import java.util.Optional
 import java.util.ArrayList
 import com.google.common.base.Joiner
 import blang.inits.strategies.Combined
+import java.util.IdentityHashMap
 
-class Instantiator {
+class Instantiator implements VariableNamingService {
   
   @Accessors(PUBLIC_GETTER)
   val Map<String, Object> globals = new HashMap
@@ -35,14 +36,22 @@ class Instantiator {
   def <T> Optional<T> init(Type type, Arguments arguments) {
     _type = type
     _arguments = arguments
+    instantiatedObjectNames = new IdentityHashMap
     lastInitTree = _init(type, arguments) as InitTree
     return lastInitTree.initResult.result as Optional
+  }
+  
+  def private registerInstantiation(QualifiedName qName, Object instantiated) {
+    instantiatedObjectNames.put(instantiated, qName.toString())
   }
   
   // info from last call of init
   var InitTree lastInitTree = null
   var Type _type = null
   var Arguments _arguments = null
+  
+  @Accessors(PUBLIC_GETTER)
+  var Map<Object, String> instantiatedObjectNames
   
   def public String lastInitReport() {
     val List<String> result = new ArrayList
@@ -203,6 +212,10 @@ class Instantiator {
         InitResult.failure(MISSING_CHILD)
       }
     
+    if (initResult.result.present) {
+      registerInstantiation(currentArguments.getQName(), initResult.result.get)
+    }
+    
     return new InitTree(initResult, children)
   }
   
@@ -284,6 +297,10 @@ class Instantiator {
     def Class<?> rawType() {
       return getRawClass(requestedType)
     }
+  }
+  
+  override String getName(Object variable) {
+    return instantiatedObjectNames.get(variable)
   }
   
 }

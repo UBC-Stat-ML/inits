@@ -16,6 +16,8 @@ class BasicTests {
   @Test
   def void testBasicParser() {
     
+    println("Basic parser")
+    
     val Creator c = Creator.conventionalCreator
 
     val List<Object> objects = #["some string", 17, 4.5, true, 23423L]
@@ -41,6 +43,8 @@ class BasicTests {
   @Test 
   def void testSimpleDeps() {
     
+    println("Simple deps")
+    
     val Creator c = Creator.conventionalCreator
     
     Assert.assertEquals(
@@ -54,6 +58,8 @@ class BasicTests {
         "--g", "-234e13",
         "--h", "INF")).stuff.toString(), 
       "[1, -2, true, false, 234, -23423, -2.34E15, Infinity]")
+      
+    println(c.usage)
   }
   
   // TODO: check missing @Desig..
@@ -92,8 +98,13 @@ class BasicTests {
   
   @Test
   def void testDeeperDeps() {
+    
+    println("Deep deps")
+    
     val Creator c = Creator.conventionalCreator
     Assert.assertEquals(c.init(Level1, PosixParser.parse("--aLevel2.anInt", "123")).aLevel2.anInt, 123)
+    
+    println(c.usage())
   }
   
   static class Level1 {
@@ -107,7 +118,7 @@ class BasicTests {
   static class Level2 {
     val int anInt
     @DesignatedConstructor
-    new (@ConstructorArg("anInt") int anInt) {
+    new (@ConstructorArg(value = "anInt", description = "An int!") int anInt) {
       this.anInt = anInt
     }
   }

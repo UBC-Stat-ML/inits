@@ -22,6 +22,10 @@ import org.eclipse.xtend.lib.annotations.Data
 import java.util.Map
 import java.util.HashMap
 import org.eclipse.xtend.lib.annotations.Accessors
+import blang.input.Creator.InitDependency
+import blang.inits.QualifiedName
+import org.apache.commons.lang3.StringUtils
+import java.util.LinkedHashMap
 
 class Creator {
   
@@ -49,6 +53,7 @@ class Creator {
     Arguments args) {
     // empty logs
     // call _init  
+    logger = new Logger
     val T result = _init(type, args)  
     if (result === null) {
       throw FAILED_INIT
@@ -56,7 +61,52 @@ class Creator {
     return result
   }
   
+  def String usage() {
+    return logger.usage()
+  }
+  
   val public static final RuntimeException FAILED_INIT = new RuntimeException("Failed to init object")
+  
+  var Logger logger = null
+  
+  static class Logger {
+    val private Map<QualifiedName, TypeLiteral<?>> typeUsage = new LinkedHashMap
+    val private Map<QualifiedName, String> dependencyDescriptions = new LinkedHashMap
+    
+    def reportTypeUsage(TypeLiteral<?> typeOrOptional, Arguments argument, List<InitDependency> dependencies) {
+      
+      for (InitDependency dep : dependencies) {
+        switch (dep) {
+          InputDependency : {
+            typeUsage.put(argument.QName, typeOrOptional)
+          }
+          RecursiveDependency : {
+            if (dep.description.present) 
+              dependencyDescriptions.put(argument.QName.child(dep.name), dep.description.get)
+          }
+          default : throw new RuntimeException
+        }
+      }
+    }
+    
+    def String usage(QualifiedName qName) {
+      var String result = '''«formatArgName(qName)» <«typeUsage.get(qName).rawType.simpleName»>'''
+      if (dependencyDescriptions.containsKey(qName)) 
+        result += '\n' + '''  description: «dependencyDescriptions.get(qName)»'''
+      return result
+    }
+    
+    def String usage() { 
+      typeUsage.keySet.map[usage(it)].join("\n")
+    }
+    
+    def String formatArgName(QualifiedName qName) {
+      if (qName.root)
+        return "<root>"
+      else
+        return "--" + qName
+    }
+  }
   
   /**
    * A plan to create instances of a class
@@ -86,11 +136,19 @@ class Creator {
     }
   }
   
+  def static Optional<String> optonalizeString(String str) {
+    if (StringUtils.isEmpty(str)) {
+      return Optional.empty
+    } else {
+      return Optional.of(str)
+    }
+  }
+  
   def static InitDependency findDependency(TypeLiteral<?> literal, Parameter parameter) {
     val Annotation annotation = findAnnotation(parameter)
     return switch (annotation) {
       ConstructorArg : {
-        new RecursiveDependency(literal, annotation.value)
+        new RecursiveDependency(literal, annotation.value, optonalizeString(annotation.description))
       }
       Input : {
         new InputDependency()
@@ -168,6 +226,7 @@ class Creator {
       // TODO: report parsing error if missing
       currentArguments.argumentValue.orElse(null)
     }
+    
   }
   
 //  static private class GlobalDependency implements InitDependency {
@@ -182,6 +241,7 @@ class Creator {
   static private class RecursiveDependency implements InitDependency {
     val TypeLiteral<?> type
     val String name
+    val Optional<String> description
     
 //    /**
 //     * Assumes it has "@ConstructorArg annotation
@@ -204,6 +264,7 @@ class Creator {
     override Object resolve(Creator creator, Arguments currentArguments) {
       return creator._init(type, currentArguments.child(name))
     }
+    
   }
   
 //  /**
@@ -271,13 +332,15 @@ class Creator {
     // TODO: consume one item in the argument, recurse if class found, else return error
     
     val List<Object> instantiatedChildren = new ArrayList
+    val List<InitDependency> deps = schema.dependencies()
 //    val Set<String> remainingKeys = new LinkedHashSet(currentArguments.childrenKeys)
-    for (InitDependency initDependency : schema.dependencies()) {
+    for (InitDependency initDependency : deps) {
       instantiatedChildren.add(initDependency.resolve(this, currentArguments))
     } 
 //    if (!remainingKeys.isEmpty()) {
 //      // TODO: log error
 //    }
+    logger.reportTypeUsage(typeOrOptional, currentArguments, deps)
     if (dependenciesOk(instantiatedChildren)) {
       try {
         val Object instance = schema.build(instantiatedChildren)

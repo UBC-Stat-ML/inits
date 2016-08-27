@@ -74,13 +74,6 @@ class Arguments {
     val List<String> fullyQualifiedName // root is empty list
     val List<String> value
   }
-  
-//  def void addChild(String name, Arguments item) {
-//    if (children.containsKey(name)) {
-//      throw new RuntimeException
-//    }
-//    children.put(name, item)
-//  }
 
   def Arguments createChildren(String name, Optional<List<String>> value, boolean addToParent) {
     if (children.containsKey(name)) {

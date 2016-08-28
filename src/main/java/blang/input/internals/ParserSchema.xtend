@@ -3,7 +3,7 @@ package blang.input.internals
 import java.util.Collections
 import java.util.List
 import org.eclipse.xtend.lib.annotations.Data
-import blang.input.Parser
+import blang.input.ParserFromList
 
 /**
    * A plan based on a single "@Input" SimpleDependency, 
@@ -11,7 +11,7 @@ import blang.input.Parser
    */
  @Data
 package class ParserSchema implements Schema {
-  val Parser parser
+  val ParserFromList parser
   override List<InitDependency> dependencies() {
     return Collections.singletonList(new InputDependency(true))
   }

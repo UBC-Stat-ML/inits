@@ -19,14 +19,13 @@ import java.util.List
 import java.util.Map
 import java.util.Optional
 import java.util.Set
-import org.eclipse.xtend.lib.annotations.Accessors
-import blang.input.Parser
 import blang.input.Creator
+import blang.input.ParserFromList
 
 package class CreatorImpl implements Creator {
   
-  @Accessors(PUBLIC_GETTER)
-  val Map<Class<?>, Parser> parsers = new HashMap
+  val Map<Class<?>, ParserFromList<?>> parsersIndexedByRawTypes = new HashMap
+  val Map<TypeLiteral<?>, ParserFromList<?>> parsersIndexedByTypeLiterals = new HashMap
   
   package new() {}
   
@@ -70,8 +69,13 @@ package class CreatorImpl implements Creator {
     if (currentType.rawType.isEnum()) {
       return new EnumSchema(currentType.rawType)
     }
-    // try to find a simple parser
-    val Parser parser = parsers.get(currentType.rawType)
+    // try to find a simple parser based on full generic info first
+    var ParserFromList<?> parser = parsersIndexedByTypeLiterals.get(currentType)
+    if (parser !== null) {
+      return new ParserSchema(parser)
+    }
+    // try then based on type erased
+    parser = parsersIndexedByRawTypes.get(currentType.rawType)
     if (parser !== null) {
       return new ParserSchema(parser)
     }
@@ -145,4 +149,13 @@ package class CreatorImpl implements Creator {
       logger.addError(arguments.QName.child(remainingChild), InputExceptions.UNKNOWN_INPUT)
     }
   }
+  
+  override <T> addParser(Class<T> type, ParserFromList<T> parser) {
+    parsersIndexedByRawTypes.put(type, parser)
+  }
+  
+  override <T> addParser(TypeLiteral<T> type, ParserFromList<T> parser) {
+    parsersIndexedByTypeLiterals.put(type, parser)
+  }
+  
 }

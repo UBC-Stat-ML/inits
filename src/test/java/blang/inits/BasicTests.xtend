@@ -2,7 +2,7 @@ package blang.inits
 
 import org.junit.Test
 import blang.inits.Arguments
-import blang.inits.PosixParser
+import blang.inits.Posix
 import java.util.List
 import org.junit.Assert
 import org.eclipse.xtend.lib.annotations.Data
@@ -45,14 +45,14 @@ class BasicTests {
     for (Object o : objects) {
       println("Testing simple parser for type " + o.class)
       val String rep = o.toString()
-      val Arguments arg = PosixParser.parse(rep)
+      val Arguments arg = Posix.parse(rep)
       val Object result = c.init(o.class, arg)
       Assert.assertEquals(o, result)
     }
     TestSupport.assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
-      c.init(Boolean, PosixParser.parse("bad"))
+      c.init(Boolean, Posix.parse("bad"))
     ]
-    val Arguments maxArg = PosixParser.parse("INF") 
+    val Arguments maxArg = Posix.parse("INF") 
     Assert.assertEquals(c.init(Long, maxArg), Long.MAX_VALUE)
     Assert.assertEquals(c.<Double>init(Double, maxArg), Double.POSITIVE_INFINITY, 0.0)
     Assert.assertEquals(c.<Integer>init(Integer, maxArg), Integer.MAX_VALUE)   
@@ -61,7 +61,7 @@ class BasicTests {
   @Test 
   def void testSimpleDeps() {
     Assert.assertEquals(
-      c.init(Simple, PosixParser.parse(
+      c.init(Simple, Posix.parse(
         "--a", "1",
         "--b", "-2",
         "--c", "true",
@@ -106,7 +106,7 @@ class BasicTests {
   
   @Test
   def void testDeeperDeps() {
-    Assert.assertEquals(c.init(Level1, PosixParser.parse("--aLevel2.anInt", "123")).aLevel2.anInt, 123)
+    Assert.assertEquals(c.init(Level1, Posix.parse("--aLevel2.anInt", "123")).aLevel2.anInt, 123)
     println(c.usage())
   }
   
@@ -134,7 +134,7 @@ class BasicTests {
   @Test
   def void testExceptions() {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
-      c.init(BadConstructor, PosixParser.parse())
+      c.init(BadConstructor, Posix.parse())
     ]
     Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MALFORMED_BUILDER].size)
     println(c.errorReport)
@@ -149,7 +149,7 @@ class BasicTests {
   @Test
   def void testBadInput() {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
-      c.init(BadInput, PosixParser.parse("--arg", "abc"))
+      c.init(BadInput, Posix.parse("--arg", "abc"))
     ]
     Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.FAILED_INSTANTIATION].size)
     println(c.errorReport)
@@ -158,7 +158,7 @@ class BasicTests {
   @Test
   def void missingInput() {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
-      c.init(BadInput, PosixParser.parse())
+      c.init(BadInput, Posix.parse())
     ]
     Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MISSING_INPUT].size)
     println(c.errorReport)
@@ -167,7 +167,7 @@ class BasicTests {
   @Test
   def void missingInput2() {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
-      c.init(BadInput, PosixParser.parse("--arg"))
+      c.init(BadInput, Posix.parse("--arg"))
     ]
     Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.FAILED_INSTANTIATION].size)
     println(c.errorReport)
@@ -176,7 +176,7 @@ class BasicTests {
   @Test
   def void extraInput() {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
-      c.init(BadInput, PosixParser.parse("--bad"))
+      c.init(BadInput, Posix.parse("--bad"))
     ]
     Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.UNKNOWN_INPUT].size)
     println(c.errorReport)
@@ -191,7 +191,7 @@ class BasicTests {
   @Test
   def void badAnn() {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
-      c.init(BadAnnotations, PosixParser.parse())
+      c.init(BadAnnotations, Posix.parse())
     ]
     Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MALFORMED_ANNOTATION].size)
     println(c.errorReport)
@@ -207,7 +207,7 @@ class BasicTests {
   @Test
   def void badOpt() {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
-      c.init(WithBadOptionals, PosixParser.parse())
+      c.init(WithBadOptionals, Posix.parse())
     ]
     Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MALFORMED_OPTIONAL].size)
     println(c.errorReport)
@@ -223,7 +223,7 @@ class BasicTests {
   @Test
   def void badOpt2() {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
-      c.init(WithBadOptionals2, PosixParser.parse())
+      c.init(WithBadOptionals2, Posix.parse())
     ]
     Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MALFORMED_OPTIONAL].size)
     println(c.errorReport)
@@ -240,12 +240,12 @@ class BasicTests {
   
   @Test
   def void goodOpt() {
-    Assert.assertTrue(c.init(GoodOptionals, PosixParser.parse()) !== null)
+    Assert.assertTrue(c.init(GoodOptionals, Posix.parse()) !== null)
   }
   
   @Test
   def void goodOpt2() {
-    Assert.assertTrue(c.init(GoodOptionals, PosixParser.parse("--first", "234")) !== null)
+    Assert.assertTrue(c.init(GoodOptionals, Posix.parse("--first", "234")) !== null)
   }
   
   static class MixedOptionals {
@@ -261,7 +261,7 @@ class BasicTests {
   def void mixedOptional() {
     val TypeLiteral<Optional<MixedOptionals>> lit = new TypeLiteral<Optional<MixedOptionals>>() {}
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
-      c.init(lit, PosixParser.parse("--first", "123"))
+      c.init(lit, Posix.parse("--first", "123"))
     ]
     println(c.errorReport)
   } 
@@ -270,7 +270,7 @@ class BasicTests {
   def void testMultipleErrors() {
     val TypeLiteral<Optional<MixedOptionals>> lit = new TypeLiteral<Optional<MixedOptionals>>() {}
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
-      c.init(lit, PosixParser.parse(
+      c.init(lit, Posix.parse(
         "--first", "abc"))
     ]
     println(c.errorReport)

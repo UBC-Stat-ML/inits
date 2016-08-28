@@ -4,7 +4,7 @@ import org.eclipse.xtend.lib.annotations.Data
 import blang.inits.DesignatedConstructor
 import blang.inits.Input
 import blang.inits.Arg
-import blang.inits.PosixParser
+import blang.inits.Posix
 
 class CustomizationExample {
   
@@ -54,7 +54,7 @@ class CustomizationExample {
     try {
     val MyWeirdTypes object = creator.init(
       MyWeirdTypes, 
-      PosixParser.parse(
+      Posix.parse(
         "--temperature", "25K",
         "--myEnum", "CASE",
         "--outOfControl", "ok!")

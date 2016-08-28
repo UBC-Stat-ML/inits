@@ -1,7 +1,7 @@
 package blang.inits
 
 import blang.inits.Arg
-import blang.inits.PosixParser
+import blang.inits.Posix
 
 class UsageExample {
   
@@ -12,7 +12,7 @@ class UsageExample {
   
   def static void main(String [] args) {
     val Creator c = Creators.conventional()
-    try { c.init(MyClass, PosixParser.parse()) } catch(Exception e) {}
+    try { c.init(MyClass, Posix.parse()) } catch(Exception e) {}
     // even if above fails, can still print usage info
     println(c.usage)
     /*

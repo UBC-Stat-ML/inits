@@ -7,7 +7,7 @@ import org.junit.After
 import org.junit.Test
 import blang.inits.Arg
 
-import static blang.inits.PosixParser.parse
+import static blang.inits.Posix.parse
 import org.junit.Assert
 import blang.inits.InputExceptions.InputExceptionCategory
 

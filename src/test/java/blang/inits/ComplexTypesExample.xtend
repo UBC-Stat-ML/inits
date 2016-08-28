@@ -4,7 +4,7 @@ import blang.inits.Arg
 import blang.inits.ConstructorArg
 import blang.inits.DesignatedConstructor
 import java.util.Optional
-import blang.inits.PosixParser
+import blang.inits.Posix
 
 /**
  * Tutorial assumes you read BasicExample.xtend in same folder.
@@ -50,7 +50,7 @@ class ComplexTypesExample {
     val Creator creator = Creators.conventional()
     val instance = creator.init(
       MyComplexClass, 
-      PosixParser.parse(
+      Posix.parse(
         "--n1.real", "123",  // note the '.' notation to navigate command line argument down the object graph being created
         "--n2.real", "45",   // these hierarchies can be arbitrarily deep
         "--n2.imaginary", "-1.34e2")  

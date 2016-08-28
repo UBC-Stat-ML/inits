@@ -3,7 +3,7 @@ package blang.inits
 import blang.inits.DesignatedConstructor
 import blang.inits.QualifiedName
 import blang.inits.Arg
-import blang.inits.PosixParser
+import blang.inits.Posix
 import com.google.inject.TypeLiteral
 
 class InitServiceExample {
@@ -31,7 +31,7 @@ class InitServiceExample {
        * same globals and parsers, and can be used e.g. to parse entries in a file, 
        * etc.
        */
-      childCreator.init(Another, PosixParser.parse())
+      childCreator.init(Another, Posix.parse())
     }
   }
   
@@ -53,7 +53,7 @@ class InitServiceExample {
   def static void main(String [] args) {
     val Creator c = Creators.conventional()
     c.addGlobal(Global, new Global)
-    try { c.init(Top, PosixParser.parse()) } catch (Exception e) {}
+    try { c.init(Top, Posix.parse()) } catch (Exception e) {}
     println(c.errorReport)
   }
   

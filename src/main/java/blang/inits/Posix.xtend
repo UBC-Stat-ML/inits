@@ -5,13 +5,7 @@ import java.util.ArrayList
 import java.util.List
 import com.google.common.base.Splitter
 
-class PosixParser {
-  
-  // TODO: add { .. } behavior
-  
-//  def static Arguments parse(String args) {
-//    return parse(Splitter.onPattern("\\s+").splitToList(args))
-//  }
+class Posix {
   
   def static Arguments parse(String ... args) {
     val List<ArgumentItem> items = new ArrayList

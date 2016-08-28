@@ -1,7 +1,7 @@
 package blang.inits
 
 import blang.inits.Arg
-import blang.inits.PosixParser
+import blang.inits.Posix
 
 /**
  * Walking through some simple usage examples.
@@ -38,7 +38,7 @@ class BasicExample {
     val Creator creator = Creators.conventional()
     val instance = creator.init(
       MyClass, // Note: would be "MyClass.class" in Java
-      PosixParser.parse("--anInteger", "123")  // or "PosixParser.parse(args)" to read from the command line
+      Posix.parse("--anInteger", "123")  // or "Posix.parse(args)" to read from the command line
     )
     println(instance.anInteger) // 123
     
@@ -49,7 +49,7 @@ class BasicExample {
     // If there are errors, the call to init(..) returns an exception; 
     // but use the following to get a more comprehensive diagnostic:
     try {
-      creator.init(MyClass, PosixParser.parse("--anInteger", "abc"))
+      creator.init(MyClass, Posix.parse("--anInteger", "abc"))
     } catch (Exception e) { }
     println("number of errors: " + creator.errors.size()) // 1, intentionally
     println(creator.errorReport)

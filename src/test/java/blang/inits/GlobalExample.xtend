@@ -2,7 +2,7 @@ package blang.inits
 
 import org.eclipse.xtend.lib.annotations.Data
 import blang.inits.Arg
-import blang.inits.PosixParser
+import blang.inits.Posix
 
 /**
  * It is possible to add global objects which are accessible at all 
@@ -27,7 +27,7 @@ class GlobalExample {
   def static void main(String [] args) {
     val Creator c = Creators.conventional()
     c.addGlobal(GlobalType, new GlobalType("I am global"))
-    val result = c.init(TopLevel, PosixParser.parse())
+    val result = c.init(TopLevel, Posix.parse())
     println(result.under.global)
   }
   

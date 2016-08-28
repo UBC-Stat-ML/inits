@@ -40,32 +40,32 @@ package class InitStaticUtils {
     ]
   )
   
-  def static InitDependency findDependency(TypeLiteral<?> literal, AnnotatedElement element, Optional<String> name) {
+  def static InitDependency findDependency(TypeLiteral<?> parentType, TypeLiteral<?> childType, AnnotatedElement element, Optional<String> name) {
     val Annotation annotation = try {
       findAnnotation(element) 
     } catch (Exception e) {
-      throw InputExceptions.malformedAnnotation(e.message, literal, element) 
+      throw InputExceptions.malformedAnnotation(e.message, childType, element) 
     }
     return switch (annotation) {
       Arg : {
-        new RecursiveDependency(literal, name.get, optionalizeString(annotation.description))
+        new RecursiveDependency(childType, name.get, optionalizeString(annotation.description))
       }
       ConstructorArg : {
-        new RecursiveDependency(literal, annotation.value, optionalizeString(annotation.description))
+        new RecursiveDependency(childType, annotation.value, optionalizeString(annotation.description))
       }
       GlobalArg : {
-        new GlobalDependency(literal)
+        new GlobalDependency(childType)
       }
       InitService : {
-        new InitServiceDependency(literal, element)
+        new InitServiceDependency(parentType, childType, element)
       }
       Input : {
-        if (literal.rawType == String) { 
+        if (childType.rawType == String) { 
           new InputDependency(false) 
-        } else if (literal.rawType == List) {
+        } else if (childType.rawType == List) {
           new InputDependency(true)
         } else {
-          throw InputExceptions.malformedAnnotation("@" + Input.simpleName + " only applies to String or List<String> ", literal, element)
+          throw InputExceptions.malformedAnnotation("@" + Input.simpleName + " only applies to String or List<String> ", childType, element)
         }
       }
       default : throw new RuntimeException

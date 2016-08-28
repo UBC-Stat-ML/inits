@@ -15,20 +15,21 @@ import java.lang.reflect.AnnotatedElement
  */
 @Data
 package class InitServiceDependency implements InitDependency {
-  val TypeLiteral<?> type
+  val TypeLiteral<?> parentType
+  val TypeLiteral<?> childType
   val AnnotatedElement parameter
   override Object resolve(CreatorImpl creator, Arguments currentArguments) {
-    if (type.rawType == QualifiedName) {
+    if (childType.rawType == QualifiedName) {
       return currentArguments.QName
-    } else if (type.rawType == TypeLiteral) {
-      return type
-    } else if (type.rawType == Class) {
-      return type.rawType
-    } else if (type.rawType == Type) {
-      return type.type
+    } else if (childType.rawType == TypeLiteral) {
+      return parentType
+    } else if (childType.rawType == Class) {
+      return parentType.rawType
+    } else if (childType.rawType == Type) {
+      return parentType.type
     } else {
       throw InputExceptions::malformedAnnotation("Annotation @" + InitService.simpleName + " can only be applied to the following type: " +
-        #[QualifiedName.simpleName, TypeLiteral.simpleName, Class.simpleName, Type.simpleName].join(", "), type, parameter)
+        #[QualifiedName.simpleName, TypeLiteral.simpleName, Class.simpleName, Type.simpleName].join(", "), childType, parameter)
     }
   }
 }

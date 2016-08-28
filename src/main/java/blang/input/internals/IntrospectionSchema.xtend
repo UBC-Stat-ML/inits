@@ -27,11 +27,11 @@ package class IntrospectionSchema implements Schema {
     val List<Parameter> parameters = builder.parameters
     val List<TypeLiteral<?>> parameterTypes = type.getParameterTypes(builder)
     for (var int i = 0; i < parameters.size; i++) {
-      result.add(InitStaticUtils::findDependency(parameterTypes.get(i), parameters.get(i), Optional.empty))
+      result.add(InitStaticUtils::findDependency(type, parameterTypes.get(i), parameters.get(i), Optional.empty))
     }
     // fields
     for (Field field : fieldsToInstantiate()) {
-      result.add(InitStaticUtils::findDependency(type.getFieldType(field), field, Optional.of(field.name)))
+      result.add(InitStaticUtils::findDependency(type, type.getFieldType(field), field, Optional.of(field.name)))
     }
     return result
   }

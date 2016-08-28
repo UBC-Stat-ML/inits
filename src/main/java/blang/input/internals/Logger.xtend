@@ -10,6 +10,7 @@ import java.util.Map
 import java.util.Set
 import org.eclipse.xtend.lib.annotations.Accessors
 import blang.input.InputExceptions.InputException
+import blang.input.InitService
 
 package class Logger {
     
@@ -33,10 +34,7 @@ package class Logger {
           if (dep.description.present) 
             dependencyDescriptions.put(argument.QName.child(dep.name), dep.description.get)
         }
-        GlobalDependency : {
-          // do not report globals
-        }
-        default : throw new RuntimeException
+        // do not report the other ones
       }
     }
   }

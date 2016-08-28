@@ -74,8 +74,6 @@ class InputExceptions {
   val public static InputException UNKNOWN_INPUT = 
     new InputException(InputExceptionCategory.UNKNOWN_INPUT, "Unknown input")
   
-//  val public static InputException 
-  
   @Data
   static class InputException extends RuntimeException {
     @Accessors(PUBLIC_GETTER)
@@ -99,5 +97,4 @@ class InputExceptions {
   }
   
   private new() {}
-  
 }

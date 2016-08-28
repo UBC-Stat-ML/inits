@@ -3,11 +3,11 @@ Summary
 
 <!-- [![Build Status](https://travis-ci.org/alexandrebouchard/inits.png?branch=master)](https://travis-ci.org/alexandrebouchard/inits) -->
 
-``inits`` is a library used to create a tree-structured object graph from a parse tree (main motivation is that this parse tree comes from command line arguments/config file).
+``inits`` is a library used to create ("init") a tree-structured object graph from a parse tree. The main motivation is that this parse tree comes from command line arguments/config file.
 
-The project was born as a need to automatically setup inputs/command line arguments for ``blang``, but can also be useful on its own. 
+The project was born as a need to automatically setup inputs/command line arguments for ``blang``, but ``inits`` also be useful on its own. 
 
-It is also related to dependency injection frameworks such as Guice, but is geared towards a different use case, namely complex/hierarchical command line arguments/config files.
+``inits`` can be viewed as a dependency injection framework tailored to complex and hierarchical command line arguments/config files. Hence, ``inits`` provides more facilities to the objects being initialized than most command line parsing frameworks (features such as typed globals, access to non-erased generic type information, coherent qualified names for instantiated objects, support for interfaces, etc).
 
 
 Installation
@@ -56,9 +56,9 @@ Usage
 
 See:
 
-- [Simple example](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/BasicExample.xtend)
-- [Complex types](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/ComplexTypesExample.xtend)
-- [Custom type parsers](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/ComplexTypesExample.xtend)
-- [Global dependency injection](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/GlobalExample.xtend)
-- [Printing usage](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/UsageExample.xtend)
-- [Initialization service for complex use cases](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/InitServiceExample.xtend)
+- [Simple example](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/BasicExample.xtend)
+- [Complex types](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/ComplexTypesExample.xtend)
+- [Custom type parsers](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/ComplexTypesExample.xtend)
+- [Global dependency injection](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/GlobalExample.xtend)
+- [Printing usage](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/UsageExample.xtend)
+- [Initialization service for complex use cases](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/InitServiceExample.xtend)

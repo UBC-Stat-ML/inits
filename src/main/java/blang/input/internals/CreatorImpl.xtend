@@ -23,11 +23,8 @@ import blang.input.Creator
 import blang.input.ParserFromList
 
 package class CreatorImpl implements Creator {
-  
-  val Map<Class<?>, ParserFromList<?>> parsersIndexedByRawTypes = new HashMap
-  val Map<TypeLiteral<?>, ParserFromList<?>> parsersIndexedByTypeLiterals = new HashMap
-  
-  package new() {}
+  val package Map<Class<?>, ParserFromList<?>> parsersIndexedByRawTypes = new HashMap
+  val package Map<Class<?>, Object> globals = new HashMap
   
   override <T> T init(Class<T> type, Arguments args) {
     return init(TypeLiteral.get(type), args) as T
@@ -69,13 +66,8 @@ package class CreatorImpl implements Creator {
     if (currentType.rawType.isEnum()) {
       return new EnumSchema(currentType.rawType)
     }
-    // try to find a simple parser based on full generic info first
-    var ParserFromList<?> parser = parsersIndexedByTypeLiterals.get(currentType)
-    if (parser !== null) {
-      return new ParserSchema(parser)
-    }
-    // try then based on type erased
-    parser = parsersIndexedByRawTypes.get(currentType.rawType)
+    // try to find a simple parser based on type erased
+    val parser = parsersIndexedByRawTypes.get(currentType.rawType)
     if (parser !== null) {
       return new ParserSchema(parser)
     }
@@ -150,12 +142,13 @@ package class CreatorImpl implements Creator {
     }
   }
   
-  override <T> addParser(Class<T> type, ParserFromList<T> parser) {
+  override <T> void addParser(Class<T> type, ParserFromList<T> parser) {
     parsersIndexedByRawTypes.put(type, parser)
   }
   
-  override <T> addParser(TypeLiteral<T> type, ParserFromList<T> parser) {
-    parsersIndexedByTypeLiterals.put(type, parser)
+  override <T> void addGlobal(Class<T> type, T object) {
+    globals.put(type, object)
   }
   
+  package new() {}
 }

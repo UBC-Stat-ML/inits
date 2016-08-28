@@ -17,6 +17,7 @@ import java.lang.reflect.Constructor
 import blang.input.InputExceptions
 import java.lang.reflect.AnnotatedElement
 import blang.inits.Arg
+import blang.input.GlobalArg
 
 package class InitStaticUtils {
   
@@ -32,7 +33,8 @@ package class InitStaticUtils {
     #[
       Input, 
       ConstructorArg, 
-      Arg
+      Arg, 
+      GlobalArg
     ]
   )
   
@@ -48,6 +50,9 @@ package class InitStaticUtils {
       }
       ConstructorArg : {
         new RecursiveDependency(literal, annotation.value, optionalizeString(annotation.description))
+      }
+      GlobalArg : {
+        new GlobalDependency(literal)
       }
       Input : {
         if (literal.rawType == String) { 

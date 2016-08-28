@@ -23,11 +23,7 @@ interface Creator {
     addParser(type, converted)
   }
   
-  def <T> void addParser(TypeLiteral<T> type, ParserFromList<T> parser) 
-  def <T> void addParser(TypeLiteral<T> type, Parser<T> parser) {
-    val ParserFromList<T> converted = [List<String> input | parser.parse(input.join(" ").trim)] 
-    addParser(type, converted)
-  }
+  def <T> void addGlobal(Class<T> type, T object)
   
   def <T> T init(Class<T> type, Arguments args) {
     return init(TypeLiteral.get(type), args) as T

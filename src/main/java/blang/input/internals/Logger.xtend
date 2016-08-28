@@ -33,6 +33,9 @@ package class Logger {
           if (dep.description.present) 
             dependencyDescriptions.put(argument.QName.child(dep.name), dep.description.get)
         }
+        GlobalDependency : {
+          // do not report globals
+        }
         default : throw new RuntimeException
       }
     }

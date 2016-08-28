@@ -11,7 +11,7 @@ class UsageExample {
   }
   
   def static void main(String [] args) {
-    val Creator c = Creator::conventionalCreator
+    val Creator c = Creators.conventional()
     try { c.init(MyClass, PosixParser.parse()) } catch(Exception e) {}
     // even if above fails, can still print usage info
     println(c.usage)

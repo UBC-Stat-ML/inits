@@ -47,7 +47,7 @@ class ComplexTypesExample {
    * We can now create an instance as follows:
    */
   def static void main(String [] args) {
-    val Creator creator = Creator.conventionalCreator()
+    val Creator creator = Creators.conventional()
     val instance = creator.init(
       MyComplexClass, 
       PosixParser.parse(

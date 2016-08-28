@@ -29,10 +29,6 @@ package class CreatorImpl implements Creator {
   
   var transient Logger logger = null
   
-  override <T> T init(Class<T> type, Arguments args) {
-    return init(TypeLiteral.get(type), args) as T
-  }
-  
   /**
    * @throws InputExceptions.FAILED_INIT if there is some
    * error; use errorReport() and errors() to access them.
@@ -50,18 +46,21 @@ package class CreatorImpl implements Creator {
   }
   
   override String usage() {
+    checkInitialized()
     return logger.usage()
   }
   
   override String errorReport() {
+    checkInitialized()
     return logger.errorReport()
   }
   
   override Iterable<Pair<QualifiedName,InputException>> errors() {
+    checkInitialized()
     return logger.errors
   }
     
-  def Schema findSchema(TypeLiteral<?> currentType) {
+  def private Schema findSchema(TypeLiteral<?> currentType) {
     // enums
     if (currentType.rawType.isEnum()) {
       return new EnumSchema(currentType.rawType)
@@ -183,7 +182,7 @@ package class CreatorImpl implements Creator {
     }
   }
   
-  def void checkNoUnrecognizedArguments(Arguments arguments, List<InitDependency> dependencies) {
+  def private void checkNoUnrecognizedArguments(Arguments arguments, List<InitDependency> dependencies) {
     val Set<String> remainingChildren = new LinkedHashSet(arguments.childrenKeys)
     for (InitDependency dep : dependencies) {
       switch (dep) {
@@ -198,11 +197,29 @@ package class CreatorImpl implements Creator {
   }
   
   override <T> void addParser(Class<T> type, ParserFromList<T> parser) {
+    checkNotInitialized()
     parsersIndexedByRawTypes.put(type, parser)
   }
   
   override <T> void addGlobal(Class<T> type, T object) {
+    checkNotInitialized()
     globals.put(type, object)
+  }
+  
+  def boolean isInitialized() {
+    return logger !== null
+  }
+  
+  def void checkNotInitialized() {
+    if (isInitialized()) {
+      throw new RuntimeException("The method init(..) must be called only after all setup-related functions are called.")
+    }
+  }
+  
+  def void checkInitialized() {
+    if (!isInitialized()) {
+      throw new RuntimeException("The method init(..) must be called before accessing result-related information.")
+    }
   }
   
   package new() {}

@@ -7,7 +7,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import blang.inits.Parser
 
-package class ConventionalParsers {
+package class DefaultParsers {
   
   def static void setup(Creator c) {
     c => [

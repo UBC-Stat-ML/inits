@@ -51,7 +51,7 @@ class InitServiceExample {
   }
   
   def static void main(String [] args) {
-    val Creator c = Creator.conventionalCreator
+    val Creator c = Creators.conventional()
     c.addGlobal(Global, new Global)
     try { c.init(Top, PosixParser.parse()) } catch (Exception e) {}
     println(c.errorReport)

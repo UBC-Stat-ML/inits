@@ -47,7 +47,7 @@ class CustomizationExample {
   }
   
   def static void main(String [] args) {
-    val Creator creator = Creator.conventionalCreator()
+    val Creator creator = Creators.conventional()
     creator.addParser(OutOfControl) [String input | 
       new OutOfControl(input)
     ]

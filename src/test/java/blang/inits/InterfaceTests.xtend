@@ -22,7 +22,7 @@ class InterfaceTests {
     println('''
     ###   «name.methodName»
     ''')
-    creator = Creator.conventionalCreator
+    creator = Creators.conventional()
   }
   
   @After

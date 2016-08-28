@@ -35,7 +35,7 @@ class BasicExample {
    * That's it! We can now create an instance as follows:
    */
   def static void main(String [] args) {
-    val Creator creator = Creator.conventionalCreator()
+    val Creator creator = Creators.conventional()
     val instance = creator.init(
       MyClass, // Note: would be "MyClass.class" in Java
       PosixParser.parse("--anInteger", "123")  // or "PosixParser.parse(args)" to read from the command line

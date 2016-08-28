@@ -9,7 +9,7 @@ import blang.inits.QualifiedName
 import blang.inits.InitService
 import java.lang.reflect.AnnotatedElement
 import blang.inits.Creator
-import blang.inits.ParserFromList
+import org.eclipse.xtend.lib.annotations.Delegate
 
 /**
  * 
@@ -41,16 +41,10 @@ package class InitServiceDependency implements InitDependency {
   
   @Data
   static class CreatorWithPrefix implements Creator {
+    @Delegate
     val Creator delegate
+    
     val QualifiedName prefix
-    
-    override <T> addParser(Class<T> type, ParserFromList<T> parser) {
-      delegate.addParser(type, parser)
-    }
-    
-    override <T> addGlobal(Class<T> type, T object) {
-      delegate.addGlobal(type, object)
-    }
     
     override <T> T init(TypeLiteral<T> type, Arguments args) {
       return delegate.init(type, args.withQName(prefix))
@@ -58,18 +52,6 @@ package class InitServiceDependency implements InitDependency {
     
     override <T> T init(Class<T> type, Arguments args) {
       return delegate.init(type, args.withQName(prefix))
-    }
-    
-    override usage() {
-      return delegate.usage()
-    }
-    
-    override errorReport() {
-      return delegate.errorReport()
-    }
-    
-    override errors() {
-      return delegate.errors()
     }
   }
 }

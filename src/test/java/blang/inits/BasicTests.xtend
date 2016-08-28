@@ -23,8 +23,11 @@ class BasicTests {
   
   @Rule public TestName name = new TestName();
   
+  var Creator c
+  
   @Before
   def void before() {
+    c = Creators.conventional()
     println('''
     ###   «name.methodName»
     ''')
@@ -38,7 +41,6 @@ class BasicTests {
   
   @Test
   def void testBasicParser() {
-    val Creator c = Creator.conventionalCreator
     val List<Object> objects = #["some string", 17, 4.5, true, 23423L]
     for (Object o : objects) {
       println("Testing simple parser for type " + o.class)
@@ -58,7 +60,6 @@ class BasicTests {
   
   @Test 
   def void testSimpleDeps() {
-    val Creator c = Creator.conventionalCreator
     Assert.assertEquals(
       c.init(Simple, PosixParser.parse(
         "--a", "1",
@@ -105,7 +106,6 @@ class BasicTests {
   
   @Test
   def void testDeeperDeps() {
-    val Creator c = Creator.conventionalCreator
     Assert.assertEquals(c.init(Level1, PosixParser.parse("--aLevel2.anInt", "123")).aLevel2.anInt, 123)
     println(c.usage())
   }
@@ -133,7 +133,6 @@ class BasicTests {
   
   @Test
   def void testExceptions() {
-    val Creator c = Creator.conventionalCreator
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadConstructor, PosixParser.parse())
     ]
@@ -149,7 +148,6 @@ class BasicTests {
   
   @Test
   def void testBadInput() {
-    val Creator c = Creator.conventionalCreator
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadInput, PosixParser.parse("--arg", "abc"))
     ]
@@ -159,7 +157,6 @@ class BasicTests {
   
   @Test
   def void missingInput() {
-    val Creator c = Creator.conventionalCreator
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadInput, PosixParser.parse())
     ]
@@ -169,7 +166,6 @@ class BasicTests {
   
   @Test
   def void missingInput2() {
-    val Creator c = Creator.conventionalCreator
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadInput, PosixParser.parse("--arg"))
     ]
@@ -179,7 +175,6 @@ class BasicTests {
   
   @Test
   def void extraInput() {
-    val Creator c = Creator.conventionalCreator
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadInput, PosixParser.parse("--bad"))
     ]
@@ -195,7 +190,6 @@ class BasicTests {
   
   @Test
   def void badAnn() {
-    val Creator c = Creator.conventionalCreator
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadAnnotations, PosixParser.parse())
     ]
@@ -212,7 +206,6 @@ class BasicTests {
   
   @Test
   def void badOpt() {
-    val Creator c = Creator.conventionalCreator
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(WithBadOptionals, PosixParser.parse())
     ]
@@ -229,7 +222,6 @@ class BasicTests {
   
   @Test
   def void badOpt2() {
-    val Creator c = Creator.conventionalCreator
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(WithBadOptionals2, PosixParser.parse())
     ]
@@ -248,13 +240,11 @@ class BasicTests {
   
   @Test
   def void goodOpt() {
-    val Creator c = Creator.conventionalCreator
     Assert.assertTrue(c.init(GoodOptionals, PosixParser.parse()) !== null)
   }
   
   @Test
   def void goodOpt2() {
-    val Creator c = Creator.conventionalCreator
     Assert.assertTrue(c.init(GoodOptionals, PosixParser.parse("--first", "234")) !== null)
   }
   
@@ -269,7 +259,6 @@ class BasicTests {
   
   @Test
   def void mixedOptional() {
-    val Creator c = Creator.conventionalCreator
     val TypeLiteral<Optional<MixedOptionals>> lit = new TypeLiteral<Optional<MixedOptionals>>() {}
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(lit, PosixParser.parse("--first", "123"))
@@ -279,7 +268,6 @@ class BasicTests {
   
   @Test
   def void testMultipleErrors() {
-    val Creator c = Creator.conventionalCreator
     val TypeLiteral<Optional<MixedOptionals>> lit = new TypeLiteral<Optional<MixedOptionals>>() {}
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(lit, PosixParser.parse(

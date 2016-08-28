@@ -25,7 +25,7 @@ class GlobalExample {
   }
   
   def static void main(String [] args) {
-    val Creator c = Creator.conventionalCreator()
+    val Creator c = Creators.conventional()
     c.addGlobal(GlobalType, new GlobalType("I am global"))
     val result = c.init(TopLevel, PosixParser.parse())
     println(result.under.global)

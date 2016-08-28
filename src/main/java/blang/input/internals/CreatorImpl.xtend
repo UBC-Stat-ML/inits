@@ -66,6 +66,10 @@ package class CreatorImpl implements Creator {
   var Logger logger = null
   
   def Schema findSchema(TypeLiteral<?> currentType) {
+    // enums
+    if (currentType.rawType.isEnum()) {
+      return new EnumSchema(currentType.rawType)
+    }
     // try to find a simple parser
     val Parser parser = parsers.get(currentType.rawType)
     if (parser !== null) {

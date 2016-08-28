@@ -28,6 +28,14 @@ package class InitStaticUtils {
     }
   }
   
+  val public static Set<Class<? extends Annotation>> possibleAnnotations = new LinkedHashSet(
+    #[
+      Input, 
+      ConstructorArg, 
+      Arg
+    ]
+  )
+  
   def static InitDependency findDependency(TypeLiteral<?> literal, AnnotatedElement element, Optional<String> name) {
     val Annotation annotation = try {
       findAnnotation(element) 
@@ -110,8 +118,7 @@ package class InitStaticUtils {
     }
   }
     
-  val public static Set<Class<? extends Annotation>> possibleAnnotations = new LinkedHashSet(#[Input, ConstructorArg, Arg])
-  
+
 //  static private class GlobalDependency implements InitDependency {
 //    
 //    override Object resolve(Creator creator, Arguments currentArguments) {

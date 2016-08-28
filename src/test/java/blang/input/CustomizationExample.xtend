@@ -11,7 +11,13 @@ class CustomizationExample {
   static class MyWeirdTypes {
     
     @Arg Temperature temperature
+    
+    @Arg MyEnum myEnum
      
+  }
+  
+  static enum MyEnum {
+    TARS, CASE
   }
   
   @Data
@@ -30,8 +36,14 @@ class CustomizationExample {
   
   def static void main(String [] args) {
     val Creator creator = Creator.conventionalCreator()
-    val MyWeirdTypes object = creator.init(MyWeirdTypes, PosixParser.parse("--temperature", "25K"))
+    val MyWeirdTypes object = creator.init(
+      MyWeirdTypes, 
+      PosixParser.parse(
+        "--temperature", "25K",
+        "--myEnum", "CASE")
+    )
     println(object.temperature)
+    println(object.myEnum)
   }
   
 }

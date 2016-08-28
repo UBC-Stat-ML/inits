@@ -11,7 +11,7 @@ import java.util.List
 import org.eclipse.xtend.lib.annotations.Data
 
 @Data
-class IntrospectionSchema implements Schema {
+package class IntrospectionSchema implements Schema {
   val TypeLiteral<?> type
   val Executable builder
   

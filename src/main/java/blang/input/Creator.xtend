@@ -2,12 +2,20 @@ package blang.input
 
 import blang.inits.Arguments
 import blang.inits.QualifiedName
-import blang.input.internals.InputExceptions.InputException
-import blang.input.internals.Parser
 import com.google.inject.TypeLiteral
 import java.util.Map
+import blang.input.internals.ExposedInternals
+import blang.input.InputExceptions.InputException
 
 interface Creator {
+  
+  def static conventionalCreator() {
+    return ExposedInternals::conventionalCreator()
+  }
+  
+  def static bareBoneCreator() { 
+    return ExposedInternals::bareBoneCreator()
+  }
   
   def Map<Class<?>, Parser> getParsers()
   

@@ -1,31 +1,17 @@
 package blang.input.internals
 
 import blang.inits.Arguments
-import blang.inits.ConstructorArg
-import blang.inits.DesignatedConstructor
-import blang.inits.Input
 import com.google.inject.TypeLiteral
-import java.lang.annotation.Annotation
-import java.lang.reflect.Constructor
-import java.lang.reflect.Executable
-import java.lang.reflect.Method
-import java.lang.reflect.Parameter
-import java.lang.reflect.ParameterizedType
-import java.util.ArrayList
-import java.util.LinkedHashSet
-import java.util.List
 import java.util.Optional
-import java.util.Set
 import org.eclipse.xtend.lib.annotations.Data
-import java.util.Map
-import java.util.HashMap
-import org.eclipse.xtend.lib.annotations.Accessors
-import blang.inits.QualifiedName
-import org.apache.commons.lang3.StringUtils
-import blang.input.internals.InputExceptions
-import blang.input.internals.InputExceptions.InputException
-import blang.input.internals.Logger
-import blang.input.internals.Schema
-import blang.input.internals.ParserSchema
-import blang.input.Creator
 
+@Data
+package class RecursiveDependency implements InitDependency {
+  val TypeLiteral<?> type
+  val String name
+  val Optional<String> description
+  
+  override Object resolve(CreatorImpl creator, Arguments currentArguments) {
+    return creator._init(type, currentArguments.child(name))
+  }
+}

@@ -1,9 +1,10 @@
-package blang.input
+package blang.input.internals
 
 import java.util.List
-import blang.input.internals.Parser
+import blang.input.Creator
+import blang.input.Parser
 
-class ConventionalParsers {
+package class ConventionalParsers {
   
   def static void setup(Creator c) {
     c.parsers => [

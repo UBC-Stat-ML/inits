@@ -2,17 +2,16 @@ package blang.input.internals
 
 import blang.inits.Arguments
 import blang.inits.QualifiedName
-import blang.input.internals.InputExceptions.InputException
 import com.google.inject.TypeLiteral
 import java.util.ArrayList
 import java.util.LinkedHashMap
 import java.util.List
 import java.util.Map
 import java.util.Set
-import blang.input.internals.CreatorImpl.RecursiveDependency
 import org.eclipse.xtend.lib.annotations.Accessors
+import blang.input.InputExceptions.InputException
 
-class Logger {
+package class Logger {
     
   val private Map<QualifiedName, TypeLiteral<?>> inputsTypeUsage = new LinkedHashMap
   val private Map<QualifiedName, String> dependencyDescriptions = new LinkedHashMap

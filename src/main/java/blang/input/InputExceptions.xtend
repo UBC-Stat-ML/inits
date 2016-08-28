@@ -1,4 +1,4 @@
-package blang.input.internals
+package blang.input
 
 import org.eclipse.xtend.lib.annotations.Data
 import com.google.inject.TypeLiteral
@@ -9,7 +9,6 @@ import java.util.List
 import java.lang.reflect.Parameter
 
 class InputExceptions {
-  
   
   val public static final RuntimeException FAILED_INIT = new RuntimeException("Failed to init object")
   
@@ -62,5 +61,7 @@ class InputExceptions {
     UNKNOWN_INPUT,
     MALFORMED_ANNOTATION
   }
+  
+  private new() {}
   
 }

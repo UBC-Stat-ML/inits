@@ -3,7 +3,7 @@ package blang.input.internals
 import blang.inits.Arguments
 import blang.input.internals.CreatorImpl
 
-class InputDependency implements InitDependency {
+package class InputDependency implements InitDependency {
   // val boolean optional
   // TODO: later, optional input so that we can have Optional<List<String>>
   // TODO: later, allow also String, Optional<String>

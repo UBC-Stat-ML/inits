@@ -9,13 +9,12 @@ import org.eclipse.xtend.lib.annotations.Data
 import blang.inits.ConstructorArg
 import java.util.ArrayList
 import blang.inits.DesignatedConstructor
-import blang.input.internals.InputExceptions
-import blang.input.internals.InputExceptions.InputExceptionCategory
+import blang.input.InputExceptions
+import blang.input.InputExceptions.InputExceptionCategory
 import org.junit.Rule
 import org.junit.rules.TestName
 import org.junit.Before
 import org.junit.After
-import java.util.Optional
 
 class BasicTests {
   
@@ -52,7 +51,7 @@ class BasicTests {
       c.init(Boolean, PosixParser.parse("bad"))
     ]
     
-    val Arguments maxArg = PosixParser.parse(ConventionalParsers.INF_STR) 
+    val Arguments maxArg = PosixParser.parse("INF") 
     Assert.assertEquals(c.init(Long, maxArg), Long.MAX_VALUE)
     Assert.assertEquals(c.<Double>init(Double, maxArg), Double.POSITIVE_INFINITY, 0.0)
     Assert.assertEquals(c.<Integer>init(Integer, maxArg), Integer.MAX_VALUE)   
@@ -78,8 +77,6 @@ class BasicTests {
       
     println(c.usage)
   }
-  
-
   
   @Data
   static class Simple {

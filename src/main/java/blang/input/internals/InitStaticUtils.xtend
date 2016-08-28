@@ -14,9 +14,9 @@ import org.apache.commons.lang3.StringUtils
 import java.lang.reflect.Executable
 import blang.inits.DesignatedConstructor
 import java.lang.reflect.Constructor
-import blang.input.internals.CreatorImpl.RecursiveDependency
+import blang.input.InputExceptions
 
-class InitStaticUtils {
+package class InitStaticUtils {
   
   def static Optional<String> optonalizeString(String str) {
     if (StringUtils.isEmpty(str)) {

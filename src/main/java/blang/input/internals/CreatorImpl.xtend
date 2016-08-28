@@ -5,8 +5,8 @@ import blang.inits.QualifiedName
 import blang.input.internals.InitDependency
 import blang.input.internals.InitStaticUtils
 import blang.input.internals.InputDependency
-import blang.input.internals.InputExceptions
-import blang.input.internals.InputExceptions.InputException
+import blang.input.InputExceptions
+import blang.input.InputExceptions.InputException
 import blang.input.internals.IntrospectionSchema
 import blang.input.internals.Logger
 import blang.input.internals.ParserSchema
@@ -20,24 +20,15 @@ import java.util.Map
 import java.util.Optional
 import java.util.Set
 import org.eclipse.xtend.lib.annotations.Accessors
-import org.eclipse.xtend.lib.annotations.Data
-import blang.input.internals.Parser
+import blang.input.Parser
 import blang.input.Creator
-import blang.input.ConventionalParsers
 
-class CreatorImpl implements Creator {
+package class CreatorImpl implements Creator {
   
   @Accessors(PUBLIC_GETTER)
   val Map<Class<?>, Parser> parsers = new HashMap
   
-  private new() {}
-  
-  def static conventionalCreator() {
-    val Creator result = new CreatorImpl()
-    ConventionalParsers::setup(result)
-    return result
-  }
-  def static bareBoneCreator() { return new CreatorImpl() }
+  package new() {}
   
   override <T> T init(Class<T> type, Arguments args) {
     return init(TypeLiteral.get(type), args) as T
@@ -87,7 +78,7 @@ class CreatorImpl implements Creator {
   /**
    * null if failed
    */
-  def private <T> T _init(
+  def package <T> T _init(
     TypeLiteral<T> typeOrOptional, 
     Arguments currentArguments) 
   {
@@ -148,17 +139,6 @@ class CreatorImpl implements Creator {
     }
     for (String remainingChild : remainingChildren) {
       logger.addError(arguments.QName.child(remainingChild), InputExceptions.UNKNOWN_INPUT)
-    }
-  }
-  
-  @Data
-  static class RecursiveDependency implements InitDependency {
-    val TypeLiteral<?> type
-    val String name
-    val Optional<String> description
-    
-    override Object resolve(CreatorImpl creator, Arguments currentArguments) {
-      return creator._init(type, currentArguments.child(name))
     }
   }
 }

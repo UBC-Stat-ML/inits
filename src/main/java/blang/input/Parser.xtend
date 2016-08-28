@@ -1,4 +1,4 @@
-package blang.input.internals
+package blang.input
 
 import java.util.List
 

@@ -3,6 +3,10 @@ package blang.input.internals
 import java.util.List
 import blang.input.Creator
 import blang.input.Parser
+import java.util.Random
+import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
 
 package class ConventionalParsers {
   
@@ -21,6 +25,10 @@ package class ConventionalParsers {
       
       put(Long,    convert(longParser))
       put(long,    convert(longParser)) 
+      
+      put(Random,  convert[new Random(Long.parseLong(it))])
+      put(File,    convert[new File(it)])
+      put(Path,    convert[Paths.get(it)])
     ]
   }
   

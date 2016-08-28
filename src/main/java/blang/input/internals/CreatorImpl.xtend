@@ -107,7 +107,7 @@ package class CreatorImpl implements Creator {
             if (optional) Optional.of(instance) else instance
           ) as T
         } catch (Exception e) {
-          logger.addError(currentArguments.QName, InputExceptions.failedInstantiation(currentType, currentArguments.argumentValue))
+          logger.addError(currentArguments.QName, InputExceptions.failedInstantiation(currentType, currentArguments.argumentValue, e))
           return null
         }
       } else {

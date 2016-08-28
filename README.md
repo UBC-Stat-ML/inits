@@ -58,3 +58,4 @@ See:
 
 - [Simple example](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/BasicExample.xtend)
 - [Complex types](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/ComplexTypesExample.xtend)
+- [CustomizationExample](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/ComplexTypesExample.xtend)

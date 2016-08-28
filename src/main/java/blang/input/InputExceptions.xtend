@@ -6,12 +6,12 @@ import blang.inits.DesignatedConstructor
 import org.eclipse.xtend.lib.annotations.Accessors
 import java.util.Optional
 import java.util.List
-import java.lang.reflect.Parameter
 import java.lang.reflect.AnnotatedElement
+import org.apache.commons.lang3.exception.ExceptionUtils
 
 class InputExceptions {
   
-  val public static final RuntimeException FAILED_INIT = new RuntimeException("Failed to init object")
+  val public static final RuntimeException FAILED_INIT = new RuntimeException("Failed to init object. Use creator.errorReport and creator.errors for detail.")
   
   def public static InputException missingBuilder(TypeLiteral<?> type) {
     return new InputException(
@@ -20,10 +20,19 @@ class InputExceptions {
     )
   }
   
-  def public static InputException failedInstantiation(TypeLiteral<?> type, Optional<List<String>> input) {
+  def public static InputException nonStaticBuilder(TypeLiteral<?> type) {
+    return new InputException(
+      InputExceptionCategory.MISSING_BUILDER, 
+      "The builder in " + type.rawType + " should be static"
+    )
+  }
+  
+  def public static InputException failedInstantiation(TypeLiteral<?> type, Optional<List<String>> input, Exception e) {
     return new InputException(
       InputExceptionCategory.FAILED_INSTANTIATION,
-      "Failed to build type <" + type.rawType + ">, possibly a parsing error (input: " + input.orElse(#[]).join(" ") + ")"
+      "Failed to build type <" + type.rawType + ">, possibly a parsing error\n" + 
+      "  input: " + input.orElse(#[]).join(" ") + "\n" +
+      "  cause: " + ExceptionUtils.getMessage(e)
     )
   }
   

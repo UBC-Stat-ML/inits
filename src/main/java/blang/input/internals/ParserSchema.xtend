@@ -13,7 +13,7 @@ import blang.input.Parser
 package class ParserSchema implements Schema {
   val Parser parser
   override List<InitDependency> dependencies() {
-    return Collections.singletonList(new InputDependency())
+    return Collections.singletonList(new InputDependency(true))
   }
   
   override Object build(List<Object> arguments) {

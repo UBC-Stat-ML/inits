@@ -13,6 +13,8 @@ import java.lang.reflect.Field
 import java.util.Optional
 import java.lang.annotation.Annotation
 import ca.ubc.stat.blang.StaticUtils
+import java.lang.reflect.Modifier
+import blang.input.InputExceptions
 
 @Data
 package class IntrospectionSchema implements Schema {
@@ -53,6 +55,9 @@ package class IntrospectionSchema implements Schema {
         builder.newInstance(argArray)
       }
       Method : {
+        if (!Modifier.isStatic(builder.modifiers)) {
+          throw InputExceptions::nonStaticBuilder(type)
+        }
         builder.invoke(null, argArray)
       }
       default : throw new RuntimeException

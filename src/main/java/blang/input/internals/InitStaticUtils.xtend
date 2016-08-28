@@ -42,7 +42,13 @@ package class InitStaticUtils {
         new RecursiveDependency(literal, annotation.value, optionalizeString(annotation.description))
       }
       Input : {
-        new InputDependency()
+        if (literal.rawType == String) { 
+          new InputDependency(false) 
+        } else if (literal.rawType == List) {
+          new InputDependency(true)
+        } else {
+          throw InputExceptions.malformedAnnotation("@" + Input.simpleName + " only applies to String or List<String> ", literal, element)
+        }
       }
       default : throw new RuntimeException
     }

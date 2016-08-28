@@ -6,6 +6,7 @@ import blang.inits.DesignatedConstructor
 import org.eclipse.xtend.lib.annotations.Accessors
 import java.util.Optional
 import java.util.List
+import java.lang.reflect.Parameter
 
 class InputExceptions {
   
@@ -33,6 +34,13 @@ class InputExceptions {
     )
   }
   
+  def public static InputException malformedAnnotation(String message, TypeLiteral<?> type, Parameter p) {
+    return new InputException(
+      InputExceptionCategory.MALFORMED_ANNOTATION,
+      message + " in type <" + type.rawType + ">, parameter <" + p + "> of the builder"
+    )
+  }
+  
   val public static InputException UNKNOWN_INPUT = 
     new InputException(InputExceptionCategory.UNKNOWN_INPUT, "Unknown input")
   
@@ -51,7 +59,8 @@ class InputExceptions {
     MISSING_BUILDER, 
     FAILED_INSTANTIATION,
     MISSING_INPUT,
-    UNKNOWN_INPUT
+    UNKNOWN_INPUT,
+    MALFORMED_ANNOTATION
   }
   
 }

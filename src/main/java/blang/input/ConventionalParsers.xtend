@@ -1,7 +1,7 @@
 package blang.input
 
-import blang.input.Creator.Parser
 import java.util.List
+import blang.input.internals.Parser
 
 class ConventionalParsers {
   

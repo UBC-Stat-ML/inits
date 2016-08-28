@@ -15,6 +15,7 @@ import org.junit.Rule
 import org.junit.rules.TestName
 import org.junit.Before
 import org.junit.After
+import java.util.Optional
 
 class BasicTests {
   
@@ -188,6 +189,18 @@ class BasicTests {
   }
   
   @Test
+  def void missingInput2() {
+    val Creator c = Creator.conventionalCreator
+    TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
+      c.init(BadInput, PosixParser.parse("--arg"))
+    ]
+    
+    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.FAILED_INSTANTIATION].size)
+    
+    println(c.errorReport)
+  }
+  
+  @Test
   def void extraInput() {
     val Creator c = Creator.conventionalCreator
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
@@ -197,6 +210,33 @@ class BasicTests {
     Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.UNKNOWN_INPUT].size)
     
     println(c.errorReport)
+  }
+  
+  static class BadAnnotations {
+    @DesignatedConstructor
+    new(int test) {
+      
+    }
+  }
+  
+  @Test
+  def void badAnn() {
+    val Creator c = Creator.conventionalCreator
+    TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
+      c.init(BadAnnotations, PosixParser.parse())
+    ]
+    
+//    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.UNKNOWN_INPUT].size)
+    
+    println(c.errorReport)
+  }
+  
+  static class WithOptionals {
+    @DesignatedConstructor
+    def static WithOptionals build(
+      @ConstructorArg("first") com.google.common.base.Optional<Integer> badOpt    ) {
+      
+    }
   }
   
 }

@@ -137,7 +137,7 @@ class BasicTests {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadConstructor, PosixParser.parse())
     ]
-    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MISSING_BUILDER].size)
+    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MALFORMED_BUILDER].size)
     println(c.errorReport)
   }
   
@@ -276,5 +276,16 @@ class BasicTests {
     ]
     println(c.errorReport)
   } 
+  
+  @Test
+  def void testMultipleErrors() {
+    val Creator c = Creator.conventionalCreator
+    val TypeLiteral<Optional<MixedOptionals>> lit = new TypeLiteral<Optional<MixedOptionals>>() {}
+    TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
+      c.init(lit, PosixParser.parse(
+        "--first", "abc"))
+    ]
+    println(c.errorReport)
+  }
   
 }

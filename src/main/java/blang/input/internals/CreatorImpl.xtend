@@ -21,10 +21,13 @@ import java.util.Optional
 import java.util.Set
 import blang.input.Creator
 import blang.input.ParserFromList
+import java.lang.reflect.Executable
 
 package class CreatorImpl implements Creator {
   val package Map<Class<?>, ParserFromList<?>> parsersIndexedByRawTypes = new HashMap
   val package Map<Class<?>, Object> globals = new HashMap
+  
+  var transient Logger logger = null
   
   override <T> T init(Class<T> type, Arguments args) {
     return init(TypeLiteral.get(type), args) as T
@@ -38,7 +41,6 @@ package class CreatorImpl implements Creator {
     TypeLiteral<T> type,  
     Arguments args) {
     // empty logs
-    // call _init  
     logger = new Logger
     val T result = _init(type, args)  
     if (result === null) {
@@ -52,15 +54,13 @@ package class CreatorImpl implements Creator {
   }
   
   override String errorReport() {
-    return logger.errors.map[logger.formatArgName(it.key) + ": " + it.value.message].join("\n")
+    return logger.errorReport()
   }
   
   override Iterable<Pair<QualifiedName,InputException>> errors() {
     return logger.errors
   }
     
-  var Logger logger = null
-  
   def Schema findSchema(TypeLiteral<?> currentType) {
     // enums
     if (currentType.rawType.isEnum()) {
@@ -72,7 +72,11 @@ package class CreatorImpl implements Creator {
       return new ParserSchema(parser)
     }
     // else, introspection based scheme
-    return new IntrospectionSchema(currentType, InitStaticUtils::findBuilder(currentType))
+    val Optional<Executable> builder = InitStaticUtils::findBuilder(currentType)
+    if (!builder.isPresent) {
+      throw InputExceptions.malformedBuilder(currentType)
+    }
+    return new IntrospectionSchema(currentType, builder.get)
   }
   
   /**
@@ -82,7 +86,7 @@ package class CreatorImpl implements Creator {
    * - we are covered in a try - catch bloc
    * 
    */                            // examples of arguments:
-  def package <T> T _initActualType( //  for optionals        for interfaces
+  def private <T> T _initActualType( //  for optionals        for interfaces
     TypeLiteral<?> actualType,   // e.g. Integer              ArrayList<String>
     TypeLiteral<T> declaredType, // e.g. Optional<Integer>    List<String>
     Arguments currentArguments
@@ -104,16 +108,16 @@ package class CreatorImpl implements Creator {
           if (optional) Optional.of(instance) else instance
         ) as T
       } catch (Exception e) {
-        logger.addError(currentArguments.QName, InputExceptions.failedInstantiation(actualType, currentArguments.argumentValue, e))
+        logger.addError(currentArguments.QName, InputExceptions::failedInstantiation(actualType, currentArguments.argumentValue, e))
         return null
       }
     } else {
       return (
-        if (optional && currentArguments.isNull()) {// only allow empty if no child argument were provided
+        if (optional && currentArguments.isNull()) { // only allow empty if no child argument were provided
           (Optional.empty as Object)
         } else {
           if (!deps.filter(InputDependency).empty && !currentArguments.argumentValue.present) {
-            logger.addError(currentArguments.QName, InputExceptions.missingInput(actualType))     
+            logger.addError(currentArguments.QName, InputExceptions::missingInput(actualType))     
           }
           null
         }
@@ -121,23 +125,58 @@ package class CreatorImpl implements Creator {
     }
   }
   
+  def private <T> T _initInterface( 
+    TypeLiteral<?> deOptionizedType,   
+    TypeLiteral<T> declaredType, 
+    Arguments currentArguments
+  ) {
+    val Pair<Arguments, Optional<String>> pair = currentArguments.pop
+    if (!pair.value.isPresent) { // either the --key does not occur or has no input attached to it
+      logger.addError(currentArguments.QName, InputExceptions::missingInput(deOptionizedType))
+      return null
+    }
+    // try to load the implementation
+    val Class<?> rawType = try {
+      Class.forName(pair.value.get)
+    } catch (Exception e) {
+      logger.addError(currentArguments.QName, InputExceptions::malformedImplementation(deOptionizedType))
+      return null
+    }
+    
+    // current limitation: still losing generic type information
+    // in some cases here
+    // general case not trivial, e.g. given:
+    // - MyClass<T> implements MyInterface<Collection<T>>, 
+    // - MyInterface<List<Integer>>
+    // need to reverse engineer T = Integer
+    // might be possible using guava's TypeToken instead of 
+    // guice's TypeLiteral, but leave for later
+    val TypeLiteral<?> actualType = TypeLiteral.get(rawType)
+    
+    // TODO: check it conforms to the interface
+    if (!declaredType.rawType.isAssignableFrom(actualType.rawType)) {
+      logger.addError(currentArguments.QName, InputExceptions::malformedImplementation(deOptionizedType))
+      return null
+    }
+    
+    return _initActualType(actualType, declaredType, pair.key) as T 
+  }
+ 
   /**
-   * null if failed
+   * null if failed (NOT optional, since the user will ask to instantiate optionals
+   * something to mark optional command line arguments)
    */
   def package <T> T _init(
     TypeLiteral<T> declaredType, 
     Arguments currentArguments) 
   {
     try {
-      var TypeLiteral<?> currentType = InitStaticUtils::targetType(declaredType)
-      
-//      if (currentType.rawType.isInterface()) {
-//        // TODO: cleaner with recursion, but need some care with the optionals
-//        //       but good opportunity to shrink this method by a bit
-//      }
-      
-      return _initActualType(currentType, declaredType, currentArguments)
-
+      var TypeLiteral<?> deOptionized = InitStaticUtils::deOptionize(declaredType)
+      if (InitStaticUtils::needToLoadImplementation(deOptionized)) { 
+        return _initInterface(deOptionized, declaredType, currentArguments)
+      } else {
+        return _initActualType(deOptionized, declaredType, currentArguments)
+      }
     } catch (InputException e) {
       logger.addError(currentArguments.QName, e)
       return null

@@ -46,7 +46,7 @@ package class Logger {
   }
   
   def String usage(QualifiedName qName) {
-    var String result = '''«formatArgName(qName)» <«inputsTypeUsage.get(qName).rawType.simpleName»>'''
+    var String result = '''«formatArgName(qName, "--")» <«inputsTypeUsage.get(qName).rawType.simpleName»>'''
     if (dependencyDescriptions.containsKey(qName)) 
       result += '\n' + '''  description: «dependencyDescriptions.get(qName)»'''
     return result
@@ -56,10 +56,15 @@ package class Logger {
     keysOfPossibleInputs.map[usage(it)].join("\n")
   }
   
-  def String formatArgName(QualifiedName qName) {
+  def String formatArgName(QualifiedName qName, String prefix) {
     if (qName.root)
       return "<root>"
     else
-      return "--" + qName
+      return prefix + qName
   }
+  
+  def String errorReport() {
+    return errors.map[formatArgName(it.key, "@ ") + ": " + it.value.message].join("\n")
+  }
+  
 }

@@ -4,7 +4,6 @@ import blang.inits.ConstructorArg
 import blang.inits.Input
 import com.google.inject.TypeLiteral
 import java.lang.annotation.Annotation
-import java.lang.reflect.Parameter
 import java.lang.reflect.ParameterizedType
 import java.util.LinkedHashSet
 import java.util.List
@@ -18,6 +17,7 @@ import blang.input.InputExceptions
 import java.lang.reflect.AnnotatedElement
 import blang.inits.Arg
 import blang.input.GlobalArg
+import java.lang.reflect.Modifier
 
 package class InitStaticUtils {
   
@@ -83,6 +83,25 @@ package class InitStaticUtils {
     return result.get
   }
   
+  def static boolean needToLoadImplementation(TypeLiteral<?> deOptionized) {
+    // if it has a builder which is static, certainly no need to resolve interface
+    if (InitStaticUtils::hasBuilder(deOptionized) &&
+        Modifier.isStatic(InitStaticUtils::findBuilder(deOptionized).get.modifiers)
+    ) {
+      return false
+    }
+    if (deOptionized.rawType.isPrimitive) {
+      return false // to get around annoying bug in Java SDK: primitive types t => Modifier.isAbstract(t) = true
+    }
+    // otherwise, abstract classes and interface need to be resolved
+    return deOptionized.rawType.isInterface() ||        
+           Modifier.isAbstract(deOptionized.rawType.modifiers)
+  }
+  
+  def static boolean hasBuilder(TypeLiteral<?> type) {
+    return findBuilder(type).isPresent
+  }
+  
   /**
    * Find the static method or constructor marked with "@DesignatedConstructor"
    * Default to zero arg constructor.
@@ -91,14 +110,14 @@ package class InitStaticUtils {
    * 
    * throws exceptions if not found (optional not enough since need to log)
    */
-  def static Executable findBuilder(TypeLiteral<?> type) {
+  def static Optional<Executable> findBuilder(TypeLiteral<?> type) {
     var Optional<Executable> found = Optional.empty
     val execCollections = #[type.rawType.constructors, type.rawType.methods]
     for (execCollection : execCollections) {
       for (Executable exec : execCollection) {
         if (!exec.getAnnotationsByType(DesignatedConstructor).empty) {
           if (found.present) {
-            throw new RuntimeException("Not more than one constructor/static factory should be marked with @" + DesignatedConstructor.simpleName)
+            throw InputExceptions.malformedBuilder(type)
           }
           found = Optional.of(exec)
         }
@@ -116,27 +135,14 @@ package class InitStaticUtils {
         found = Optional.of(zeroArg)
       }
     }
-    if (found.present) {
-      return found.get
-    } else {
-      throw InputExceptions.missingBuilder(type)
-    }
+    return found
   }
-    
-
-//  static private class GlobalDependency implements InitDependency {
-//    
-//    override Object resolve(Creator creator, Arguments currentArguments) {
-//      
-//    }
-//    
-//  }
  
   def static boolean dependenciesOk(List<Object> deps) {
     return !deps.contains(null)
   }
     
-  def static <T> TypeLiteral<?> targetType(TypeLiteral<T> typeOrOptional) {
+  def static <T> TypeLiteral<?> deOptionize(TypeLiteral<T> typeOrOptional) {
     if (InitStaticUtils::isOptional(typeOrOptional)) {
       InitStaticUtils::getOptionalType(typeOrOptional)
     } else {

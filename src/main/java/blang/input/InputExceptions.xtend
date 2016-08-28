@@ -13,17 +13,24 @@ class InputExceptions {
   
   val public static final RuntimeException FAILED_INIT = new RuntimeException("Failed to init object. Use creator.errorReport and creator.errors for detail.")
   
-  def static InputException missingBuilder(TypeLiteral<?> type) {
+  def static InputException malformedBuilder(TypeLiteral<?> type) {
     return new InputException(
-      InputExceptionCategory.MISSING_BUILDER, 
-      "One of the constructors/static builder in " + type.rawType + " should be marked with @" + DesignatedConstructor.simpleName
+      InputExceptionCategory.MALFORMED_BUILDER, 
+      "Exactly one of the constructors/static builder in " + type + " should be marked with @" + DesignatedConstructor.simpleName
     )
   }
   
   def static InputException nonStaticBuilder(TypeLiteral<?> type) {
     return new InputException(
-      InputExceptionCategory.MISSING_BUILDER, 
-      "The builder in " + type.rawType + " should be static"
+      InputExceptionCategory.MALFORMED_BUILDER, 
+      "The builder in " + type + " should be static"
+    )
+  }
+  
+  def static InputException malformedImplementation(TypeLiteral<?> type) {
+    return new InputException(
+      InputExceptionCategory.MALFORMED_INTERFACE_IMPLEMENTATION, 
+      "The input should be a valid, fully qualified string for an implementation of " + type
     )
   }
   
@@ -37,7 +44,7 @@ class InputExceptions {
   def static InputException failedInstantiation(TypeLiteral<?> type, Optional<List<String>> input, Exception e) {
     return new InputException(
       InputExceptionCategory.FAILED_INSTANTIATION,
-      "Failed to build type <" + type.rawType + ">, possibly a parsing error\n" + 
+      "Failed to build type <" + type + ">, possibly a parsing error\n" + 
       "  input: " + input.orElse(#[]).join(" ") + "\n" +
       "  cause: " + ExceptionUtils.getMessage(e)
     )
@@ -46,14 +53,14 @@ class InputExceptions {
   def static InputException missingInput(TypeLiteral<?> type) {
     return new InputException(
       InputExceptionCategory.MISSING_INPUT,
-      "Did not instantiate <" + type.rawType + "> because of missing input"
+      "Did not instantiate <" + type + "> because of missing input"
     )
   }
   
   def static InputException malformedAnnotation(String message, TypeLiteral<?> type, AnnotatedElement p) {
     return new InputException(
       InputExceptionCategory.MALFORMED_ANNOTATION,
-      message + " in type <" + type.rawType + ">, parameter <" + p + "> of the builder"
+      message + " in type <" + type + ">, parameter <" + p + "> of the builder"
     )
   }
   
@@ -80,13 +87,14 @@ class InputExceptions {
   }
   
   static enum InputExceptionCategory {
-    MISSING_BUILDER, 
+    MALFORMED_BUILDER, 
     FAILED_INSTANTIATION,
     MISSING_INPUT,
     UNKNOWN_INPUT,
     MALFORMED_ANNOTATION,
     MALFORMED_OPTIONAL, 
-    MISSING_GLOBAL
+    MISSING_GLOBAL,
+    MALFORMED_INTERFACE_IMPLEMENTATION
   }
   
   private new() {}

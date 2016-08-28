@@ -33,10 +33,30 @@ class Arguments {
     this.qName = qName
   }
   
-  def Arguments consumeValue() {
-    val Arguments result = new Arguments(Optional.empty, qName)
-    result.children.putAll(this.children)
-    return result
+  /**
+   * Pops the first item in the list of strings at that node, 
+   * returns a copy of the structure without that string, taking care 
+   * of empty optionals and list in the obvious way.
+   */
+  def Pair<Arguments,Optional<String>> pop() {
+    var Optional<String> popped
+    var Optional<List<String>> remaining
+    if (argumentValue.isPresent) {
+      val List<String> list = argumentValue.get
+      if (list.isEmpty) {
+        popped = Optional.empty
+        remaining = Optional.of(list)
+      } else {
+        popped = Optional.of(list.get(0))
+        remaining = Optional.of(list.subList(1, list.size))
+      }
+    } else {
+      popped = Optional.empty
+      remaining = Optional.empty
+    }
+    
+    val Arguments result = new Arguments(remaining, qName)
+    return Pair.of(result, popped)
   }
   
   def private Arguments getOrCreateDesc(List<String> path) {

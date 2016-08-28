@@ -58,4 +58,6 @@ See:
 
 - [Simple example](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/BasicExample.xtend)
 - [Complex types](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/ComplexTypesExample.xtend)
-- [CustomizationExample](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/ComplexTypesExample.xtend)
+- [Custom type parsers](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/ComplexTypesExample.xtend)
+- [Global dependency injection](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/GlobalExample.xtend)
+- [Printing usage](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/UsageExample.xtend)

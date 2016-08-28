@@ -18,6 +18,7 @@ import java.lang.reflect.AnnotatedElement
 import blang.inits.Arg
 import blang.input.GlobalArg
 import java.lang.reflect.Modifier
+import blang.input.InitService
 
 package class InitStaticUtils {
   
@@ -34,7 +35,8 @@ package class InitStaticUtils {
       Input, 
       ConstructorArg, 
       Arg, 
-      GlobalArg
+      GlobalArg,
+      InitService
     ]
   )
   
@@ -53,6 +55,9 @@ package class InitStaticUtils {
       }
       GlobalArg : {
         new GlobalDependency(literal)
+      }
+      InitService : {
+        new InitServiceDependency(literal, element)
       }
       Input : {
         if (literal.rawType == String) { 

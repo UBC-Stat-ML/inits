@@ -4,6 +4,11 @@ import org.eclipse.xtend.lib.annotations.Data
 import blang.inits.Arg
 import blang.inits.PosixParser
 
+/**
+ * It is possible to add global objects which are accessible at all 
+ * locations of the hierarchy. This is basically used to combine 
+ * guice-style dependency injection.
+ */
 class GlobalExample {
   
   static class TopLevel {

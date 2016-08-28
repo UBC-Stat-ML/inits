@@ -30,7 +30,8 @@ class InputExceptions {
   def static InputException malformedImplementation(TypeLiteral<?> type) {
     return new InputException(
       InputExceptionCategory.MALFORMED_INTERFACE_IMPLEMENTATION, 
-      "The input should be a valid, fully qualified string for an implementation of " + type
+      "The input should be a valid, fully qualified string for an implementation of " + type + "\n" +
+      "  note: children options can only be reported after this error is fixed"
     )
   }
   

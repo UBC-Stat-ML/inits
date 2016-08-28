@@ -13,21 +13,28 @@ class InputExceptions {
   
   val public static final RuntimeException FAILED_INIT = new RuntimeException("Failed to init object. Use creator.errorReport and creator.errors for detail.")
   
-  def public static InputException missingBuilder(TypeLiteral<?> type) {
+  def static InputException missingBuilder(TypeLiteral<?> type) {
     return new InputException(
       InputExceptionCategory.MISSING_BUILDER, 
       "One of the constructors/static builder in " + type.rawType + " should be marked with @" + DesignatedConstructor.simpleName
     )
   }
   
-  def public static InputException nonStaticBuilder(TypeLiteral<?> type) {
+  def static InputException nonStaticBuilder(TypeLiteral<?> type) {
     return new InputException(
       InputExceptionCategory.MISSING_BUILDER, 
       "The builder in " + type.rawType + " should be static"
     )
   }
   
-  def public static InputException failedInstantiation(TypeLiteral<?> type, Optional<List<String>> input, Exception e) {
+  def static InputException missingGlobal(TypeLiteral<?> type) {
+    return new InputException(
+      InputExceptionCategory.MISSING_GLOBAL,
+      "Missing global of type " + type
+    )
+  }
+  
+  def static InputException failedInstantiation(TypeLiteral<?> type, Optional<List<String>> input, Exception e) {
     return new InputException(
       InputExceptionCategory.FAILED_INSTANTIATION,
       "Failed to build type <" + type.rawType + ">, possibly a parsing error\n" + 
@@ -36,14 +43,14 @@ class InputExceptions {
     )
   }
   
-  def public static InputException missingInput(TypeLiteral<?> type) {
+  def static InputException missingInput(TypeLiteral<?> type) {
     return new InputException(
       InputExceptionCategory.MISSING_INPUT,
       "Did not instantiate <" + type.rawType + "> because of missing input"
     )
   }
   
-  def public static InputException malformedAnnotation(String message, TypeLiteral<?> type, AnnotatedElement p) {
+  def static InputException malformedAnnotation(String message, TypeLiteral<?> type, AnnotatedElement p) {
     return new InputException(
       InputExceptionCategory.MALFORMED_ANNOTATION,
       message + " in type <" + type.rawType + ">, parameter <" + p + "> of the builder"
@@ -78,7 +85,8 @@ class InputExceptions {
     MISSING_INPUT,
     UNKNOWN_INPUT,
     MALFORMED_ANNOTATION,
-    MALFORMED_OPTIONAL
+    MALFORMED_OPTIONAL, 
+    MISSING_GLOBAL
   }
   
   private new() {}

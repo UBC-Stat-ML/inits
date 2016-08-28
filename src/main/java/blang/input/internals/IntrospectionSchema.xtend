@@ -37,7 +37,7 @@ package class IntrospectionSchema implements Schema {
   def private List<Field> fieldsToInstantiate() {
     val List<Field> result = new ArrayList
     for (Class<? extends Annotation> annotationType : InitStaticUtils::possibleAnnotations) {
-      for (Field field : type.rawType.fields.filter[it.getAnnotation(annotationType) !== null]) {
+      for (Field field : type.rawType.declaredFields.filter[it.getAnnotation(annotationType) !== null]) {
         result.add(field)
       }
     }

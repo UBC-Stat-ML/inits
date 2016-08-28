@@ -34,6 +34,18 @@ class Arguments {
   }
   
   /**
+   * Returns a deep copy rooted at the specified qualified name
+   */
+  def Arguments withQName(QualifiedName qName) {
+    val Arguments result = new Arguments(this.argumentValue, qName)
+    for (String name : children.keySet()) {
+      val Arguments child = children.get(name).withQName(qName.child(name))
+      result.children.put(name, child)    
+    }
+    return result
+  }
+  
+  /**
    * Pops the first item in the list of strings at that node, 
    * returns a copy of the structure without that string, taking care 
    * of empty optionals and list in the obvious way.

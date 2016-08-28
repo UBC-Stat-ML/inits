@@ -76,52 +76,68 @@ package class CreatorImpl implements Creator {
   }
   
   /**
+   * Assumes called by _init, so that:
+   * - actualType is not an Optional<T> nor an interface, but rather the actual type
+   *   to instantiate in both case (respectively, T, and the implementing class)
+   * - we are covered in a try - catch bloc
+   * 
+   */                            // examples of arguments:
+  def package <T> T _initActualType( //  for optionals        for interfaces
+    TypeLiteral<?> actualType,   // e.g. Integer              ArrayList<String>
+    TypeLiteral<T> declaredType, // e.g. Optional<Integer>    List<String>
+    Arguments currentArguments
+  ) {
+    val boolean optional = InitStaticUtils::isOptional(declaredType)
+    val Schema schema = findSchema(actualType)
+    val List<InitDependency> deps = schema.dependencies()
+    val List<Object> instantiatedChildren = new ArrayList
+    for (InitDependency initDependency : deps) {
+      instantiatedChildren.add(initDependency.resolve(this, currentArguments))
+    } 
+    checkNoUnrecognizedArguments(currentArguments, deps)
+    logger.reportTypeUsage(declaredType, currentArguments, deps)
+    
+    if (InitStaticUtils::dependenciesOk(instantiatedChildren)) {
+      try {
+        val Object instance = schema.build(instantiatedChildren)
+        return (
+          if (optional) Optional.of(instance) else instance
+        ) as T
+      } catch (Exception e) {
+        logger.addError(currentArguments.QName, InputExceptions.failedInstantiation(actualType, currentArguments.argumentValue, e))
+        return null
+      }
+    } else {
+      return (
+        if (optional && currentArguments.isNull()) {// only allow empty if no child argument were provided
+          (Optional.empty as Object)
+        } else {
+          if (!deps.filter(InputDependency).empty && !currentArguments.argumentValue.present) {
+            logger.addError(currentArguments.QName, InputExceptions.missingInput(actualType))     
+          }
+          null
+        }
+      ) as T
+    }
+  }
+  
+  /**
    * null if failed
    */
   def package <T> T _init(
-    TypeLiteral<T> typeOrOptional, 
+    TypeLiteral<T> declaredType, 
     Arguments currentArguments) 
   {
     try {
-      val boolean optional = InitStaticUtils::isOptional(typeOrOptional)
-      val TypeLiteral<?> currentType = InitStaticUtils::targetType(typeOrOptional)
+      var TypeLiteral<?> currentType = InitStaticUtils::targetType(declaredType)
       
-      // identify the builder method (either a constructor or a static one or from a data base of lambdas)
-      val Schema schema = findSchema(currentType)
-      val List<InitDependency> deps = schema.dependencies()
+//      if (currentType.rawType.isInterface()) {
+//        // TODO: cleaner with recursion, but need some care with the optionals
+//        //       but good opportunity to shrink this method by a bit
+//      }
       
-      // TODO: later, if it's an interface and there is no builder, specialized behavior here
-      // TODO: consume one item in the argument, recurse if class found, else return error
-      
-      val List<Object> instantiatedChildren = new ArrayList
-      for (InitDependency initDependency : deps) {
-        instantiatedChildren.add(initDependency.resolve(this, currentArguments))
-      } 
-      checkNoUnrecognizedArguments(currentArguments, deps)
-      logger.reportTypeUsage(typeOrOptional, currentArguments, deps)
-      
-      if (InitStaticUtils::dependenciesOk(instantiatedChildren)) {
-        try {
-          val Object instance = schema.build(instantiatedChildren)
-          return (
-            if (optional) Optional.of(instance) else instance
-          ) as T
-        } catch (Exception e) {
-          logger.addError(currentArguments.QName, InputExceptions.failedInstantiation(currentType, currentArguments.argumentValue, e))
-          return null
-        }
-      } else {
-        return (
-          if (optional && currentArguments.isNull()) {// only allow empty if no child argument were provided
-            (Optional.empty as Object)
-          } else {
-            if (!deps.filter(InputDependency).empty && !currentArguments.argumentValue.present) {
-              logger.addError(currentArguments.QName, InputExceptions.missingInput(currentType))     
-            }
-            null
-          }
-        ) as T
-      }
+      return _initActualType(currentType, declaredType, currentArguments)
+
     } catch (InputException e) {
       logger.addError(currentArguments.QName, e)
       return null

@@ -3,9 +3,11 @@ Summary
 
 <!-- [![Build Status](https://travis-ci.org/alexandrebouchard/inits.png?branch=master)](https://travis-ci.org/alexandrebouchard/inits) -->
 
-inits is ...
+``inits`` is a library used to create a tree-structured object graph from a parse tree (main motivation is that this parse tree comes from command line arguments/config file).
 
-inits stands for ...
+The project was born as a need to automatically setup inputs/command line arguments for ``blang``, but can also be useful on its own. 
+
+It is also related to dependency injection frameworks such as Guice, but is geared towards a different use case, namely complex/hierarchical command line arguments/config files.
 
 
 Installation
@@ -23,7 +25,7 @@ repositories {
  mavenCentral()
  jcenter()
  maven {
-    url "http://www.stat.ubc.ca/~bouchard/maven/"
+    url "https://ubc-stat-ml.github.io/artifacts/"
   }
 }
 
@@ -52,6 +54,6 @@ dependencies {
 Usage
 -----
 
-### Quick start
+See:
 
-...
+- [Simple example](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/Example.xtend)

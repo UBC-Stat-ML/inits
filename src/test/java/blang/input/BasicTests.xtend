@@ -16,6 +16,8 @@ import org.junit.rules.TestName
 import org.junit.Before
 import org.junit.After
 import java.util.Optional
+import com.google.common.reflect.TypeToken
+import com.google.inject.TypeLiteral
 
 class BasicTests {
   
@@ -235,5 +237,44 @@ class BasicTests {
     println(c.errorReport)
   }
   
+  static class GoodOptionals {
+    @DesignatedConstructor
+    def static GoodOptionals build(
+      @ConstructorArg("first")  Optional<Integer> first,
+      @ConstructorArg("second") Optional<Integer> second) {
+      new GoodOptionals
+    }
+  }
+  
+  @Test
+  def void goodOpt() {
+    val Creator c = Creator.conventionalCreator
+    Assert.assertTrue(c.init(GoodOptionals, PosixParser.parse()) !== null)
+  }
+  
+  @Test
+  def void goodOpt2() {
+    val Creator c = Creator.conventionalCreator
+    Assert.assertTrue(c.init(GoodOptionals, PosixParser.parse("--first", "234")) !== null)
+  }
+  
+  static class MixedOptionals {
+    @DesignatedConstructor
+    def static GoodOptionals build(
+      @ConstructorArg("first")  Optional<Integer> first,
+      @ConstructorArg("second") int second) {
+      new GoodOptionals
+    }
+  }
+  
+  @Test
+  def void mixedOptional() {
+    val Creator c = Creator.conventionalCreator
+    val TypeLiteral<Optional<MixedOptionals>> lit = new TypeLiteral<Optional<MixedOptionals>>() {}
+    TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
+      c.init(lit, PosixParser.parse("--first", "123"))
+    ]
+    println(c.errorReport)
+  } 
   
 }

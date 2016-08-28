@@ -15,10 +15,12 @@ import java.lang.reflect.Executable
 import blang.inits.DesignatedConstructor
 import java.lang.reflect.Constructor
 import blang.input.InputExceptions
+import java.lang.reflect.AnnotatedElement
+import blang.inits.Arg
 
 package class InitStaticUtils {
   
-  def static Optional<String> optonalizeString(String str) {
+  def static Optional<String> optionalizeString(String str) {
     if (StringUtils.isEmpty(str)) {
       return Optional.empty
     } else {
@@ -26,15 +28,18 @@ package class InitStaticUtils {
     }
   }
   
-  def static InitDependency findDependency(TypeLiteral<?> literal, Parameter parameter) {
+  def static InitDependency findDependency(TypeLiteral<?> literal, AnnotatedElement element, Optional<String> name) {
     val Annotation annotation = try {
-      findAnnotation(parameter) 
+      findAnnotation(element) 
     } catch (Exception e) {
-      throw InputExceptions.malformedAnnotation(e.message, literal, parameter) 
+      throw InputExceptions.malformedAnnotation(e.message, literal, element) 
     }
     return switch (annotation) {
+      Arg : {
+        new RecursiveDependency(literal, name.get, optionalizeString(annotation.description))
+      }
       ConstructorArg : {
-        new RecursiveDependency(literal, annotation.value, optonalizeString(annotation.description))
+        new RecursiveDependency(literal, annotation.value, optionalizeString(annotation.description))
       }
       Input : {
         new InputDependency()
@@ -43,7 +48,7 @@ package class InitStaticUtils {
     }
   }
   
-  def static Annotation findAnnotation(Parameter p) {
+  def static Annotation findAnnotation(AnnotatedElement p) {
     var Optional<Annotation> result = Optional.empty
     for (Annotation annotation : p.annotations) {
       if (possibleAnnotations.contains(annotation.annotationType)) {
@@ -99,7 +104,7 @@ package class InitStaticUtils {
     }
   }
     
-  val public static Set<Class<?>> possibleAnnotations = new LinkedHashSet(#[Input, ConstructorArg])
+  val public static Set<Class<? extends Annotation>> possibleAnnotations = new LinkedHashSet(#[Input, ConstructorArg, Arg])
   
 //  static private class GlobalDependency implements InitDependency {
 //    

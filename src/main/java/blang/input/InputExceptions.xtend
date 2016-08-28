@@ -7,6 +7,7 @@ import org.eclipse.xtend.lib.annotations.Accessors
 import java.util.Optional
 import java.util.List
 import java.lang.reflect.Parameter
+import java.lang.reflect.AnnotatedElement
 
 class InputExceptions {
   
@@ -33,7 +34,7 @@ class InputExceptions {
     )
   }
   
-  def public static InputException malformedAnnotation(String message, TypeLiteral<?> type, Parameter p) {
+  def public static InputException malformedAnnotation(String message, TypeLiteral<?> type, AnnotatedElement p) {
     return new InputException(
       InputExceptionCategory.MALFORMED_ANNOTATION,
       message + " in type <" + type.rawType + ">, parameter <" + p + "> of the builder"
@@ -48,6 +49,8 @@ class InputExceptions {
   
   val public static InputException UNKNOWN_INPUT = 
     new InputException(InputExceptionCategory.UNKNOWN_INPUT, "Unknown input")
+  
+//  val public static InputException 
   
   @Data
   static class InputException extends RuntimeException {

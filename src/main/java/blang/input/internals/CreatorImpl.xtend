@@ -113,7 +113,7 @@ package class CreatorImpl implements Creator {
       } else {
         return (
           if (optional && currentArguments.isNull()) {// only allow empty if no child argument were provided
-            (Optional.empty as Object) 
+            (Optional.empty as Object)
           } else {
             if (!deps.filter(InputDependency).empty && !currentArguments.argumentValue.present) {
               logger.addError(currentArguments.QName, InputExceptions.missingInput(currentType))     

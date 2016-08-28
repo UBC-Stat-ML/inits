@@ -26,6 +26,8 @@ import blang.input.Creator.InitDependency
 import blang.inits.QualifiedName
 import org.apache.commons.lang3.StringUtils
 import java.util.LinkedHashMap
+import blang.input.internals.InputExceptions
+import blang.input.internals.InputExceptions.InputException
 
 class Creator {
   
@@ -56,7 +58,7 @@ class Creator {
     logger = new Logger
     val T result = _init(type, args)  
     if (result === null) {
-      throw FAILED_INIT
+      throw InputExceptions.FAILED_INIT
     }
     return result
   }
@@ -65,20 +67,31 @@ class Creator {
     return logger.usage()
   }
   
-  val public static final RuntimeException FAILED_INIT = new RuntimeException("Failed to init object")
+  def String errorReport() {
+    return logger.errors.map[logger.formatArgName(it.key) + ": " + it.value.message].join("\n")
+  }
   
+  def Iterable<Pair<QualifiedName,InputException>> errors() {
+    return logger.errors
+  }
+    
   var Logger logger = null
   
-  static class Logger {
-    val private Map<QualifiedName, TypeLiteral<?>> typeUsage = new LinkedHashMap
+  static private class Logger {
+    
+    val private Map<QualifiedName, TypeLiteral<?>> inputsTypeUsage = new LinkedHashMap
     val private Map<QualifiedName, String> dependencyDescriptions = new LinkedHashMap
+    val private List<Pair<QualifiedName,InputException>> errors = new ArrayList
+    
+    def Set<QualifiedName> keysOfPossibleInputs() {
+      return inputsTypeUsage.keySet
+    }
     
     def reportTypeUsage(TypeLiteral<?> typeOrOptional, Arguments argument, List<InitDependency> dependencies) {
-      
       for (InitDependency dep : dependencies) {
         switch (dep) {
           InputDependency : {
-            typeUsage.put(argument.QName, typeOrOptional)
+            inputsTypeUsage.put(argument.QName, typeOrOptional)
           }
           RecursiveDependency : {
             if (dep.description.present) 
@@ -89,15 +102,19 @@ class Creator {
       }
     }
     
+    def void addError(QualifiedName name, InputException exception) {
+      errors.add(Pair.of(name, exception))
+    }
+    
     def String usage(QualifiedName qName) {
-      var String result = '''«formatArgName(qName)» <«typeUsage.get(qName).rawType.simpleName»>'''
+      var String result = '''«formatArgName(qName)» <«inputsTypeUsage.get(qName).rawType.simpleName»>'''
       if (dependencyDescriptions.containsKey(qName)) 
         result += '\n' + '''  description: «dependencyDescriptions.get(qName)»'''
       return result
     }
     
     def String usage() { 
-      typeUsage.keySet.map[usage(it)].join("\n")
+      keysOfPossibleInputs.map[usage(it)].join("\n")
     }
     
     def String formatArgName(QualifiedName qName) {
@@ -323,8 +340,8 @@ class Creator {
     // identify the builder method (either a constructor or a static one or from a data base of lambdas)
     val Schema schema = try {
       findSchema(currentType)
-    } catch (Exception e) {
-      // TODO: log structural error, e.g. if no macthed builder
+    } catch (InputException e) {
+      logger.addError(currentArguments.QName, e)
       return null
     } 
     
@@ -333,14 +350,12 @@ class Creator {
     
     val List<Object> instantiatedChildren = new ArrayList
     val List<InitDependency> deps = schema.dependencies()
-//    val Set<String> remainingKeys = new LinkedHashSet(currentArguments.childrenKeys)
     for (InitDependency initDependency : deps) {
       instantiatedChildren.add(initDependency.resolve(this, currentArguments))
     } 
-//    if (!remainingKeys.isEmpty()) {
-//      // TODO: log error
-//    }
+    checkNoUnrecognizedArguments(currentArguments, deps)
     logger.reportTypeUsage(typeOrOptional, currentArguments, deps)
+    
     if (dependenciesOk(instantiatedChildren)) {
       try {
         val Object instance = schema.build(instantiatedChildren)
@@ -348,18 +363,21 @@ class Creator {
           if (optional) Optional.of(instance) else instance
         ) as T
       } catch (Exception e) {
-        // TODO: log the error
+        logger.addError(currentArguments.QName, InputExceptions.failedInstantiation(currentType, currentArguments.argumentValue))
+        return null
       }
     } else {
       return (
-        if (optional && currentArguments.isNull()) // only allow empty if no child argument were provided
+        if (optional && currentArguments.isNull()) {// only allow empty if no child argument were provided
           (Optional.empty as Object) 
-        else 
+        } else {
+          if (!deps.filter(InputDependency).empty && !currentArguments.argumentValue.present) {
+            logger.addError(currentArguments.QName, InputExceptions.missingInput(currentType))     
+          }
           null
+        }
       ) as T
     }
-    
-    
     
     // construct a list of all the recursion calls to be made (both from builder, but also fields and methods if applicable)
        // keep track of input vs global input
@@ -376,22 +394,29 @@ class Creator {
       // else if recursion ok, add (perhaps boxed in optional)
       // log the information, whether it worked or not
       
-      
         // check if strings need to be consumed 
 //    var boolean error = validateInput(builder.acceptsInput, builder.requiresInput, currentArguments.argumentValue.present)
     
-    
-
       // if the switch is there, parse inside a catch
       // log the information, whether it worked or not
       // if it fails return error
       // else return success
       
     // if error = true, return error
-      
-      
-    // 
-//    throw new RuntimeException
+  }
+  
+  def void checkNoUnrecognizedArguments(Arguments arguments, List<InitDependency> dependencies) {
+    val Set<String> remainingChildren = new LinkedHashSet(arguments.childrenKeys)
+    for (InitDependency dep : dependencies) {
+      switch (dep) {
+        RecursiveDependency : {
+          remainingChildren.remove(dep.name)
+        }
+      }
+    }
+    for (String remainingChild : remainingChildren) {
+      logger.addError(arguments.QName.child(remainingChild), InputExceptions.UNKNOWN_INPUT)
+    }
   }
   
   def private static <T> TypeLiteral<?> targetType(TypeLiteral<T> typeOrOptional) {
@@ -426,7 +451,11 @@ class Creator {
     if (!found.present)
     {
       // defaults to zero-arg constructor
-      val Constructor<?> zeroArg = type.rawType.getConstructor()
+      val Constructor<?> zeroArg = try {
+        type.rawType.getConstructor()
+      } catch (Exception e) {
+        null
+      }
       if (zeroArg !== null) {
         found = Optional.of(zeroArg)
       }
@@ -434,7 +463,7 @@ class Creator {
     if (found.present) {
       return found.get
     } else {
-      throw new RuntimeException("One of the constructors should be marked with @" + DesignatedConstructor.simpleName)
+      throw InputExceptions.missingBuilder(type)
     }
   }
 }

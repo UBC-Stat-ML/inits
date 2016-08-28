@@ -9,14 +9,32 @@ import org.eclipse.xtend.lib.annotations.Data
 import blang.inits.ConstructorArg
 import java.util.ArrayList
 import blang.inits.DesignatedConstructor
+import blang.input.internals.InputExceptions
+import blang.input.internals.InputExceptions.InputExceptionCategory
+import org.junit.Rule
+import org.junit.rules.TestName
+import org.junit.Before
+import org.junit.After
 
 class BasicTests {
   
+  @Rule public TestName name = new TestName();
+  
+  @Before
+  def void before() {
+    println('''
+    ###   «name.methodName»
+    ''')
+  }
+  
+  @After
+  def void after() {
+    println()
+    println()
+  }
   
   @Test
   def void testBasicParser() {
-    
-    println("Basic parser")
     
     val Creator c = Creator.conventionalCreator
 
@@ -29,7 +47,7 @@ class BasicTests {
       Assert.assertEquals(o, result)
     }
     
-    TestSupport.assertThrownExceptionMatches(Creator.FAILED_INIT) [
+    TestSupport.assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(Boolean, PosixParser.parse("bad"))
     ]
     
@@ -42,8 +60,6 @@ class BasicTests {
   
   @Test 
   def void testSimpleDeps() {
-    
-    println("Simple deps")
     
     val Creator c = Creator.conventionalCreator
     
@@ -62,9 +78,7 @@ class BasicTests {
     println(c.usage)
   }
   
-  // TODO: check missing @Desig..
-  // TODO: check reporting of parsing errors
-  // TODO: additional/bad/missing args
+
   
   @Data
   static class Simple {
@@ -99,8 +113,6 @@ class BasicTests {
   @Test
   def void testDeeperDeps() {
     
-    println("Deep deps")
-    
     val Creator c = Creator.conventionalCreator
     Assert.assertEquals(c.init(Level1, PosixParser.parse("--aLevel2.anInt", "123")).aLevel2.anInt, 123)
     
@@ -121,6 +133,70 @@ class BasicTests {
     new (@ConstructorArg(value = "anInt", description = "An int!") int anInt) {
       this.anInt = anInt
     }
+  }
+  
+  static class BadConstructor {
+    new (int test) {
+      
+    }
+  }
+  
+  @Test
+  def void testExceptions() {
+    
+    val Creator c = Creator.conventionalCreator
+    
+    TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
+      c.init(BadConstructor, PosixParser.parse())
+    ]
+    
+    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MISSING_BUILDER].size)
+    
+    println(c.errorReport)
+    
+  }
+  
+  static class BadInput {
+    @DesignatedConstructor
+    new (@ConstructorArg("arg") int in) {
+      
+    }
+  }
+  
+  @Test
+  def void testBadInput() {
+    val Creator c = Creator.conventionalCreator
+    TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
+      c.init(BadInput, PosixParser.parse("--arg", "abc"))
+    ]
+    
+    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.FAILED_INSTANTIATION].size)
+    
+    println(c.errorReport)
+  }
+  
+  @Test
+  def void missingInput() {
+    val Creator c = Creator.conventionalCreator
+    TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
+      c.init(BadInput, PosixParser.parse())
+    ]
+    
+    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MISSING_INPUT].size)
+    
+    println(c.errorReport)
+  }
+  
+  @Test
+  def void extraInput() {
+    val Creator c = Creator.conventionalCreator
+    TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
+      c.init(BadInput, PosixParser.parse("--bad"))
+    ]
+    
+    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.UNKNOWN_INPUT].size)
+    
+    println(c.errorReport)
   }
   
 }

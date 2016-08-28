@@ -61,3 +61,4 @@ See:
 - [Custom type parsers](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/ComplexTypesExample.xtend)
 - [Global dependency injection](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/GlobalExample.xtend)
 - [Printing usage](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/UsageExample.xtend)
+- [Initialization service for complex use cases](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/input/InitServiceExample.xtend)

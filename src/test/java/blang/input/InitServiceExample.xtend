@@ -10,17 +10,20 @@ class InitServiceExample {
   
   
   static class Top {
-    @Arg Bot bot
+    @Arg Bot<String> someName
   }
   
-  static class Bot {
+  static class Bot<T> {
     @DesignatedConstructor
     new (
       @InitService QualifiedName qName,
       @InitService TypeLiteral<?> type
     ) {
-      println("qName = " + qName)
-      println("type = " + type)
+      println("qName = " + qName) // qName = someName
+      
+      // access generic information that would be otherwise type erased 
+      // if it would not be instantiated in a managed way
+      println("type = " + type)   // type = blang.input.InitServiceExample$Bot<java.lang.String>
     }
   }
   
@@ -29,5 +32,4 @@ class InitServiceExample {
     try { c.init(Top, PosixParser.parse()) } catch (Exception e) {}
     println(c.errorReport)
   }
-  
 }

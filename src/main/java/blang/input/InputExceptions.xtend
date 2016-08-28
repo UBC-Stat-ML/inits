@@ -40,6 +40,12 @@ class InputExceptions {
     )
   }
   
+  val public static InputException GUAVA_OPTIONAL = 
+    new InputException(InputExceptionCategory.MALFORMED_OPTIONAL, "The Optional is implemented with Guava's Optional, but it should be using java.util's")
+  
+  val public static InputException RAW_OPTIONAL = 
+    new InputException(InputExceptionCategory.MALFORMED_OPTIONAL, "The Optional need a generic argument, raw type usage insufficient to infer required type")
+  
   val public static InputException UNKNOWN_INPUT = 
     new InputException(InputExceptionCategory.UNKNOWN_INPUT, "Unknown input")
   
@@ -59,7 +65,8 @@ class InputExceptions {
     FAILED_INSTANTIATION,
     MISSING_INPUT,
     UNKNOWN_INPUT,
-    MALFORMED_ANNOTATION
+    MALFORMED_ANNOTATION,
+    MALFORMED_OPTIONAL
   }
   
   private new() {}

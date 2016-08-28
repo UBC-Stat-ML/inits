@@ -15,6 +15,7 @@ import org.junit.Rule
 import org.junit.rules.TestName
 import org.junit.Before
 import org.junit.After
+import java.util.Optional
 
 class BasicTests {
   
@@ -35,9 +36,7 @@ class BasicTests {
   
   @Test
   def void testBasicParser() {
-    
     val Creator c = Creator.conventionalCreator
-
     val List<Object> objects = #["some string", 17, 4.5, true, 23423L]
     for (Object o : objects) {
       println("Testing simple parser for type " + o.class)
@@ -46,23 +45,18 @@ class BasicTests {
       val Object result = c.init(o.class, arg)
       Assert.assertEquals(o, result)
     }
-    
     TestSupport.assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(Boolean, PosixParser.parse("bad"))
     ]
-    
     val Arguments maxArg = PosixParser.parse("INF") 
     Assert.assertEquals(c.init(Long, maxArg), Long.MAX_VALUE)
     Assert.assertEquals(c.<Double>init(Double, maxArg), Double.POSITIVE_INFINITY, 0.0)
     Assert.assertEquals(c.<Integer>init(Integer, maxArg), Integer.MAX_VALUE)   
-    
   }
   
   @Test 
   def void testSimpleDeps() {
-    
     val Creator c = Creator.conventionalCreator
-    
     Assert.assertEquals(
       c.init(Simple, PosixParser.parse(
         "--a", "1",
@@ -74,7 +68,6 @@ class BasicTests {
         "--g", "-234e13",
         "--h", "INF")).stuff.toString(), 
       "[1, -2, true, false, 234, -23423, -2.34E15, Infinity]")
-      
     println(c.usage)
   }
   
@@ -110,10 +103,8 @@ class BasicTests {
   
   @Test
   def void testDeeperDeps() {
-    
     val Creator c = Creator.conventionalCreator
     Assert.assertEquals(c.init(Level1, PosixParser.parse("--aLevel2.anInt", "123")).aLevel2.anInt, 123)
-    
     println(c.usage())
   }
   
@@ -135,29 +126,22 @@ class BasicTests {
   
   static class BadConstructor {
     new (int test) {
-      
     }
   }
   
   @Test
   def void testExceptions() {
-    
     val Creator c = Creator.conventionalCreator
-    
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadConstructor, PosixParser.parse())
     ]
-    
     Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MISSING_BUILDER].size)
-    
     println(c.errorReport)
-    
   }
   
   static class BadInput {
     @DesignatedConstructor
     new (@ConstructorArg("arg") int in) {
-      
     }
   }
   
@@ -167,9 +151,7 @@ class BasicTests {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadInput, PosixParser.parse("--arg", "abc"))
     ]
-    
     Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.FAILED_INSTANTIATION].size)
-    
     println(c.errorReport)
   }
   
@@ -179,9 +161,7 @@ class BasicTests {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadInput, PosixParser.parse())
     ]
-    
     Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MISSING_INPUT].size)
-    
     println(c.errorReport)
   }
   
@@ -191,9 +171,7 @@ class BasicTests {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadInput, PosixParser.parse("--arg"))
     ]
-    
     Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.FAILED_INSTANTIATION].size)
-    
     println(c.errorReport)
   }
   
@@ -203,16 +181,13 @@ class BasicTests {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadInput, PosixParser.parse("--bad"))
     ]
-    
     Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.UNKNOWN_INPUT].size)
-    
     println(c.errorReport)
   }
   
   static class BadAnnotations {
     @DesignatedConstructor
     new(int test) {
-      
     }
   }
   
@@ -222,18 +197,43 @@ class BasicTests {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadAnnotations, PosixParser.parse())
     ]
-    
-//    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.UNKNOWN_INPUT].size)
-    
+    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MALFORMED_ANNOTATION].size)
     println(c.errorReport)
   }
   
-  static class WithOptionals {
+  static class WithBadOptionals {
     @DesignatedConstructor
-    def static WithOptionals build(
-      @ConstructorArg("first") com.google.common.base.Optional<Integer> badOpt    ) {
-      
+    def static WithBadOptionals build(
+      @ConstructorArg("first") com.google.common.base.Optional<Integer> badOpt) {
     }
   }
+  
+  @Test
+  def void badOpt() {
+    val Creator c = Creator.conventionalCreator
+    TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
+      c.init(WithBadOptionals, PosixParser.parse())
+    ]
+    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MALFORMED_OPTIONAL].size)
+    println(c.errorReport)
+  }
+  
+  static class WithBadOptionals2 {
+    @DesignatedConstructor
+    def static WithBadOptionals build(
+      @ConstructorArg("first") Optional badOpt) {
+    }
+  }
+  
+  @Test
+  def void badOpt2() {
+    val Creator c = Creator.conventionalCreator
+    TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
+      c.init(WithBadOptionals2, PosixParser.parse())
+    ]
+    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MALFORMED_OPTIONAL].size)
+    println(c.errorReport)
+  }
+  
   
 }

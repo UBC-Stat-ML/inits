@@ -112,7 +112,6 @@ package class InitStaticUtils {
   def static boolean dependenciesOk(List<Object> deps) {
     return !deps.contains(null)
   }
-  
     
   def static <T> TypeLiteral<?> targetType(TypeLiteral<T> typeOrOptional) {
     if (InitStaticUtils::isOptional(typeOrOptional)) {
@@ -123,15 +122,18 @@ package class InitStaticUtils {
   }
   
   def static boolean isOptional(TypeLiteral<?> type) {
-    // TODO: structural error if guava Optional
+    if (type.rawType == com.google.common.base.Optional) {
+      throw InputExceptions::GUAVA_OPTIONAL
+    }
     return type.rawType == Optional
   }
   
   def static TypeLiteral<?> getOptionalType(TypeLiteral<?> optionalType) {
-    // TODO: structural error if using raw type
+    if (!(optionalType.type instanceof ParameterizedType)) {
+      throw InputExceptions::RAW_OPTIONAL
+    }
     return TypeLiteral.get((optionalType.type as ParameterizedType).actualTypeArguments.get(0))
   }
-  
   
   private new() {}
 }

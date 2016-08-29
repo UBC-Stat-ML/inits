@@ -22,7 +22,7 @@ class BasicExample {
      *     (the name of the command line is just the field name here).
      */
     @Arg
-    public Integer anInteger
+    public int anInteger
     
     /**
      * (2) Make sure there is a zero-arg constructor available 

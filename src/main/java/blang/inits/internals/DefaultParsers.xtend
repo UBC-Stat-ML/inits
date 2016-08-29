@@ -1,52 +1,79 @@
 package blang.inits.internals
 
-import blang.inits.Creator
 import java.util.Random
 import java.io.File
 import java.nio.file.Path
 import java.nio.file.Paths
-import blang.inits.Parser
+import blang.inits.ProvidesFactory
+import blang.inits.Input
 
 package class DefaultParsers {
   
-  def static void setup(Creator c) {
-    c => [
-      addParser(String, [it])
-      
-      addParser(Integer, intParser)
-      addParser(int,     intParser)
-      
-      addParser(Double,  doubleParser)
-      addParser(double,  doubleParser)
-      
-      addParser(Boolean, booleanParser)
-      addParser(boolean, booleanParser)
-      
-      addParser(Long,    longParser)
-      addParser(long,    longParser)
-      
-      addParser(Random,  [String input | new Random(Long.parseLong(input))])
-      addParser(File,    [String input | new File(input)])
-      addParser(Path,    [String input | Paths.get(input)])
-    ]
+  @ProvidesFactory
+  def static String parseString(@Input String s) {
+    return s
   }
   
-  val public static final String INF_STR = "INF"
-  val static Parser<Integer> intParser = [String s |
+  @ProvidesFactory
+  def static Random parseRandom(@Input String s) {
+    return new Random(parse_long(s))
+  }
+  
+  @ProvidesFactory
+  def static File parseFile(@Input String s) {
+    return new File(s)
+  }
+  
+  @ProvidesFactory
+  def static Path parsePath(@Input String s) {
+    return Paths.get(s)
+  }
+  
+  @ProvidesFactory
+  def static int parse_int(@Input String s) {
     if (s == INF_STR) return Integer.MAX_VALUE
     return Integer.parseInt(s)
-  ]
-  val static Parser<Double> doubleParser = [String s |
+  }
+  
+  @ProvidesFactory
+  def static Integer parseInteger(@Input String s) {
+    return parse_int(s)
+  }
+  
+  @ProvidesFactory
+  def static double parse_double(@Input String s) {
     if (s == INF_STR) return Double.POSITIVE_INFINITY
     return Double.parseDouble(s)
-  ]
-  val static Parser<Boolean> booleanParser = [String s |
+  }
+  
+  @ProvidesFactory
+  def static Double parseDouble(@Input String s) {
+    return parse_double(s)
+  }
+  
+  @ProvidesFactory
+  def static boolean parse_boolean(@Input String s) {
     if      (s == "true") return true
     else if (s == "false") return false
     else throw new RuntimeException("Could not parse as boolean: '" + s + "'; should be 'true' or 'false'")
-  ]
-  val static Parser<Long> longParser = [String s |
+  }
+  
+  @ProvidesFactory
+  def static Boolean parseBoolean(@Input String s) {
+    return parse_boolean(s)
+  }
+  
+  @ProvidesFactory
+  def static long parse_long(@Input String s) {
     if (s == INF_STR) return Long.MAX_VALUE
     return Long.parseLong(s)
-  ]
+  }
+  
+    @ProvidesFactory
+  def static Long parseLong(@Input String s) {
+    return parse_long(s)
+  }
+
+  val public static final String INF_STR = "INF"
+
 }

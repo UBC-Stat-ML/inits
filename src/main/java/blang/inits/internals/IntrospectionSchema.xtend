@@ -18,20 +18,23 @@ import blang.inits.InputExceptions
 
 @Data
 package class IntrospectionSchema implements Schema {
-  val TypeLiteral<?> type
+  val TypeLiteral<?> typeToBuild
+  val TypeLiteral<?> typeDeclaringBuilder
   val Executable builder
   
   override List<InitDependency> dependencies() {
     val List<InitDependency> result = new ArrayList
     // parameters
     val List<Parameter> parameters = builder.parameters
-    val List<TypeLiteral<?>> parameterTypes = type.getParameterTypes(builder)
+    val List<TypeLiteral<?>> parameterTypes = typeDeclaringBuilder.getParameterTypes(builder)
     for (var int i = 0; i < parameters.size; i++) {
-      result.add(InitStaticUtils::findDependency(type, parameterTypes.get(i), parameters.get(i), Optional.empty))
+      result.add(InitStaticUtils::findDependency(typeToBuild, parameterTypes.get(i), parameters.get(i), Optional.empty))
     }
     // fields
-    for (Field field : fieldsToInstantiate()) {
-      result.add(InitStaticUtils::findDependency(type, type.getFieldType(field), field, Optional.of(field.name)))
+    if (typeToBuild == typeDeclaringBuilder) {
+      for (Field field : fieldsToInstantiate()) {
+        result.add(InitStaticUtils::findDependency(typeToBuild, typeToBuild.getFieldType(field), field, Optional.of(field.name)))
+      }
     }
     return result
   }
@@ -39,7 +42,7 @@ package class IntrospectionSchema implements Schema {
   def private List<Field> fieldsToInstantiate() {
     val List<Field> result = new ArrayList
     for (Class<? extends Annotation> annotationType : InitStaticUtils::possibleAnnotations) {
-      for (Field field : type.rawType.declaredFields.filter[it.getAnnotation(annotationType) !== null]) {
+      for (Field field : typeToBuild.rawType.declaredFields.filter[it.getAnnotation(annotationType) !== null]) {
         result.add(field)
       }
     }
@@ -56,14 +59,14 @@ package class IntrospectionSchema implements Schema {
       }
       Method : {
         if (!Modifier.isStatic(builder.modifiers)) {
-          throw InputExceptions::nonStaticBuilder(type)
+          throw InputExceptions::nonStaticBuilder(typeDeclaringBuilder)
         }
         builder.invoke(null, argArray)
       }
       default : throw new RuntimeException
     }
     // init fields afterwards
-    // TODO: check for finals
+    // TODO: check for finals? maybe ok
     var int index = nBuilderArgs
     for (Field field : fieldsToInstantiate()) {
       StaticUtils::setFieldValue(field, result, arguments.get(index++))

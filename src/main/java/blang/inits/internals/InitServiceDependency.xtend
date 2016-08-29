@@ -27,7 +27,7 @@ package class InitServiceDependency implements InitDependency {
     } else if (childType.rawType == Creator) {
       val CreatorImpl result = new CreatorImpl()
       result.globals.putAll(creator.globals)
-      result.parsersIndexedByRawTypes.putAll(creator.parsersIndexedByRawTypes)
+      result.factories.putAll(creator.factories)
       return new CreatorWithPrefix(result, currentArguments.QName)
     } else {
       throw InputExceptions::malformedAnnotation("Annotation @" + InitService.simpleName + " can only be applied to the following type: " +

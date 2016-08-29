@@ -9,7 +9,6 @@ import blang.inits.InputExceptions
 import blang.inits.InputExceptions.InputException
 import blang.inits.internals.IntrospectionSchema
 import blang.inits.internals.Logger
-import blang.inits.internals.ParserSchema
 import blang.inits.internals.Schema
 import com.google.inject.TypeLiteral
 import java.util.ArrayList
@@ -20,13 +19,14 @@ import java.util.Map
 import java.util.Optional
 import java.util.Set
 import blang.inits.Creator
-import blang.inits.ParserFromList
 import java.lang.reflect.Executable
 import com.google.common.collect.ListMultimap
+import java.lang.reflect.Method
+import blang.inits.ProvidesFactory
 
 package class CreatorImpl implements Creator {
-  val package Map<Class<?>, ParserFromList<?>> parsersIndexedByRawTypes = new HashMap
   val package Map<Class<?>, Object> globals = new HashMap
+  val package Map<Class<?>, Pair<Executable,TypeLiteral<?>>> factories = new HashMap
   
   var transient Logger logger = null
   var transient Arguments lastArgs = null
@@ -68,21 +68,26 @@ package class CreatorImpl implements Creator {
   }
     
   def private Schema findSchema(TypeLiteral<?> currentType) {
-    // enums
+    // Special treatment for enums
     if (currentType.rawType.isEnum()) {
       return new EnumSchema(currentType.rawType)
     }
-    // try to find a simple parser based on type erased
-    val parser = parsersIndexedByRawTypes.get(currentType.rawType)
-    if (parser !== null) {
-      return new ParserSchema(parser)
+    // else, use an introspection based scheme
+     
+    val pair = factories.get(currentType.rawType)
+    if (pair != null) {
+      // use the database of factories in priority
+      return new IntrospectionSchema(currentType, pair.value, pair.key)
+      
+    } else {
+      // else, look in the type itself
+      val builder = InitStaticUtils::findBuilder(currentType)
+      if (builder.isPresent) {
+        return new IntrospectionSchema(currentType, currentType, builder.get)
+      } else {
+        throw InputExceptions.malformedBuilder(currentType)
+      }
     }
-    // else, introspection based scheme
-    val Optional<Executable> builder = InitStaticUtils::findBuilder(currentType)
-    if (!builder.isPresent) {
-      throw InputExceptions.malformedBuilder(currentType)
-    }
-    return new IntrospectionSchema(currentType, builder.get)
   }
   
   /**
@@ -203,9 +208,14 @@ package class CreatorImpl implements Creator {
     }
   }
   
-  override <T> void addParser(Class<T> type, ParserFromList<T> parser) {
-    checkNotInitialized()
-    parsersIndexedByRawTypes.put(type, parser)
+  override void addFactories(Class<?> factoryFile) {
+    // TODO: find factories and add them
+    val TypeLiteral<?> lit = TypeLiteral.get(factoryFile)
+    for (Method m : factoryFile.declaredMethods) {
+      if (m.getAnnotation(ProvidesFactory) != null) {
+        factories.put(m.returnType, m -> lit)
+      }
+    }
   }
   
   override <T> void addGlobal(Class<T> type, T object) {

@@ -36,11 +36,7 @@ interface Creator {
   
   def String fullReport()
   
-  def <T> void addParser(Class<T> type, ParserFromList<T> parser)
-  def <T> void addParser(Class<T> type, Parser<T> parser) {
-    val ParserFromList<T> converted = [List<String> input | parser.parse(input.join(" ").trim)] 
-    addParser(type, converted)
-  }
+  def void addFactories(Class<?> factoryFile) 
   
   def <T> void addGlobal(Class<T> type, T object)
 }

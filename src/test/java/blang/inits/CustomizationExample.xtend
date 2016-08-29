@@ -46,11 +46,17 @@ class CustomizationExample {
     val String string
   }
   
+  static class CustomParsers {
+    
+    @ProvidesFactory
+    def static OutOfControl parseOoC(@Input String input) {
+      return new OutOfControl(input)
+    }
+  }
+  
   def static void main(String [] args) {
     val Creator creator = Creators.conventional()
-    creator.addParser(OutOfControl) [String input | 
-      new OutOfControl(input)
-    ]
+    creator.addFactories(CustomParsers)
     try {
     val MyWeirdTypes object = creator.init(
       MyWeirdTypes, 

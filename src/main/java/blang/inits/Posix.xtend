@@ -5,6 +5,15 @@ import java.util.ArrayList
 import java.util.List
 import com.google.common.base.Splitter
 
+/**
+ * Read POSIX-style command line arguments.
+ * 
+ * Syntax: "<top level space value>* (--key(.subKey)* <value>*)*"
+ * 
+ * e.g:
+ * 
+ * blah blah --key.sub --key.another blah blah
+ */
 class Posix {
   
   def static Arguments parse(String ... args) {

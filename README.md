@@ -62,3 +62,7 @@ See:
 - [Global dependency injection](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/GlobalExample.xtend)
 - [Printing usage](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/UsageExample.xtend)
 - [Initialization service for complex use cases](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/InitServiceExample.xtend)
+- [Example of full reporting](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/FullReportExample.xtend)
+- [Example of reading config file](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/ConfigTest.xtend)
+
+

@@ -26,6 +26,8 @@ import blang.inits.ProvidesFactory
 
 package class CreatorImpl implements Creator {
   val package Map<Class<?>, Object> globals = new HashMap
+  
+  // type initialized -> (static method to do so, type where this static method is defined)
   val package Map<Class<?>, Pair<Executable,TypeLiteral<?>>> factories = new HashMap
   
   var transient Logger logger = null
@@ -183,7 +185,7 @@ package class CreatorImpl implements Creator {
   {
     try {
       var TypeLiteral<?> deOptionized = InitStaticUtils::deOptionize(declaredType)
-      if (InitStaticUtils::needToLoadImplementation(deOptionized)) { 
+      if (!factories.containsKey(deOptionized.rawType) && InitStaticUtils::needToLoadImplementation(deOptionized)) { 
         return _initInterface(deOptionized, declaredType, currentArguments)
       } else {
         return _initActualType(deOptionized, declaredType, currentArguments)

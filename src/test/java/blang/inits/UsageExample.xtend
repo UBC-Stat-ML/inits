@@ -2,12 +2,14 @@ package blang.inits
 
 import blang.inits.Arg
 import blang.inits.Posix
+import java.util.Optional
 
 class UsageExample {
   
   static class MyClass {
     @Arg(description = "description of this first integer")  int anInteger
     @Arg(description = "description of this second integer") int another
+    @Arg Optional<Integer> finalOne
   }
   
   def static void main(String [] args) {

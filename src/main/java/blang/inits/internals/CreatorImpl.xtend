@@ -22,12 +22,14 @@ import java.util.Set
 import blang.inits.Creator
 import blang.inits.ParserFromList
 import java.lang.reflect.Executable
+import com.google.common.collect.ListMultimap
 
 package class CreatorImpl implements Creator {
   val package Map<Class<?>, ParserFromList<?>> parsersIndexedByRawTypes = new HashMap
   val package Map<Class<?>, Object> globals = new HashMap
   
   var transient Logger logger = null
+  var transient Arguments lastArgs = null
   
   /**
    * @throws InputExceptions.FAILED_INIT if there is some
@@ -38,11 +40,16 @@ package class CreatorImpl implements Creator {
     Arguments args) {
     // empty logs
     logger = new Logger
+    lastArgs = args
     val T result = _init(type, args)  
     if (result === null) {
       throw InputExceptions.FAILED_INIT
     }
     return result
+  }
+   
+  override String fullReport() {
+    return logger.fullReport(lastArgs)
   }
   
   override String usage() {
@@ -55,7 +62,7 @@ package class CreatorImpl implements Creator {
     return logger.errorReport()
   }
   
-  override Iterable<Pair<QualifiedName,InputException>> errors() {
+  override ListMultimap<QualifiedName,InputException> errors() {
     checkInitialized()
     return logger.errors
   }

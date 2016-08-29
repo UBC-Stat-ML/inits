@@ -10,6 +10,7 @@ import java.util.HashSet
 import com.google.common.base.Joiner
 import java.util.Optional
 import org.eclipse.xtend.lib.annotations.Accessors
+import java.util.LinkedHashMap
 
 /**
  * A tree of arguments. E.g. --node is parent of --node.child
@@ -31,6 +32,25 @@ class Arguments {
   private new(Optional<List<String>> argumentValue, QualifiedName qName) {
     this.argumentValue = argumentValue
     this.qName = qName
+  }
+  
+  /**
+   * A map where the set of keys are the nodes in the subtree rooted here 
+   * such that the argumentValue is not empty
+   */
+  def LinkedHashMap<QualifiedName,List<String>> asMap() {
+    val LinkedHashMap<QualifiedName,List<String>> result = new LinkedHashMap
+    _asMap(result)
+    return result
+  }
+  
+  def private void _asMap(LinkedHashMap<QualifiedName,List<String>> result) {
+    if (argumentValue.isPresent()) {
+      result.put(qName, argumentValue.get())
+    }
+    for (Arguments child : children.values) {
+      child._asMap(result)
+    }
   }
   
   /**

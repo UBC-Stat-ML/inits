@@ -136,7 +136,7 @@ class BasicTests {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadConstructor, Posix.parse())
     ]
-    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MALFORMED_BUILDER].size)
+    Assert.assertEquals(1,c.errors.entries.filter[it.value.category === InputExceptionCategory.MALFORMED_BUILDER].size)
     println(c.errorReport)
   }
   
@@ -151,7 +151,7 @@ class BasicTests {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadInput, Posix.parse("--arg", "abc"))
     ]
-    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.FAILED_INSTANTIATION].size)
+    Assert.assertEquals(1,c.errors.entries.filter[it.value.category === InputExceptionCategory.FAILED_INSTANTIATION].size)
     println(c.errorReport)
   }
   
@@ -160,7 +160,7 @@ class BasicTests {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadInput, Posix.parse())
     ]
-    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MISSING_INPUT].size)
+    Assert.assertEquals(1,c.errors.entries.filter[it.value.category === InputExceptionCategory.MISSING_INPUT].size)
     println(c.errorReport)
   }
   
@@ -169,7 +169,7 @@ class BasicTests {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadInput, Posix.parse("--arg"))
     ]
-    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.FAILED_INSTANTIATION].size)
+    Assert.assertEquals(1,c.errors.entries.filter[it.value.category === InputExceptionCategory.FAILED_INSTANTIATION].size)
     println(c.errorReport)
   }
   
@@ -178,7 +178,7 @@ class BasicTests {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadInput, Posix.parse("--bad"))
     ]
-    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.UNKNOWN_INPUT].size)
+    Assert.assertEquals(1,c.errors.entries.filter[it.value.category === InputExceptionCategory.UNKNOWN_INPUT].size)
     println(c.errorReport)
   }
   
@@ -193,7 +193,7 @@ class BasicTests {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(BadAnnotations, Posix.parse())
     ]
-    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MALFORMED_ANNOTATION].size)
+    Assert.assertEquals(1,c.errors.entries.filter[it.value.category === InputExceptionCategory.MALFORMED_ANNOTATION].size)
     println(c.errorReport)
   }
   
@@ -209,7 +209,7 @@ class BasicTests {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(WithBadOptionals, Posix.parse())
     ]
-    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MALFORMED_OPTIONAL].size)
+    Assert.assertEquals(1,c.errors.entries.filter[it.value.category === InputExceptionCategory.MALFORMED_OPTIONAL].size)
     println(c.errorReport)
   }
   
@@ -225,7 +225,7 @@ class BasicTests {
     TestSupport::assertThrownExceptionMatches(InputExceptions.FAILED_INIT) [
       c.init(WithBadOptionals2, Posix.parse())
     ]
-    Assert.assertEquals(1,c.errors.filter[it.value.category === InputExceptionCategory.MALFORMED_OPTIONAL].size)
+    Assert.assertEquals(1,c.errors.entries.filter[it.value.category === InputExceptionCategory.MALFORMED_OPTIONAL].size)
     println(c.errorReport)
   }
   

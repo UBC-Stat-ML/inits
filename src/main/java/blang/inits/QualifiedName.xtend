@@ -32,13 +32,17 @@ class QualifiedName {
     return new QualifiedName(newPath)
   }
   
-  override String toString() {
+  def String toString(String rootString) {
     return 
       if (path.isEmpty) {
-        ROOT_STRING
+        rootString
       } else {
         Joiner.on(SEPARATOR).join(path)
       }
+  }
+  
+  override String toString() {
+    return toString(ROOT_STRING)
   }
   
   def isRoot() {

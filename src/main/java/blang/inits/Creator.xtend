@@ -5,6 +5,7 @@ import blang.inits.QualifiedName
 import com.google.inject.TypeLiteral
 import blang.inits.InputExceptions.InputException
 import java.util.List
+import com.google.common.collect.ListMultimap
 
 /**
  * The main tool provided by this repo. 
@@ -31,8 +32,9 @@ interface Creator {
   def String usage() 
   
   def String errorReport() 
+  def ListMultimap<QualifiedName,InputException> errors() 
   
-  def Iterable<Pair<QualifiedName,InputException>> errors() 
+  def String fullReport()
   
   def <T> void addParser(Class<T> type, ParserFromList<T> parser)
   def <T> void addParser(Class<T> type, Parser<T> parser) {

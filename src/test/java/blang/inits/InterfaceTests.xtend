@@ -44,28 +44,28 @@ class InterfaceTests {
   @Test
   def void testBadInterface1() {
     assertThrows[ creator.init(TestInterface, parse("java.lang.Double", "14.5")) ]
-    Assert.assertEquals(1,creator.errors.filter[it.value.category === InputExceptionCategory.MISSING_INPUT].size)
+    Assert.assertEquals(1,creator.errors.entries.filter[it.value.category === InputExceptionCategory.MISSING_INPUT].size)
     println(creator.errorReport)
   }
   
   @Test
   def void testBadInterface2() {
     assertThrows[ creator.init(TestInterface, parse("--n", "java.lang.Bad", "14.5")) ]
-    Assert.assertEquals(1,creator.errors.filter[it.value.category === InputExceptionCategory.MALFORMED_INTERFACE_IMPLEMENTATION].size)
+    Assert.assertEquals(1,creator.errors.entries.filter[it.value.category === InputExceptionCategory.MALFORMED_INTERFACE_IMPLEMENTATION].size)
     println(creator.errorReport)
   }
   
   @Test
   def void testBadInterface3() {
     assertThrows[ creator.init(TestInterface, parse("--n", "java.lang.String", "14.5")) ]
-    Assert.assertEquals(1,creator.errors.filter[it.value.category === InputExceptionCategory.MALFORMED_INTERFACE_IMPLEMENTATION].size)
+    Assert.assertEquals(1,creator.errors.entries.filter[it.value.category === InputExceptionCategory.MALFORMED_INTERFACE_IMPLEMENTATION].size)
     println(creator.errorReport)
   }
   
   @Test
   def void testBadInterface4() {
     assertThrows[ creator.init(TestInterface, parse("--n", "java.lang.Double")) ]
-    Assert.assertEquals(1,creator.errors.filter[it.value.category === InputExceptionCategory.FAILED_INSTANTIATION].size)
+    Assert.assertEquals(1,creator.errors.entries.filter[it.value.category === InputExceptionCategory.FAILED_INSTANTIATION].size)
     println(creator.errorReport)
   }
   

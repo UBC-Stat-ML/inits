@@ -61,9 +61,9 @@ package class InitStaticUtils {
       }
       Input : {
         if (childType.rawType == String) { 
-          new InputDependency(false, annotation) 
+          new InputDependency(false, annotation.formatDescription) 
         } else if (childType.rawType == List) {
-          new InputDependency(true, annotation)
+          new InputDependency(true, annotation.formatDescription)
         } else {
           throw InputExceptions.malformedAnnotation("@" + Input.simpleName + " only applies to String or List<String> ", childType, element)
         }

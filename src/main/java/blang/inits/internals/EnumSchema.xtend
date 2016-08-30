@@ -15,6 +15,7 @@ class EnumSchema implements Schema {
   }
   
   override List<InitDependency>  dependencies() {
-    return Collections.singletonList(new InputDependency(false))
+    val String description = enumType.enumConstants.map[toString].join("|")
+    return Collections.singletonList(new InputDependency(false, description))
   }
 }

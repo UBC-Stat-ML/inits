@@ -9,7 +9,7 @@ import blang.inits.Input
 @Data
 package class InputDependency implements InitDependency {
   val boolean useList
-  val Input annotation
+  val String inputDescription
   override Object resolve(CreatorImpl creator, Arguments currentArguments) {
     if (!currentArguments.argumentValue.present) {
       return null

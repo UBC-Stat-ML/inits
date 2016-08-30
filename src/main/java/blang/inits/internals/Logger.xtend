@@ -33,7 +33,7 @@ package class Logger {
       switch (dep) {
         InputDependency : {
           inputsTypeUsage.put(argument.QName, typeOrOptional)
-          inputsDescriptions.put(argument.QName, dep.annotation.formatDescription)
+          inputsDescriptions.put(argument.QName, dep.inputDescription)
         }
         RecursiveDependency : {
           if (dep.description.present) 
@@ -109,7 +109,7 @@ package class Logger {
       if (present) {
         current += " " + readValue.join(" ") + "    #"
       }
-      current += typeFormatString(qName)   
+      current += " " + typeFormatString(qName)   
       if (isOptional) {
         current += " (optional)"
       }

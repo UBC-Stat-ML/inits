@@ -17,11 +17,17 @@ class FullReportExample {
     
     @Arg boolean boo
     
+    @Arg MyEnum myEnum
+    
     @DesignatedConstructor
     new(@Input String in) {
       
     }
     
+  }
+  
+  static enum MyEnum {
+    EARTH, MARS, KOBZ
   }
   
   static class Hierarchy {

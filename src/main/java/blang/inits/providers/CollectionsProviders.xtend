@@ -14,9 +14,9 @@ class CollectionsProviders {
   
   @ProvidesFactory
   def static <T> List<T> parseList(
-    @Input List<String> strings,
+    @Input       List<String>         strings,
     @InitService TypeLiteral<List<T>> actualType,
-    @InitService Creator creator
+    @InitService Creator              creator
   ) {
     val TypeLiteral<T> typeArgument = 
       TypeLiteral.get((actualType.type as ParameterizedType).actualTypeArguments.get(0))

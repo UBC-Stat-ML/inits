@@ -103,7 +103,7 @@ package class Logger {
       val TypeLiteral<?> deOptionized = InitStaticUtils::deOptionize(currentType)
       val List<String> readValue = argumentsAsMap.get(qName)
       val boolean present = readValue !== null
-      val boolean commentedOut = !present && isOptional
+      val boolean commentedOut = !present 
       var String current = if (commentedOut) "# " else "  "
       current += if (qName.isRoot) "" else "--" + qName.toString
       if (present) {

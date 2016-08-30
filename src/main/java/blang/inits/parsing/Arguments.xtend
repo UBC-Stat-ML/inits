@@ -88,6 +88,7 @@ class Arguments {
     }
     
     val Arguments result = new Arguments(remaining, qName)
+    result.children.putAll(this.children)
     return Pair.of(result, popped)
   }
   

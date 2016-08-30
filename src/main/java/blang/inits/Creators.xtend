@@ -17,4 +17,8 @@ class Creators {
     return c
   }
   
+  def static Creator empty() {
+    return ExposedInternals::empty
+  }
+  
 }

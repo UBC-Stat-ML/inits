@@ -18,6 +18,7 @@ import com.google.common.base.Splitter
 package class Logger {
     
   val private Map<QualifiedName, TypeLiteral<?>> inputsTypeUsage = new LinkedHashMap
+  val private Map<QualifiedName, String> inputsDescriptions = new LinkedHashMap
   val private Map<QualifiedName, String> dependencyDescriptions = new LinkedHashMap
   
   @Accessors(PUBLIC_GETTER)
@@ -32,6 +33,7 @@ package class Logger {
       switch (dep) {
         InputDependency : {
           inputsTypeUsage.put(argument.QName, typeOrOptional)
+          inputsDescriptions.put(argument.QName, dep.annotation.formatDescription)
         }
         RecursiveDependency : {
           if (dep.description.present) 
@@ -50,10 +52,17 @@ package class Logger {
     val TypeLiteral<?> currentType = inputsTypeUsage.get(qName)
     val boolean isOptional = InitStaticUtils::isOptional(currentType)
     val TypeLiteral<?> deOptionized = InitStaticUtils::deOptionize(currentType)
-    var String result = '''«formatArgName(qName, "--")» <«deOptionized.rawType.simpleName»> «IF isOptional»(optional)«ENDIF»'''
+    var String result = '''«formatArgName(qName, "--")» «typeFormatString(qName)» «IF isOptional»(optional)«ENDIF»'''
     if (dependencyDescriptions.containsKey(qName)) 
       result += '\n' + '''  description: «dependencyDescriptions.get(qName)»'''
     return result
+  }
+  
+  def private String typeFormatString(QualifiedName qName) {
+    val TypeLiteral<?> currentType = inputsTypeUsage.get(qName)
+    val TypeLiteral<?> deOptionized = InitStaticUtils::deOptionize(currentType)
+    val String formatDescription = inputsDescriptions.get(qName)
+    return '''<«deOptionized.rawType.simpleName»«IF !formatDescription.empty» : «formatDescription»«ENDIF»>'''
   }
   
   def String usage() { 
@@ -100,7 +109,7 @@ package class Logger {
       if (present) {
         current += " " + readValue.join(" ") + "    #"
       }
-      current += " <" + deOptionized.rawType.simpleName + ">"
+      current += typeFormatString(qName)   
       if (isOptional) {
         current += " (optional)"
       }

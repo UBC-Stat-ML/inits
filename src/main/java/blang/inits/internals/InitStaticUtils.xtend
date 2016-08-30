@@ -60,10 +60,12 @@ package class InitStaticUtils {
         new InitServiceDependency(parentType, childType, element)
       }
       Input : {
-        if (childType.rawType == String) { 
-          new InputDependency(false, annotation.formatDescription) 
-        } else if (childType.rawType == List) {
-          new InputDependency(true, annotation.formatDescription)
+        val boolean isOptional = InitStaticUtils::isOptional(childType)
+        val TypeLiteral<?> deOptionized = InitStaticUtils::deOptionize(childType)
+        if (deOptionized.rawType == String) { 
+          new InputDependency(false, isOptional, annotation.formatDescription) 
+        } else if (deOptionized.rawType == List) {
+          new InputDependency(true, isOptional, annotation.formatDescription)
         } else {
           throw InputExceptions.malformedAnnotation("@" + Input.simpleName + " only applies to String or List<String> ", childType, element)
         }

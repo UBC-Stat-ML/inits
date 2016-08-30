@@ -4,7 +4,7 @@ import java.lang.annotation.Retention
 import java.lang.annotation.Target
 
 @Retention(RUNTIME)
-@Target(PARAMETER)
+@Target(PARAMETER, FIELD)
 annotation Input {
   val String formatDescription = ""
 }

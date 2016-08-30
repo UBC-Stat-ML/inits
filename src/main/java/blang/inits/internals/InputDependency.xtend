@@ -4,21 +4,31 @@ import blang.inits.parsing.Arguments
 import blang.inits.internals.CreatorImpl
 import org.eclipse.xtend.lib.annotations.Data
 import java.util.List
-import blang.inits.Input
+import java.util.Optional
 
 @Data
 package class InputDependency implements InitDependency {
   val boolean useList
+  val boolean isOptional
   val String inputDescription
   override Object resolve(CreatorImpl creator, Arguments currentArguments) {
     if (!currentArguments.argumentValue.present) {
-      return null
+      if (isOptional) {
+        return Optional.empty
+      } else {
+        return null
+      }
     }
     val List<String> list = currentArguments.argumentValue.get
-    if (useList) {
-      return list
+    val Object object = if (useList) {
+      list
     } else {
-      return list.join(" ").trim
+      list.join(" ").trim
+    }
+    if (isOptional) {
+      return Optional.of(object)
+    } else {
+      return object
     }
   }
 }

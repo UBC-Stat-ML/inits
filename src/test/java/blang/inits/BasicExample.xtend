@@ -1,7 +1,7 @@
 package blang.inits
 
 import blang.inits.Arg
-import blang.inits.Posix
+import blang.inits.parsing.Posix
 
 /**
  * Walking through some simple usage examples.

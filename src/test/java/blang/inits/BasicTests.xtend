@@ -1,8 +1,8 @@
 package blang.inits
 
 import org.junit.Test
-import blang.inits.Arguments
-import blang.inits.Posix
+import blang.inits.parsing.Arguments
+import blang.inits.parsing.Posix
 import java.util.List
 import org.junit.Assert
 import org.eclipse.xtend.lib.annotations.Data
@@ -16,7 +16,6 @@ import org.junit.rules.TestName
 import org.junit.Before
 import org.junit.After
 import java.util.Optional
-import com.google.common.reflect.TypeToken
 import com.google.inject.TypeLiteral
 
 class BasicTests {

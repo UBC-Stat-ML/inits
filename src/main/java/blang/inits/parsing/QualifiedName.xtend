@@ -1,4 +1,4 @@
-package blang.inits
+package blang.inits.parsing
 
 import java.util.List
 import org.eclipse.xtend.lib.annotations.Data

@@ -1,7 +1,7 @@
 package blang.inits.internals
 
-import blang.inits.Arguments
-import blang.inits.QualifiedName
+import blang.inits.parsing.Arguments
+import blang.inits.parsing.QualifiedName
 import blang.inits.internals.InitDependency
 import blang.inits.internals.InitStaticUtils
 import blang.inits.internals.InputDependency

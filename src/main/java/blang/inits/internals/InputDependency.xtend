@@ -1,6 +1,6 @@
 package blang.inits.internals
 
-import blang.inits.Arguments
+import blang.inits.parsing.Arguments
 import blang.inits.internals.CreatorImpl
 import org.eclipse.xtend.lib.annotations.Data
 import java.util.List

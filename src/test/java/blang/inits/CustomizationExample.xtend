@@ -4,7 +4,7 @@ import org.eclipse.xtend.lib.annotations.Data
 import blang.inits.DesignatedConstructor
 import blang.inits.Input
 import blang.inits.Arg
-import blang.inits.Posix
+import blang.inits.parsing.Posix
 
 class CustomizationExample {
   

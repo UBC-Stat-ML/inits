@@ -1,6 +1,8 @@
 package blang.inits
 
 import blang.inits.internals.ExposedInternals
+import blang.inits.providers.CoreProviders
+import blang.inits.providers.CollectionsProviders
 
 class Creators {
   
@@ -9,7 +11,10 @@ class Creators {
    * as primitives and things in java.lang (see blang.inits.internals.DefaultParsers).
    */
   def static Creator conventional() {
-    return ExposedInternals::getDefault()
+    val Creator c = ExposedInternals::empty
+    c.addFactories(CoreProviders)
+    c.addFactories(CollectionsProviders)
+    return c
   }
   
 }

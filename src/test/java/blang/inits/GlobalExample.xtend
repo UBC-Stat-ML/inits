@@ -2,7 +2,7 @@ package blang.inits
 
 import org.eclipse.xtend.lib.annotations.Data
 import blang.inits.Arg
-import blang.inits.Posix
+import blang.inits.parsing.Posix
 
 /**
  * It is possible to add global objects which are accessible at all 

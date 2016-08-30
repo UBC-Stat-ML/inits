@@ -1,11 +1,11 @@
 package blang.inits.internals
 
-import blang.inits.Arguments
+import blang.inits.parsing.Arguments
 import blang.inits.internals.CreatorImpl
 import org.eclipse.xtend.lib.annotations.Data
 import com.google.inject.TypeLiteral
 import blang.inits.InputExceptions
-import blang.inits.QualifiedName
+import blang.inits.parsing.QualifiedName
 import blang.inits.InitService
 import java.lang.reflect.AnnotatedElement
 import blang.inits.Creator

@@ -1,4 +1,4 @@
-package blang.inits
+package blang.inits.parsing
 
 class SimpleParser {
   

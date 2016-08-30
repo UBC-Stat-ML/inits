@@ -4,7 +4,7 @@ import blang.inits.Arg
 import blang.inits.ConstructorArg
 import blang.inits.DesignatedConstructor
 import java.util.Optional
-import blang.inits.Posix
+import blang.inits.parsing.Posix
 
 /**
  * Tutorial assumes you read BasicExample.xtend in same folder.

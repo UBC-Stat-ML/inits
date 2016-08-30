@@ -4,6 +4,8 @@ import org.eclipse.xtend.lib.annotations.Data
 import org.junit.Test
 import com.google.common.base.Splitter
 import org.junit.Assert
+import blang.inits.parsing.Posix
+import blang.inits.parsing.ConfigFile
 
 class ConfigTest {
   

@@ -1,6 +1,6 @@
 package blang.inits.internals
 
-import blang.inits.Arguments
+import blang.inits.parsing.Arguments
 
 package interface InitDependency {
   /**

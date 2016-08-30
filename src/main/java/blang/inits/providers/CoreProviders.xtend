@@ -1,4 +1,4 @@
-package blang.inits.internals
+package blang.inits.providers
 
 import java.util.Random
 import java.io.File
@@ -6,35 +6,13 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import blang.inits.ProvidesFactory
 import blang.inits.Input
-import java.util.List
-import blang.inits.InitService
-import com.google.inject.TypeLiteral
-import blang.inits.Creator
-import java.util.ArrayList
-import java.lang.reflect.ParameterizedType
-import blang.inits.SimpleParser
 
-package class DefaultParsers {
+
+class CoreProviders {
   
   @ProvidesFactory
   def static String parseString(@Input String s) {
     return s
-  }
-  
-  @ProvidesFactory
-  def static <T> List<T> parseList(
-    @Input List<String> strings,
-    @InitService TypeLiteral<List<T>> actualType,
-    @InitService Creator creator
-  ) {
-    val TypeLiteral<T> typeArgument = 
-      TypeLiteral.get((actualType.type as ParameterizedType).actualTypeArguments.get(0))
-      as TypeLiteral<T>
-    val List<T> result = new ArrayList
-    for (String string : strings) {
-      result.add(creator.init(typeArgument, SimpleParser.parse(string)))
-    }
-    return result
   }
   
   @ProvidesFactory
@@ -98,5 +76,5 @@ package class DefaultParsers {
   }
 
   val public static final String INF_STR = "INF"
-
+  
 }

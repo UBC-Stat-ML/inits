@@ -1,6 +1,6 @@
 package blang.inits.internals
 
-import blang.inits.Arguments
+import blang.inits.parsing.Arguments
 import com.google.inject.TypeLiteral
 import java.util.Optional
 import org.eclipse.xtend.lib.annotations.Data

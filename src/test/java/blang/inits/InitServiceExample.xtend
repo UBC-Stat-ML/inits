@@ -1,9 +1,9 @@
 package blang.inits
 
 import blang.inits.DesignatedConstructor
-import blang.inits.QualifiedName
+import blang.inits.parsing.QualifiedName
 import blang.inits.Arg
-import blang.inits.Posix
+import blang.inits.parsing.Posix
 import com.google.inject.TypeLiteral
 
 class InitServiceExample {

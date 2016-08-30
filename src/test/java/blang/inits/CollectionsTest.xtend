@@ -2,6 +2,7 @@ package blang.inits
 
 import org.junit.Test
 import java.util.List
+import blang.inits.parsing.Posix
 
 class CollectionsTest {
   

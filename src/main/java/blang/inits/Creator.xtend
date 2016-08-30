@@ -1,7 +1,7 @@
 package blang.inits
 
-import blang.inits.Arguments
-import blang.inits.QualifiedName
+import blang.inits.parsing.Arguments
+import blang.inits.parsing.QualifiedName
 import com.google.inject.TypeLiteral
 import blang.inits.InputExceptions.InputException
 import java.util.List

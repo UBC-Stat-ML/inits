@@ -145,7 +145,11 @@ package class CreatorImpl implements Creator {
   ) {
     val Pair<Arguments, Optional<String>> pair = currentArguments.pop
     if (!pair.value.isPresent) { // either the --key does not occur or has no input attached to it
-      logger.addError(currentArguments.QName, InputExceptions::missingInput(deOptionizedType))
+      if (InitStaticUtils::isOptional(declaredType)) {
+        return (Optional.empty as Object) as T
+      } else {
+        logger.addError(currentArguments.QName, InputExceptions::missingInput(deOptionizedType))
+      }
       return null
     }
     // try to load the implementation

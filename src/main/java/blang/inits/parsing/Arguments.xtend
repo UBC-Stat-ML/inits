@@ -99,7 +99,7 @@ class Arguments {
       if (result.childrenKeys.contains(currentChildName)) {
         result = result.child(currentChildName)
       } else {
-        result = result.createChildren(currentChildName, Optional.empty, true)
+        result = result.createChild(currentChildName, Optional.empty, true)
       }
     }
     return result
@@ -127,8 +127,17 @@ class Arguments {
     val List<String> fullyQualifiedName // root is empty list
     val List<String> value
   }
+  
+  def void setOrCreateChild(String name, List<String> value) {
+    if (children.containsKey(name)) {
+      val Arguments child = child(name)
+      child.argumentValue = Optional.of(value)
+    } else {
+      createChild(name, Optional.of(value), true)
+    }
+  }
 
-  def Arguments createChildren(String name, Optional<List<String>> value, boolean addToParent) {
+  def private Arguments createChild(String name, Optional<List<String>> value, boolean addToParent) {
     if (children.containsKey(name)) {
       throw new RuntimeException
     }

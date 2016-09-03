@@ -15,7 +15,7 @@ class ConfigTest {
     val Inner inner 
     @DesignatedConstructor
     def static MyTest build(
-      @ConstructorArg("test") int test,
+      @ConstructorArg(value="test", description = "Some descr") int test,
       @ConstructorArg("inner") Inner inner
     ) {
       new MyTest(test, inner)
@@ -35,6 +35,7 @@ class ConfigTest {
   
   @Test
   def void test() {
+    println("ConfigTest")
     val Creator c = Creators::conventional()
     val MyTest o1 = c.init(MyTest, Posix.parse(
       "--test", "5",

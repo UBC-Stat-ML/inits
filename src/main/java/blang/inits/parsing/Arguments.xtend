@@ -29,7 +29,7 @@ class Arguments {
   @Accessors(PUBLIC_GETTER)
   val QualifiedName qName
   
-  private new(Optional<List<String>> argumentValue, QualifiedName qName) {
+  public new(Optional<List<String>> argumentValue, QualifiedName qName) {
     this.argumentValue = argumentValue
     this.qName = qName
   }

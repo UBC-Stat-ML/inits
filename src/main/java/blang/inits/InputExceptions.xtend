@@ -42,7 +42,7 @@ class InputExceptions {
     )
   }
   
-  def static InputException failedInstantiation(TypeLiteral<?> type, Optional<List<String>> input, Exception e) {
+  def static InputException failedInstantiation(TypeLiteral<?> type, Optional<List<String>> input, Throwable e) {
     return new InputException(
       InputExceptionCategory.FAILED_INSTANTIATION,
       "Failed to build type <" + type + ">, possibly a parsing error\n" + 

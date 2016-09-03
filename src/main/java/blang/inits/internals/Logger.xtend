@@ -20,6 +20,7 @@ package class Logger {
   val private Map<QualifiedName, TypeLiteral<?>> inputsTypeUsage = new LinkedHashMap
   val private Map<QualifiedName, String> inputsDescriptions = new LinkedHashMap
   val private Map<QualifiedName, String> dependencyDescriptions = new LinkedHashMap
+  val private Map<QualifiedName, TypeLiteral<?>> allTypes = new LinkedHashMap
   
   @Accessors(PUBLIC_GETTER)
   val private ListMultimap<QualifiedName,InputException> errors = ArrayListMultimap.create
@@ -29,6 +30,7 @@ package class Logger {
   }
   
   def void reportTypeUsage(TypeLiteral<?> typeOrOptional, Arguments argument, List<InitDependency> dependencies) {
+    allTypes.put(argument.QName, typeOrOptional)
     for (InitDependency dep : dependencies) {
       switch (dep) {
         InputDependency : {
@@ -39,7 +41,7 @@ package class Logger {
           if (dep.description.present) 
             dependencyDescriptions.put(argument.QName.child(dep.name), dep.description.get)
         }
-        // do not report the other ones
+        // do not report the other ones (globals, etc)
       }
     }
   }
@@ -51,7 +53,6 @@ package class Logger {
   def private String usage(QualifiedName qName) {
     val TypeLiteral<?> currentType = inputsTypeUsage.get(qName)
     val boolean isOptional = InitStaticUtils::isOptional(currentType)
-    val TypeLiteral<?> deOptionized = InitStaticUtils::deOptionize(currentType)
     var String result = '''«formatArgName(qName, "--")» «typeFormatString(qName)» «IF isOptional»(optional)«ENDIF»'''
     if (dependencyDescriptions.containsKey(qName)) 
       result += '\n' + '''  description: «dependencyDescriptions.get(qName)»'''
@@ -81,6 +82,21 @@ package class Logger {
     return errors.entries.map[formatArgName(it.key, "@ ") + ": " + it.value.message].join("\n")
   }
   
+  def boolean someParentOptional(QualifiedName qName) {
+    val TypeLiteral<?> currentType = allTypes.get(qName)
+    if (currentType != null) {
+      val boolean isOptional = InitStaticUtils::isOptional(currentType)
+      if (isOptional) {
+        return true
+      }
+    }
+    if (qName.isRoot) {
+      return false
+    } else {
+      return someParentOptional(qName.parent)
+    }
+  }
+  
   /**
    * Reports the information, inputs and errors all in the one string.
    * Useful as the basis of config file, e.g. the first time a complex command is ran.
@@ -100,7 +116,6 @@ package class Logger {
     for (QualifiedName qName : possibleInputsCopy) {
       val TypeLiteral<?> currentType = inputsTypeUsage.get(qName)
       val boolean isOptional = InitStaticUtils::isOptional(currentType)
-      val TypeLiteral<?> deOptionized = InitStaticUtils::deOptionize(currentType)
       val List<String> readValue = argumentsAsMap.get(qName)
       val boolean present = readValue !== null
       val boolean commentedOut = !present 
@@ -112,6 +127,8 @@ package class Logger {
       current += " " + typeFormatString(qName)   
       if (isOptional) {
         current += " (optional)"
+      } else if (someParentOptional(qName)) {
+        current += " (a parent is optional)"
       }
       current += "\n"
       if (dependencyDescriptions.containsKey(qName)) {

@@ -33,7 +33,16 @@ class CoreProviders {
   @ProvidesFactory
   def static int parse_int(@Input String s) {
     if (s == INF_STR) return Integer.MAX_VALUE
-    return Integer.parseInt(s)
+    try { return Integer.parseInt(s) }
+    catch (Exception e) {
+      // try for thing like 5e10 that look like doubles
+      val double asDouble = Double.parseDouble(s)
+      if ((asDouble == Math.floor(asDouble))) {
+        return Math.floor(asDouble).intValue
+      } else {
+        throw new RuntimeException("Not an integer:" + s)
+      }
+    }
   }
   
   @ProvidesFactory

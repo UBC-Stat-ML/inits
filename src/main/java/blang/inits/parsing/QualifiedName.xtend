@@ -22,6 +22,13 @@ class QualifiedName {
     }
   }
   
+  def QualifiedName parent() {
+    if (isRoot) {
+      throw new RuntimeException
+    }
+    return new QualifiedName(path.subList(0, path.size - 1))
+  }
+  
   def static QualifiedName root() {
     return new QualifiedName(new ArrayList)
   }

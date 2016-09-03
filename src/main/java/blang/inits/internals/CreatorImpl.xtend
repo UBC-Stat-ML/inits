@@ -23,6 +23,7 @@ import java.lang.reflect.Executable
 import com.google.common.collect.ListMultimap
 import java.lang.reflect.Method
 import blang.inits.ProvidesFactory
+import java.lang.reflect.InvocationTargetException
 
 package class CreatorImpl implements Creator {
   val package Map<Class<?>, Object> globals = new HashMap
@@ -120,6 +121,9 @@ package class CreatorImpl implements Creator {
         return (
           if (optional) Optional.of(instance) else instance
         ) as T
+      } catch (InvocationTargetException ite) {
+        logger.addError(currentArguments.QName, InputExceptions::failedInstantiation(actualType, currentArguments.argumentValue, ite.targetException))
+        return null
       } catch (Exception e) {
         logger.addError(currentArguments.QName, InputExceptions::failedInstantiation(actualType, currentArguments.argumentValue, e))
         return null

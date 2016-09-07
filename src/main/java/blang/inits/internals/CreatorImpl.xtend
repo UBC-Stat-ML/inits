@@ -45,7 +45,7 @@ package class CreatorImpl implements Creator {
     logger = new Logger
     lastArgs = args
     val T result = _init(type, args)  
-    if (result === null) {
+    if (result === null || !logger.errors.isEmpty()) {
       throw InputExceptions.FAILED_INIT
     }
     return result

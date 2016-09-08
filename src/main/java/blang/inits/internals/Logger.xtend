@@ -14,6 +14,7 @@ import com.google.common.collect.ArrayListMultimap
 import java.util.LinkedHashSet
 import java.util.ArrayList
 import com.google.common.base.Splitter
+import blang.inits.InputExceptions.InputExceptionCategory
 
 package class Logger {
     
@@ -27,6 +28,15 @@ package class Logger {
   
   def private Set<QualifiedName> keysOfPossibleInputs() {
     return inputsTypeUsage.keySet
+  }
+  
+  def boolean hasUnknownArgument() {
+    for (error : errors.values) {
+      if (error.category == InputExceptionCategory.UNKNOWN_INPUT) {
+        return true
+      }
+    }
+    return false
   }
   
   def void reportTypeUsage(TypeLiteral<?> typeOrOptional, Arguments argument, List<InitDependency> dependencies) {

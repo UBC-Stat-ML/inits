@@ -1,6 +1,5 @@
 plugins {
   id 'org.xtext.xtend' version '1.0.8'
-  id 'org.xtext.builder' version '1.0.8'
   id 'java'
   id 'eclipse'
   id 'maven'

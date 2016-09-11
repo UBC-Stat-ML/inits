@@ -1,7 +1,7 @@
-Summary
+Summary [![Build Status](https://travis-ci.org/UBC-Stat-ML/inits.png?branch=master)](https://travis-ci.org/UBC-Stat-ML/inits) 
 -------
 
-<!-- [![Build Status](https://travis-ci.org/alexandrebouchard/inits.png?branch=master)](https://travis-ci.org/alexandrebouchard/inits) -->
+
 
 ``inits`` is a library used to create ("init") a tree-structured object graph from a parse tree. The main motivation is that this parse tree comes from command line arguments/config file.
 

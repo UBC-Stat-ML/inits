@@ -79,7 +79,7 @@ class CoreProviders {
     return Long.parseLong(s)
   }
   
-    @ProvidesFactory
+  @ProvidesFactory
   def static Long parseLong(@Input String s) {
     return parse_long(s)
   }

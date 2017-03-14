@@ -22,12 +22,23 @@ package class Logger {
   val private Map<QualifiedName, String> inputsDescriptions = new LinkedHashMap
   val private Map<QualifiedName, String> dependencyDescriptions = new LinkedHashMap
   val private Map<QualifiedName, TypeLiteral<?>> allTypes = new LinkedHashMap
+  val private Map<QualifiedName, String> defaultValues = new LinkedHashMap
+  
+  def void addAll(Logger another) {
+    inputsTypeUsage.putAll(another.inputsTypeUsage)
+    inputsDescriptions.putAll(another.inputsDescriptions)
+    dependencyDescriptions.putAll(another.dependencyDescriptions)
+    allTypes.putAll(another.allTypes)
+    defaultValues.putAll(another.defaultValues)
+  }
   
   @Accessors(PUBLIC_GETTER)
   val private ListMultimap<QualifiedName,InputException> errors = ArrayListMultimap.create
   
-  def private Set<QualifiedName> keysOfPossibleInputs() {
-    return inputsTypeUsage.keySet
+  def private Set<QualifiedName> keysInUsage() {
+    val Set<QualifiedName> result = new LinkedHashSet
+    result.addAll(inputsTypeUsage.keySet)
+    return result
   }
   
   def boolean hasUnknownArgument() {
@@ -48,8 +59,12 @@ package class Logger {
           inputsDescriptions.put(argument.QName, dep.inputDescription)
         }
         RecursiveDependency : {
-          if (dep.description.present) 
+          if (dep.defaultArguments.present) {
+            defaultValues.put(argument.QName.child(dep.name), dep.defaultArguments.get.toString)
+          }
+          if (dep.description.present) { 
             dependencyDescriptions.put(argument.QName.child(dep.name), dep.description.get)
+          }
         }
         // do not report the other ones (globals, etc)
       }
@@ -63,7 +78,10 @@ package class Logger {
   def private String usage(QualifiedName qName) {
     val TypeLiteral<?> currentType = inputsTypeUsage.get(qName)
     val boolean isOptional = InitStaticUtils::isOptional(currentType)
-    var String result = '''«formatArgName(qName, "--")» «typeFormatString(qName)» «IF isOptional»(optional)«ENDIF»'''
+    val String defaultValue = if (defaultValues.containsKey(qName)) {
+      '''(default: «defaultValues.get(qName)») '''
+    } else { "" }
+    var String result = '''«formatArgName(qName, "--")» «typeFormatString(qName)» «defaultValue»«IF isOptional»(optional)«ENDIF»'''
     if (dependencyDescriptions.containsKey(qName)) 
       result += '\n' + '''  description: «dependencyDescriptions.get(qName)»'''
     return result
@@ -77,7 +95,7 @@ package class Logger {
   }
   
   def String usage() { 
-    keysOfPossibleInputs.map[usage(it)].join("\n")
+    keysInUsage.map[usage(it)].join("\n")
   }
   
   
@@ -116,10 +134,10 @@ package class Logger {
     val LinkedHashMap<QualifiedName,List<String>> argumentsAsMap = arguments.asMap
     val ListMultimap<QualifiedName,InputException> errorsCopy = ArrayListMultimap.create(errors)
     val Set<QualifiedName> possibleInputsCopy = new LinkedHashSet()
-    if (keysOfPossibleInputs().contains(QualifiedName.root())) {
+    if (keysInUsage().contains(QualifiedName.root())) {
       possibleInputsCopy.add(QualifiedName.root()) // make sure to process the root first
     }
-    for (QualifiedName key : keysOfPossibleInputs()) {
+    for (QualifiedName key : keysInUsage()) {
       possibleInputsCopy.add(key)
     }
     // start by reporting the known options

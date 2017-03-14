@@ -9,7 +9,6 @@ import blang.inits.parsing.QualifiedName
 import blang.inits.InitService
 import java.lang.reflect.AnnotatedElement
 import blang.inits.Creator
-import org.eclipse.xtend.lib.annotations.Delegate
 
 /**
  * 
@@ -19,16 +18,14 @@ package class InitServiceDependency implements InitDependency {
   val TypeLiteral<?> parentType
   val TypeLiteral<?> childType
   val AnnotatedElement parameter
+  
   override Object resolve(CreatorImpl creator, Arguments currentArguments) {
     if (childType.rawType == QualifiedName) {
       return currentArguments.QName
     } else if (childType.rawType == TypeLiteral) {
       return parentType
     } else if (childType.rawType == Creator) {
-      val CreatorImpl result = new CreatorImpl()
-      result.globals.putAll(creator.globals)
-      result.factories.putAll(creator.factories)
-      return new CreatorWithPrefix(result, currentArguments.QName)
+      return CreatorWithPrefix::build(creator, currentArguments.QName)
     } else {
       throw InputExceptions::malformedAnnotation("Annotation @" + InitService.simpleName + " can only be applied to the following type: " +
         #[
@@ -36,22 +33,6 @@ package class InitServiceDependency implements InitDependency {
           TypeLiteral.simpleName,
           Creator.simpleName
         ].join(", "), childType, parameter)
-    }
-  }
-  
-  @Data
-  static class CreatorWithPrefix implements Creator {
-    @Delegate
-    val Creator delegate
-    
-    val QualifiedName prefix
-    
-    override <T> T init(TypeLiteral<T> type, Arguments args) {
-      return delegate.init(type, args.withQName(prefix))
-    }
-    
-    override <T> T init(Class<T> type, Arguments args) {
-      return delegate.init(type, args.withQName(prefix))
     }
   }
 }

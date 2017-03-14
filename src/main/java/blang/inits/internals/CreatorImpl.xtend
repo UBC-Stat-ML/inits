@@ -31,7 +31,7 @@ package class CreatorImpl implements Creator {
   // type initialized -> (static method to do so, type where this static method is defined)
   val package Map<Class<?>, Pair<Executable,TypeLiteral<?>>> factories = new HashMap
   
-  var transient Logger logger = null
+  var public transient Logger logger = null
   var transient Arguments lastArgs = null
   
   /**

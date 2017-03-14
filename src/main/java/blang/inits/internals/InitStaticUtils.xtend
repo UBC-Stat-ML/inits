@@ -19,6 +19,9 @@ import blang.inits.Arg
 import blang.inits.GlobalArg
 import java.lang.reflect.Modifier
 import blang.inits.InitService
+import blang.inits.DefaultValue
+import blang.inits.parsing.Arguments
+import blang.inits.parsing.Posix
 
 package class InitStaticUtils {
   
@@ -41,17 +44,19 @@ package class InitStaticUtils {
   )
   
   def static InitDependency findDependency(TypeLiteral<?> parentType, TypeLiteral<?> childType, AnnotatedElement element, Optional<String> name) {
-    val Annotation annotation = try {
+    val Pair<Annotation,Optional<DefaultValue>> annotations = try {
       findAnnotation(element) 
     } catch (Exception e) {
       throw InputExceptions.malformedAnnotation(e.message, childType, element) 
     }
+    val Annotation annotation = annotations.key
+    val Optional<Arguments> defaultArguments = defaultArguments(annotations.value)
     return switch (annotation) {
       Arg : {
-        new RecursiveDependency(childType, name.get, optionalizeString(annotation.description))
+        new RecursiveDependency(childType, name.get, optionalizeString(annotation.description), defaultArguments)
       }
       ConstructorArg : {
-        new RecursiveDependency(childType, annotation.value, optionalizeString(annotation.description))
+        new RecursiveDependency(childType, annotation.value, optionalizeString(annotation.description), defaultArguments)
       }
       GlobalArg : {
         new GlobalDependency(childType)
@@ -74,20 +79,31 @@ package class InitStaticUtils {
     }
   }
   
-  def static Annotation findAnnotation(AnnotatedElement p) {
-    var Optional<Annotation> result = Optional.empty
+  def static Optional<Arguments> defaultArguments(Optional<DefaultValue> defaultValueAnnotation) {
+    if (defaultValueAnnotation.isPresent) {
+      return Optional.of(Posix.parse(defaultValueAnnotation.get.value))
+    } else {
+      return Optional.empty
+    }
+  }
+  
+  def static Pair<Annotation,Optional<DefaultValue>> findAnnotation(AnnotatedElement p) {
+    var Optional<Annotation> main = Optional.empty
+    var Optional<DefaultValue> secondary = Optional.empty
     for (Annotation annotation : p.annotations) {
-      if (possibleAnnotations.contains(annotation.annotationType)) {
-        if (result.present) {
+      if (annotation.annotationType == DefaultValue) {
+        secondary = Optional.of(annotation as DefaultValue)
+      } else if (possibleAnnotations.contains(annotation.annotationType)) {
+        if (main.present) {
           throw new RuntimeException("Cannot have more than one annotation from " + possibleAnnotations)
         }
-        result = Optional.of(annotation)
+        main = Optional.of(annotation)
       }
     }
-    if (!result.present) {
+    if (!main.present) {
       throw new RuntimeException("Need at least one annotation from " + possibleAnnotations)
     }
-    return result.get
+    return Pair.of(main.get, secondary)
   }
   
   def static boolean needToLoadImplementation(TypeLiteral<?> deOptionized) {

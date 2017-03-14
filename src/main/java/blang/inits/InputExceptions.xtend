@@ -27,6 +27,13 @@ class InputExceptions {
     )
   }
   
+  def static InputException faultyDefaultValue(String rootMessage) {
+    return new InputException(
+      InputExceptionCategory.MALFORMED_ANNOTATION,
+      "Could not parse default value, root cause: \n" + rootMessage
+    )
+  }
+  
   def static InputException malformedImplementation(TypeLiteral<?> type) {
     return new InputException(
       InputExceptionCategory.MALFORMED_INTERFACE_IMPLEMENTATION, 

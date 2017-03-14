@@ -105,9 +105,13 @@ class Arguments {
     return result
   }
   
+  def static Arguments createEmpty() {
+    return new Arguments(Optional.empty, QualifiedName.root())
+  }
+  
   def static Arguments parse(List<ArgumentItem> items) {
     val Set<List<String>> visitedKeys = new HashSet
-    val Arguments root = new Arguments(Optional.empty, QualifiedName.root())
+    val Arguments root = createEmpty()
     
     for (ArgumentItem item : items) {
       if (visitedKeys.contains(item.fullyQualifiedName)) {

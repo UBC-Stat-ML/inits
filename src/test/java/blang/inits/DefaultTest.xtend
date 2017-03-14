@@ -7,7 +7,7 @@ class DefaultTest {
   
   static class MyTest {
     
-    @Arg @DefaultValue("66")
+    @Arg(description = "some description") @DefaultValue("66")
     int test
     
     @Arg @DefaultValue("some input")

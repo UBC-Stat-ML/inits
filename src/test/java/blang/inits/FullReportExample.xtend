@@ -30,8 +30,18 @@ class FullReportExample {
     EARTH, MARS, KOBZ
   }
   
+  static class TwoThings {
+    @Arg String first
+    @Arg String second
+  }
+  
   static class Hierarchy {
+    
+    @Arg @DefaultValue("--first", "F", "--second", "S") TwoThings stuff
+    
     @Arg String anotherOne
+    
+    @Arg @DefaultValue("blah") String andMore
     
     @DesignatedConstructor
     def static void test() {}

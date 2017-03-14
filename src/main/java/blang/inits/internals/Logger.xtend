@@ -6,7 +6,6 @@ import com.google.inject.TypeLiteral
 import java.util.LinkedHashMap
 import java.util.List
 import java.util.Map
-import java.util.Set
 import org.eclipse.xtend.lib.annotations.Accessors
 import blang.inits.InputExceptions.InputException
 import com.google.common.collect.ListMultimap
@@ -15,6 +14,7 @@ import java.util.LinkedHashSet
 import java.util.ArrayList
 import com.google.common.base.Splitter
 import blang.inits.InputExceptions.InputExceptionCategory
+import java.util.Optional
 
 package class Logger {
     
@@ -34,12 +34,6 @@ package class Logger {
   
   @Accessors(PUBLIC_GETTER)
   val private ListMultimap<QualifiedName,InputException> errors = ArrayListMultimap.create
-  
-  def private Set<QualifiedName> keysInUsage() {
-    val Set<QualifiedName> result = new LinkedHashSet
-    result.addAll(inputsTypeUsage.keySet)
-    return result
-  }
   
   def boolean hasUnknownArgument() {
     for (error : errors.values) {
@@ -75,27 +69,15 @@ package class Logger {
     errors.put(name, exception)
   }
   
-  def private String usage(QualifiedName qName) {
-    val TypeLiteral<?> currentType = inputsTypeUsage.get(qName)
-    val boolean isOptional = InitStaticUtils::isOptional(currentType)
-    val String defaultValue = if (defaultValues.containsKey(qName)) {
-      '''(default: «defaultValues.get(qName)») '''
-    } else { "" }
-    var String result = '''«formatArgName(qName, "--")» «typeFormatString(qName)» «defaultValue»«IF isOptional»(optional)«ENDIF»'''
-    if (dependencyDescriptions.containsKey(qName)) 
-      result += '\n' + '''  description: «dependencyDescriptions.get(qName)»'''
-    return result
-  }
-  
   def private String typeFormatString(QualifiedName qName) {
     val TypeLiteral<?> currentType = inputsTypeUsage.get(qName)
     val TypeLiteral<?> deOptionized = InitStaticUtils::deOptionize(currentType)
     val String formatDescription = inputsDescriptions.get(qName)
-    return '''<«deOptionized.rawType.simpleName»«IF !formatDescription.empty» : «formatDescription»«ENDIF»>'''
+    return '''<«deOptionized.rawType.simpleName»«IF !formatDescription.empty»: «formatDescription»«ENDIF»>'''
   }
   
   def String usage() { 
-    keysInUsage.map[usage(it)].join("\n")
+    return fullReport(null)
   }
   
   
@@ -125,54 +107,102 @@ package class Logger {
     }
   }
   
+  def Optional<String> someParentHasDefault(QualifiedName qName) {
+    if (defaultValues.containsKey(qName)) {
+      return Optional.of("parent " + qName + " has default value: " + defaultValues.get(qName))
+    }
+    if (qName.isRoot) {
+      return Optional.empty
+    } else {
+      return someParentHasDefault(qName.parent)
+    }
+  }
+  
+  def private LinkedHashSet<QualifiedName> sortedPossibleInputs() {
+    val LinkedHashSet<QualifiedName> result = new LinkedHashSet()
+    if (inputsTypeUsage.keySet.contains(QualifiedName.root())) {
+      result.add(QualifiedName.root()) // make sure to process the root first
+    }
+    for (QualifiedName key : inputsTypeUsage.keySet) {
+      result.add(key)
+    }
+    return result
+  }
+  
+  def String enforcementString(QualifiedName qName) {
+    val TypeLiteral<?> currentType = inputsTypeUsage.get(qName)
+    val boolean isOptional = InitStaticUtils::isOptional(currentType)
+    
+    if (isOptional) {
+      return "optional"
+    }
+    
+    if (someParentOptional(qName)) {
+      return "a parent is optional"
+    }
+    
+    if (defaultValues.containsKey(qName)) {
+      return "default value: " + defaultValues.get(qName)
+    }
+    
+    val Optional<String> parentDefault = someParentHasDefault(qName)
+    if (parentDefault.isPresent) {
+      return parentDefault.get
+    }
+    
+    return "mandatory"
+  }
+  
   /**
    * Reports the information, inputs and errors all in the one string.
    * Useful as the basis of config file, e.g. the first time a complex command is ran.
    */
-  def String fullReport(Arguments arguments) {
+  def String fullReport(Arguments _arguments) {
+    
+    val printDetails = _arguments != null
+    val String on  = if (printDetails) " " else ""
+    val String off = if (printDetails) "#" else ""
+    val Arguments arguments = if (_arguments == null) {
+      Arguments.createEmpty
+    } else {
+      _arguments
+    }
+    
     var List<String> result = new ArrayList
     val LinkedHashMap<QualifiedName,List<String>> argumentsAsMap = arguments.asMap
     val ListMultimap<QualifiedName,InputException> errorsCopy = ArrayListMultimap.create(errors)
-    val Set<QualifiedName> possibleInputsCopy = new LinkedHashSet()
-    if (keysInUsage().contains(QualifiedName.root())) {
-      possibleInputsCopy.add(QualifiedName.root()) // make sure to process the root first
-    }
-    for (QualifiedName key : keysInUsage()) {
-      possibleInputsCopy.add(key)
-    }
+    val LinkedHashSet<QualifiedName> possibleInputsCopy = sortedPossibleInputs()
     // start by reporting the known options
     for (QualifiedName qName : possibleInputsCopy) {
-      val TypeLiteral<?> currentType = inputsTypeUsage.get(qName)
-      val boolean isOptional = InitStaticUtils::isOptional(currentType)
       val List<String> readValue = argumentsAsMap.get(qName)
       val boolean present = readValue !== null
       val boolean commentedOut = !present 
-      var String current = if (commentedOut) "# " else "  "
-      current += if (qName.isRoot) "" else "--" + qName.toString
+      
+      var String current = if (commentedOut) off else on
+      current += if (qName.isRoot) "  " else " --" + qName.toString
       if (present) {
         current += " " + readValue.join(" ") + "    #"
       }
-      current += " " + typeFormatString(qName)   
-      if (isOptional) {
-        current += " (optional)"
-      } else if (someParentOptional(qName)) {
-        current += " (a parent is optional)"
-      }
+      current += " " + typeFormatString(qName)  
+      current += " (" + enforcementString(qName) + ")"
       current += "\n"
       if (dependencyDescriptions.containsKey(qName)) {
-        current += '''#   description: «dependencyDescriptions.get(qName)»''' + "\n"
+        current += '''«off»   description: «dependencyDescriptions.get(qName)»''' + "\n"
       }
-      if (!errors.get(qName).isEmpty()) {
-        current += formatErrorBlock(errors.get(qName)) + "\n"
+      if (printDetails) {
+        if (!errors.get(qName).isEmpty()) {
+          current += formatErrorBlock(errors.get(qName)) + "\n"
+        }
       }
+      
       result += current
       errorsCopy.removeAll(qName)
     }
     // then the unassociated errors
-    if (!errorsCopy.isEmpty()) {
+    if (!errorsCopy.isEmpty() && printDetails) {
       result += "### Additional errors:\n"
       for (QualifiedName qName : errorsCopy.keySet()) {
-        var String current = "# error " + formatArgName(qName, "@ ") + "\n"
+        var String current = "#   error " + formatArgName(qName, "@ ") + "\n"
         current += formatErrorBlock(errorsCopy.get(qName)) + "\n"
         result += current
       }

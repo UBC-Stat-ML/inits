@@ -76,12 +76,10 @@ package class CreatorImpl implements Creator {
       return new EnumSchema(currentType.rawType)
     }
     // else, use an introspection based scheme
-     
     val pair = factories.get(currentType.rawType)
     if (pair != null) {
       // use the database of factories in priority
       return new IntrospectionSchema(currentType, pair.value, pair.key)
-      
     } else {
       // else, look in the type itself
       val builder = InitStaticUtils::findBuilder(currentType)
@@ -158,7 +156,14 @@ package class CreatorImpl implements Creator {
     }
     // try to load the implementation
     val Class<?> rawType = try {
-      Class.forName(pair.value.get)
+      val String implementationTypeString = pair.value.get
+      if (implementationTypeString.contains(".")) {
+        // found a dot so assume to be fully specified
+        Class.forName(implementationTypeString)
+      } else {
+        // look into the same package as the interface
+        Class.forName(deOptionizedType.rawType.package.name + "." + implementationTypeString)
+      }
     } catch (Exception e) {
       logger.addError(currentArguments.QName, InputExceptions::malformedImplementation(deOptionizedType))
       return null

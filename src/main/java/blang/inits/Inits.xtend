@@ -5,15 +5,15 @@ import blang.inits.parsing.Posix
 
 class Inits {
   
-  def void parseAndRun(Class<Runnable> mainClass, String [] args) {
+  def static void parseAndRun(Class<? extends Runnable> mainClass, String [] args) {
     parseAndRun(mainClass, Posix.parse(args))
   }
   
-  def void parseAndRun(Class<Runnable> mainClass, Arguments arguments) {
+  def static void parseAndRun(Class<? extends Runnable> mainClass, Arguments arguments) {
     parseAndRun(mainClass, arguments, Creators::conventional)
   }
   
-  def void parseAndRun(Class<Runnable> mainClass, Arguments arguments, Creator creator) {
+  def static void parseAndRun(Class<? extends Runnable> mainClass, Arguments arguments, Creator creator) {
     val Runnable result = try {
       creator.init(mainClass, arguments)
     } catch (Exception e) {

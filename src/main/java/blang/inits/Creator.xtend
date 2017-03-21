@@ -18,7 +18,7 @@ interface Creator {
    * @throws InputExceptions.FAILED_INIT if there is some
    * error; use errorReport() and errors() to access them.
    */
-  def <T> T init(Class<T> type, Arguments args) {
+  def <T> T init(Class<T> type, Arguments args) {  
     return init(TypeLiteral.get(type), args) as T
   }
   
@@ -34,6 +34,7 @@ interface Creator {
   def ListMultimap<QualifiedName,InputException> errors() 
   
   def String fullReport()
+  def String csvReport()
   
   def void addFactories(Class<?> factoryFile) 
   

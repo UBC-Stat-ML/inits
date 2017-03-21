@@ -153,6 +153,34 @@ package class Logger {
     return "mandatory"
   }
   
+  def String csvReport(Arguments arguments) {
+    var List<String> result = new ArrayList
+    val LinkedHashMap<QualifiedName,List<String>> argumentsAsMap = arguments.asMap
+    val LinkedHashSet<QualifiedName> possibleInputsCopy = sortedPossibleInputs()
+    // start by reporting the known options
+    for (QualifiedName qName : possibleInputsCopy) {
+      val List<String> readValue = argumentsAsMap.get(qName)
+      val TypeLiteral<?> currentType = inputsTypeUsage.get(qName)
+      val boolean isOptional = InitStaticUtils::isOptional(currentType)
+      val String value = 
+        if (readValue != null) {
+          readValue.join(" ")
+        } else if (isOptional) {   
+          "<optional>"
+        } else if (someParentOptional(qName)) {
+          "<parent optional>"
+        } else if (defaultValues.containsKey(qName)) {
+          defaultValues.get(qName)
+        } else if (someParentHasDefault(qName).isPresent) {
+          someParentHasDefault(qName).get
+        } else {
+          "<missing>"
+        }
+      result += "" + qName + ", " + value
+    }
+    return result.join("\n") 
+  }
+  
   /**
    * Reports the information, inputs and errors all in the one string.
    * Useful as the basis of config file, e.g. the first time a complex command is ran.

@@ -41,6 +41,9 @@ package class CreatorImpl implements Creator {
   override <T> T init(
     TypeLiteral<T> type,  
     Arguments args) {
+    if (type == null || args == null) {
+      throw new RuntimeException
+    }
     // empty logs
     logger = new Logger
     lastArgs = args
@@ -53,6 +56,11 @@ package class CreatorImpl implements Creator {
    
   override String fullReport() {
     return logger.fullReport(lastArgs)
+  }
+  
+  override String csvReport() {
+    checkInitialized()
+    return logger.csvReport(lastArgs)
   }
   
   override String usage() {

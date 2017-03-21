@@ -15,6 +15,7 @@ import java.lang.annotation.Annotation
 import ca.ubc.stat.blang.StaticUtils
 import java.lang.reflect.Modifier
 import blang.inits.InputExceptions
+import briefj.ReflexionUtils
 
 @Data
 package class IntrospectionSchema implements Schema {
@@ -42,7 +43,7 @@ package class IntrospectionSchema implements Schema {
   def private List<Field> fieldsToInstantiate() {
     val List<Field> result = new ArrayList
     for (Class<? extends Annotation> annotationType : InitStaticUtils::possibleAnnotations) {
-      for (Field field : typeToBuild.rawType.declaredFields.filter[it.getAnnotation(annotationType) !== null]) {
+      for (Field field : ReflexionUtils::getAnnotatedDeclaredFields(typeToBuild.rawType, annotationType, true)) {
         result.add(field)
       }
     }

@@ -44,7 +44,7 @@ class InterfaceTests {
   @Test
   def void testBadInterface1() {
     assertThrows[ creator.init(TestInterface, parse("java.lang.Double", "14.5")) ]
-    Assert.assertEquals(1,creator.errors.entries.filter[it.value.category === InputExceptionCategory.MISSING_INPUT].size)
+    Assert.assertEquals(1,creator.errors.entries.filter[it.value.category === InputExceptionCategory.MALFORMED_INTERFACE_IMPLEMENTATION].size)
     println(creator.errorReport)
   }
   

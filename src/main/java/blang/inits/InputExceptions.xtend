@@ -30,17 +30,28 @@ class InputExceptions {
   def static InputException faultyDefaultValue(String rootMessage) {
     return new InputException(
       InputExceptionCategory.MALFORMED_ANNOTATION,
-      "Could not parse default value, root cause: \n" + rootMessage
+      "Could not parse default value (common problem: using @Default(\"--switch value\") instead of @Default({\"--switch\", \"value\"})), detailed root cause: \n" + rootMessage
     )
   }
   
-  def static InputException malformedImplementation(TypeLiteral<?> type) {
+  def static InputException malformedImplementation(TypeLiteral<?> type, String message) {
+    return new InputException(
+      InputExceptionCategory.MALFORMED_INTERFACE_IMPLEMENTATION, 
+      message
+    )
+  }
+  
+  def static InputException malformedImplementation(TypeLiteral<?> type, Implementations implementations) {
     return new InputException(
       InputExceptionCategory.MALFORMED_INTERFACE_IMPLEMENTATION, 
       "The input should point to an implementation of " + type + "\n" +
-      "  specified either with a fully qualified string, or a class name\n" +
-      "  assumed to reside in the same package as the interface " + type + "\n" +
-      "  note: default package not supported\n" +
+      "  specified either with a fully qualified string" +
+      if (implementations == null) {
+        ""
+      } else {
+        ", or a case insensitive simple name from: \n" +
+        "    " + implementations.value.map[it.simpleName].join(", ")  + "\n"
+      } +
       "  note: children options can only be reported after this error is fixed"
     )
   }

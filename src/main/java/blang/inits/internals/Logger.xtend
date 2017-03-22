@@ -228,7 +228,7 @@ package class Logger {
     }
     // then the unassociated errors
     if (!errorsCopy.isEmpty() && printDetails) {
-      result += "### Additional errors:\n"
+      result += "### Errors:\n"
       for (QualifiedName qName : errorsCopy.keySet()) {
         var String current = "#   error " + formatArgName(qName, "@ ") + "\n"
         current += formatErrorBlock(errorsCopy.get(qName)) + "\n"

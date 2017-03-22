@@ -11,6 +11,8 @@ import static briefj.run.ExecutionInfoFiles.MAIN_CLASS_FILE;
 import static briefj.run.ExecutionInfoFiles.REPOSITORY_INFO;
 import static briefj.run.ExecutionInfoFiles.STD_OUT_FILE;
 import static briefj.run.ExecutionInfoFiles.WORKING_DIR;
+import static briefj.run.ExecutionInfoFiles.START_TIME_FILE;
+import static briefj.run.ExecutionInfoFiles.END_TIME_FILE;
 import static briefj.run.ExecutionInfoFiles.exists;
 import static briefj.run.ExecutionInfoFiles.getExecutionInfoFolder;
 import static briefj.run.ExecutionInfoFiles.getFile;
@@ -27,6 +29,8 @@ import com.google.common.hash.HashCode;
 import blang.inits.Arg;
 import blang.inits.Creator;
 import blang.inits.Creators;
+import blang.inits.GlobalArg;
+import blang.inits.Inits;
 import blang.inits.parsing.Arguments;
 import blang.inits.parsing.Posix;
 import briefj.BriefIO;
@@ -43,6 +47,9 @@ public abstract class Experiment implements Runnable
   @Arg
   public ExperimentConfigs experimentConfigs = new ExperimentConfigs();
   private static final String EXP_CONFIG_FIELD_NAME = "experimentConfigs";
+  
+  @GlobalArg
+  public ExperimentResults results = new ExperimentResults(new File("."));
   
   public static void start(
       String [] args)
@@ -70,7 +77,7 @@ public abstract class Experiment implements Runnable
     } 
     catch (Exception e) 
     {
-      if (arguments.childrenKeys().contains("help")) 
+      if (arguments.childrenKeys().contains(Inits.HELP_STRING)) 
         System.out.println(configs.creator.usage());
       else
         System.err.println(configs.creator.fullReport());
@@ -90,17 +97,28 @@ public abstract class Experiment implements Runnable
     }
     
     long startTime = System.currentTimeMillis();
+    
+    if (expConfigs.recordExecutionInfo)
+      write(
+          getFile(START_TIME_FILE),
+          "" + startTime);
+    
     experiment.run();
     long endTime = System.currentTimeMillis();
+    
+    if (expConfigs.recordExecutionInfo)
+      write(
+          getFile(END_TIME_FILE),
+          "" + endTime);
     
     if (tees != null)
       tees.close();
     
-    // close any streams
-    results.closeAll();
-    
     System.out.println("executionMilliseconds : " + (endTime - startTime));
     System.out.println("outputFolder : " + Results.getResultFolder().getAbsolutePath());
+    
+    // close all streams
+    results.closeAll();
   }
   
   public static final String CSV_ARGUMENT_FILE = "arguments.csv";
@@ -165,10 +183,8 @@ public abstract class Experiment implements Runnable
     {
       File result = results.resultsFolder;
       File poolFolder = result.getParentFile().getParentFile(); // up one is 'all', up two is 'results'
-      final String latestString = "latest";
-      File latestFolderSoftLink = new File(poolFolder, latestString);
-      if (latestFolderSoftLink.exists())
-        latestFolderSoftLink.delete();
+      File latestFolderSoftLink = new File(poolFolder, Results.LATEST_STRING);
+      latestFolderSoftLink.delete();
       result.delete();
     }
   }

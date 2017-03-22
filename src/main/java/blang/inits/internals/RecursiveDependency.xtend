@@ -14,7 +14,7 @@ package class RecursiveDependency implements InitDependency {
   val Optional<Arguments> defaultArguments
   
   override Object resolve(CreatorImpl creator, Arguments currentArguments) {
-    if (defaultArguments.isPresent && currentArguments.isNull) {
+    if (defaultArguments.isPresent && currentArguments.child(name).isNull) {
       val CreatorWithPrefix defaultCreator = CreatorWithPrefix::build(creator, currentArguments.QName.child(name))
       val Object instantiated = try {
         defaultCreator.init(type, defaultArguments.get)

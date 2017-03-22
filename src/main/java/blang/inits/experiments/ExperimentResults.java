@@ -15,6 +15,11 @@ public class ExperimentResults
   private List<Writer> writers = new ArrayList<>();
   private List<ExperimentResults> children = new ArrayList<>();
 
+  public ExperimentResults()
+  {
+    this.resultsFolder = new File(".");
+  }
+  
   public ExperimentResults(File resultsFolder)
   {
     this.resultsFolder = resultsFolder;

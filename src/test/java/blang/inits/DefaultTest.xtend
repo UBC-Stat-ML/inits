@@ -44,7 +44,7 @@ class DefaultTest {
       throw new RuntimeException(c.errorReport)
     }
 //    println(instance.t2.subArg)
-    println(c.usage)
+    println(c.fullReport)
     
   }
   

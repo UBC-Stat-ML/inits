@@ -5,20 +5,22 @@ import blang.inits.parsing.Posix
 
 class Inits {
   
-  def static Runnable parseAndRun(Class<? extends Runnable> mainClass, String [] args) {
+  public val static String HELP_STRING = "help"
+  
+  def static <T extends Runnable> T parseAndRun(Class<T> mainClass, String [] args) {
     return parseAndRun(mainClass, Posix.parse(args))
   }
   
-  def static Runnable parseAndRun(Class<? extends Runnable> mainClass, Arguments arguments) {
+  def static <T extends Runnable> T parseAndRun(Class<T> mainClass, Arguments arguments) {
     return parseAndRun(mainClass, arguments, Creators::conventional)
   }
   
-  def static Runnable parseAndRun(Class<? extends Runnable> mainClass, Arguments arguments, Creator creator) {
-    val Runnable result = try {
+  def static <T extends Runnable> T parseAndRun(Class<T> mainClass, Arguments arguments, Creator creator) {
+    val T result = try {
       creator.init(mainClass, arguments)
     } catch (Exception e) {
-      if (arguments.childrenKeys.contains("help")) {
-        println(creator.usage)
+      if (arguments.childrenKeys.contains(HELP_STRING)) {
+        System.out.println(creator.usage)
       } else {
         System.err.println(creator.fullReport)
       }

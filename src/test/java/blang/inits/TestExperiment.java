@@ -4,7 +4,7 @@ import blang.inits.GlobalArg;
 import blang.inits.experiments.Experiment;
 import blang.inits.experiments.ExperimentResults;
 
-public class Test extends Experiment
+public class TestExperiment extends Experiment
 {
   @Arg @DefaultValue("world!")
   public String option;

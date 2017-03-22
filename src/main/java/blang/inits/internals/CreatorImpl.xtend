@@ -24,6 +24,7 @@ import com.google.common.collect.ListMultimap
 import java.lang.reflect.Method
 import blang.inits.ProvidesFactory
 import java.lang.reflect.InvocationTargetException
+import blang.inits.Implementations
 
 package class CreatorImpl implements Creator {
   val package Map<Class<?>, Object> globals = new HashMap
@@ -158,22 +159,16 @@ package class CreatorImpl implements Creator {
       if (InitStaticUtils::isOptional(declaredType)) {
         return (Optional.empty as Object) as T
       } else {
-        logger.addError(currentArguments.QName, InputExceptions::missingInput(deOptionizedType))
+        logger.addError(currentArguments.QName, InputExceptions::malformedImplementation(deOptionizedType, deOptionizedType.rawType.getAnnotation(Implementations)))
       }
       return null
     }
     // try to load the implementation
     val Class<?> rawType = try {
       val String implementationTypeString = pair.value.get
-      if (implementationTypeString.contains(".")) {
-        // found a dot so assume to be fully specified
-        Class.forName(implementationTypeString)
-      } else {
-        // look into the same package as the interface
-        Class.forName(deOptionizedType.rawType.package.name + "." + implementationTypeString)
-      }
+      findImplementation(implementationTypeString, deOptionizedType)
     } catch (Exception e) {
-      logger.addError(currentArguments.QName, InputExceptions::malformedImplementation(deOptionizedType))
+      logger.addError(currentArguments.QName, InputExceptions::malformedImplementation(deOptionizedType, deOptionizedType.rawType.getAnnotation(Implementations)))
       return null
     }
     
@@ -187,13 +182,25 @@ package class CreatorImpl implements Creator {
     // guice's TypeLiteral, but leave for later
     val TypeLiteral<?> actualType = TypeLiteral.get(rawType)
     
-    // TODO: check it conforms to the interface
     if (!declaredType.rawType.isAssignableFrom(actualType.rawType)) {
-      logger.addError(currentArguments.QName, InputExceptions::malformedImplementation(deOptionizedType))
+      logger.addError(currentArguments.QName, InputExceptions::malformedImplementation(deOptionizedType, "Type " + actualType.rawType + " does not conform " + declaredType.rawType))
       return null
     }
     
     return _initActualType(actualType, declaredType, pair.key) as T 
+  }
+  
+  def Class<?> findImplementation(String requestedImpl, TypeLiteral<?> literal) {
+    val Implementations impls = literal.rawType.getAnnotation(Implementations)
+    if (impls !== null) {
+      for (Class<?> impl : impls.value) {
+        if (impl.simpleName.toLowerCase == requestedImpl.toLowerCase) {
+          return impl
+        }
+      }
+    }
+    // if not found, try full qualified
+    return Class.forName(requestedImpl)
   }
  
   /**

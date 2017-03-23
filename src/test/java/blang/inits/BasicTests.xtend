@@ -18,7 +18,7 @@ import org.junit.After
 import java.util.Optional
 import com.google.inject.TypeLiteral
 
-class BasicTests {
+class BasicTests { 
   
   @Rule public TestName name = new TestName();
   

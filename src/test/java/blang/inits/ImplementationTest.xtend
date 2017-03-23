@@ -2,7 +2,7 @@ package blang.inits
 
 import blang.inits.experiments.Experiment
 
-class ImplementationTest extends Experiment {
+class ImplementationTest implements Runnable {
   
   @Implementations(MyImpl1, MyImpl2)
   static interface MyInterface {
@@ -20,12 +20,11 @@ class ImplementationTest extends Experiment {
   @Arg
   MyInterface interf
   
-  override run() {
-    println(interf)
+  def static void main(String [] args) {
+    Inits.parseAndRun(ImplementationTest, args)
   }
   
-  def static void main(String [] args) {
-    Experiment.start(args)
+  override run() {
   }
   
 }

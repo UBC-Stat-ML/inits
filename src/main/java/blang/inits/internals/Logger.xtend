@@ -18,11 +18,11 @@ import java.util.Optional
 
 package class Logger {
     
-  val private Map<QualifiedName, TypeLiteral<?>> inputsTypeUsage = new LinkedHashMap
-  val private Map<QualifiedName, String> inputsDescriptions = new LinkedHashMap
-  val private Map<QualifiedName, String> dependencyDescriptions = new LinkedHashMap
-  val private Map<QualifiedName, TypeLiteral<?>> allTypes = new LinkedHashMap
-  val private Map<QualifiedName, String> defaultValues = new LinkedHashMap
+  val package Map<QualifiedName, TypeLiteral<?>> inputsTypeUsage = new LinkedHashMap
+  val package Map<QualifiedName, String> inputsDescriptions = new LinkedHashMap
+  val package Map<QualifiedName, String> dependencyDescriptions = new LinkedHashMap
+  val package Map<QualifiedName, TypeLiteral<?>> allTypes = new LinkedHashMap
+  val package Map<QualifiedName, String> defaultValues = new LinkedHashMap
   
   def void addAll(Logger another) {
     inputsTypeUsage.putAll(another.inputsTypeUsage)
@@ -44,26 +44,33 @@ package class Logger {
     return false
   }
   
-  def void reportTypeUsage(TypeLiteral<?> typeOrOptional, Arguments argument, List<InitDependency> dependencies) {
+  def void reportType(TypeLiteral<?> typeOrOptional, Arguments argument) {
     allTypes.put(argument.QName, typeOrOptional)
-    for (InitDependency dep : dependencies) {
-      switch (dep) {
-        InputDependency : {
-          inputsTypeUsage.put(argument.QName, typeOrOptional)
-          inputsDescriptions.put(argument.QName, dep.inputDescription)
-        }
-        RecursiveDependency : {
-          if (dep.defaultArguments.present) {
-            defaultValues.put(argument.QName.child(dep.name), dep.defaultArguments.get.toString)
-          }
-          if (dep.description.present) { 
-            dependencyDescriptions.put(argument.QName.child(dep.name), dep.description.get)
-          }
-        }
-        // do not report the other ones (globals, etc)
-      }
-    }
   }
+  
+
+  
+//  def void reportTypeUsage(TypeLiteral<?> typeOrOptional, Arguments argument, List<InitDependency> dependencies) {
+//    allTypes.put(argument.QName, typeOrOptional)
+//    for (InitDependency dep : dependencies) {
+//      switch (dep) {
+//        InputDependency : {
+//          inputsTypeUsage.put(argument.QName, typeOrOptional)
+//          inputsDescriptions.put(argument.QName, dep.inputDescription)
+//        }
+//        RecursiveDependency : {
+//          
+//          if (dep.defaultArguments.present) {
+//            defaultValues.put(argument.QName.child(dep.name), dep.defaultArguments.get.toString)
+//          }
+//          if (dep.description.present) { 
+//            dependencyDescriptions.put(argument.QName.child(dep.name), dep.description.get)
+//          }
+//        }
+//        // do not report the other ones (globals, etc)
+//      }
+//    }
+//  }
   
   def void addError(QualifiedName name, InputException exception) {
     errors.put(name, exception)

@@ -41,7 +41,7 @@ class InputExceptions {
     )
   }
   
-  def static InputException malformedImplementation(TypeLiteral<?> type, Implementations implementations) {
+  def static InputException malformedImplementation(TypeLiteral<?> type, List<String> implementations) {
     return new InputException(
       InputExceptionCategory.MALFORMED_INTERFACE_IMPLEMENTATION, 
       "The input should point to an implementation of " + type + "\n" +
@@ -50,7 +50,7 @@ class InputExceptions {
         ""
       } else {
         ", or a case insensitive simple name from: \n" +
-        "    " + implementations.value.map[it.simpleName].join(", ")  + "\n"
+        "    " + implementations.join(", ")  + "\n"
       } +
       "  note: children options can only be reported after this error is fixed"
     )

@@ -79,24 +79,36 @@ package class CreatorImpl implements Creator {
     return logger.errors
   }
     
-  def private Schema findSchema(TypeLiteral<?> currentType) {
-    // Special treatment for enums
-    if (currentType.rawType.isEnum()) {
-      return new EnumSchema(currentType.rawType)
-    }
-    // else, use an introspection based scheme
-    val pair = factories.get(currentType.rawType)
-    if (pair != null) {
-      // use the database of factories in priority
-      return new IntrospectionSchema(currentType, pair.value, pair.key)
-    } else {
-      // else, look in the type itself
-      val builder = InitStaticUtils::findBuilder(currentType)
-      if (builder.isPresent) {
-        return new IntrospectionSchema(currentType, currentType, builder.get)
+  /**
+   * null if failed (NOT optional, since the user will ask to instantiate optionals
+   * something to mark optional command line arguments)
+   */
+  def package <T> T _init(
+    TypeLiteral<T> declaredType, 
+    Arguments currentArguments) 
+  {
+    try {
+      InitStaticUtils::makeOptionalChecks(declaredType)
+      var TypeLiteral<?> deOptionized = InitStaticUtils::deOptionize(declaredType)
+      if (isCLILoadedInterface(declaredType)) { 
+        return _initInterface(deOptionized, declaredType, currentArguments)
       } else {
-        throw InputExceptions.malformedBuilder(currentType)
+        return _initActualType(deOptionized, declaredType, currentArguments)
       }
+    } catch (InputException e) {
+      logger.addError(currentArguments.QName, e)
+      return null
+    }
+  }
+  
+  def <T> boolean isCLILoadedInterface(TypeLiteral<T> declaredType) {
+    try {
+      var TypeLiteral<?> deOptionized = InitStaticUtils::deOptionize(declaredType)
+      return !factories.containsKey(deOptionized.rawType) && InitStaticUtils::needToLoadImplementation(deOptionized)
+    } catch (Exception e) {
+      // errors can happen e.g. if using raw type Optional
+      // they should have already been reported by  makeOptionalChecks()
+      return false
     }
   }
   
@@ -120,7 +132,7 @@ package class CreatorImpl implements Creator {
       instantiatedChildren.add(initDependency.resolve(this, currentArguments))
     } 
     checkNoUnrecognizedArguments(currentArguments, deps)
-    logger.reportTypeUsage(declaredType, currentArguments, deps)
+    reportTypeUsage(declaredType, currentArguments, deps)
     
     if (InitStaticUtils::dependenciesOk(instantiatedChildren)) {
       try {
@@ -159,7 +171,7 @@ package class CreatorImpl implements Creator {
       if (InitStaticUtils::isOptional(declaredType)) {
         return (Optional.empty as Object) as T
       } else {
-        logger.addError(currentArguments.QName, InputExceptions::malformedImplementation(deOptionizedType, deOptionizedType.rawType.getAnnotation(Implementations)))
+        logger.addError(currentArguments.QName, InputExceptions::malformedImplementation(deOptionizedType, InitStaticUtils::implementations(declaredType)))
       }
       return null
     }
@@ -168,7 +180,7 @@ package class CreatorImpl implements Creator {
       val String implementationTypeString = pair.value.get
       findImplementation(implementationTypeString, deOptionizedType)
     } catch (Exception e) {
-      logger.addError(currentArguments.QName, InputExceptions::malformedImplementation(deOptionizedType, deOptionizedType.rawType.getAnnotation(Implementations)))
+      logger.addError(currentArguments.QName, InputExceptions::malformedImplementation(deOptionizedType,InitStaticUtils::implementations(declaredType)))
       return null
     }
     
@@ -189,6 +201,27 @@ package class CreatorImpl implements Creator {
     
     return _initActualType(actualType, declaredType, pair.key) as T 
   }
+    
+  def private Schema findSchema(TypeLiteral<?> currentType) {
+    // Special treatment for enums
+    if (currentType.rawType.isEnum()) {
+      return new EnumSchema(currentType.rawType)
+    }
+    // else, use an introspection based scheme
+    val pair = factories.get(currentType.rawType)
+    if (pair != null) {
+      // use the database of factories in priority
+      return new IntrospectionSchema(currentType, pair.value, pair.key)
+    } else {
+      // else, look in the type itself
+      val builder = InitStaticUtils::findBuilder(currentType)
+      if (builder.isPresent) {
+        return new IntrospectionSchema(currentType, currentType, builder.get)
+      } else {
+        throw InputExceptions.malformedBuilder(currentType)
+      }
+    }
+  }
   
   def Class<?> findImplementation(String requestedImpl, TypeLiteral<?> literal) {
     val Implementations impls = literal.rawType.getAnnotation(Implementations)
@@ -202,26 +235,42 @@ package class CreatorImpl implements Creator {
     // if not found, try full qualified
     return Class.forName(requestedImpl)
   }
- 
-  /**
-   * null if failed (NOT optional, since the user will ask to instantiate optionals
-   * something to mark optional command line arguments)
-   */
-  def package <T> T _init(
-    TypeLiteral<T> declaredType, 
-    Arguments currentArguments) 
-  {
-    try {
-      var TypeLiteral<?> deOptionized = InitStaticUtils::deOptionize(declaredType)
-      if (!factories.containsKey(deOptionized.rawType) && InitStaticUtils::needToLoadImplementation(deOptionized)) { 
-        return _initInterface(deOptionized, declaredType, currentArguments)
-      } else {
-        return _initActualType(deOptionized, declaredType, currentArguments)
+  
+  private def void reportTypeUsage(
+    TypeLiteral<?> typeOrOptional, 
+    Arguments argument, 
+    List<InitDependency> deps 
+  ) {
+    logger.allTypes.put(argument.QName, typeOrOptional)
+    for (InitDependency dep : deps) {
+      switch (dep) {
+        InputDependency : {
+          logger.inputsTypeUsage.put(argument.QName, typeOrOptional)
+          logger.inputsDescriptions.put(argument.QName, dep.inputDescription)
+        }
+        RecursiveDependency : {
+          if (isCLILoadedInterface(dep.type)) {
+            logger.inputsTypeUsage.put(argument.QName.child(dep.name), dep.type) 
+            logger.inputsDescriptions.put(argument.QName.child(dep.name), interfaceUsageString(dep.type))
+          }
+          
+          if (dep.defaultArguments.present) {
+            logger.defaultValues.put(argument.QName.child(dep.name), dep.defaultArguments.get.toString)
+          }
+          if (dep.description.present) { 
+            logger.dependencyDescriptions.put(argument.QName.child(dep.name), dep.description.get)
+          }
+        }
+        // do not report the other ones (globals, etc)
+        default : {}
       }
-    } catch (InputException e) {
-      logger.addError(currentArguments.QName, e)
-      return null
     }
+  }
+  
+  def static private String interfaceUsageString(TypeLiteral<?> type) {
+    val List<String> shortcuts = new ArrayList(InitStaticUtils::implementations(type))
+    shortcuts.add("fully qualified")
+    return shortcuts.join("|")    
   }
   
   def private void checkNoUnrecognizedArguments(Arguments arguments, List<InitDependency> dependencies) {

@@ -22,6 +22,8 @@ import blang.inits.InitService
 import blang.inits.DefaultValue
 import blang.inits.parsing.Arguments
 import blang.inits.parsing.Posix
+import blang.inits.Implementations
+import java.util.Collections
 
 package class InitStaticUtils {
   
@@ -84,6 +86,16 @@ package class InitStaticUtils {
       return Optional.of(Posix.parse(defaultValueAnnotation.get.value))
     } else {
       return Optional.empty
+    }
+  }
+  
+  def static List<String> implementations(TypeLiteral<?> type) {
+    val TypeLiteral<?> deOptionizedType = InitStaticUtils::deOptionize(type)
+    val Implementations annotation = deOptionizedType.rawType.getAnnotation(Implementations)
+    if (annotation == null) {
+      return Collections::emptyList
+    } else {
+      return annotation.value.map[it.simpleName]
     }
   }
   
@@ -174,17 +186,24 @@ package class InitStaticUtils {
   }
   
   def static boolean isOptional(TypeLiteral<?> type) {
-    if (type.rawType == com.google.common.base.Optional) {
-      throw InputExceptions::GUAVA_OPTIONAL
-    }
     return type.rawType == Optional
   }
   
   def static TypeLiteral<?> getOptionalType(TypeLiteral<?> optionalType) {
-    if (!(optionalType.type instanceof ParameterizedType)) {
-      throw InputExceptions::RAW_OPTIONAL
-    }
     return TypeLiteral.get((optionalType.type as ParameterizedType).actualTypeArguments.get(0))
+  }
+  
+  // Note: we only want to make these checks once to avoid duplicated error messages, so 
+  // called by init() rather than the above methods
+  def static void makeOptionalChecks(TypeLiteral<?> type) {
+    if (type.rawType == com.google.common.base.Optional) {
+      throw InputExceptions::GUAVA_OPTIONAL
+    }
+    if (InitStaticUtils::isOptional(type)) {
+      if (!(type.type instanceof ParameterizedType)) {
+        throw InputExceptions::RAW_OPTIONAL
+      }
+    }
   }
   
   private new() {}

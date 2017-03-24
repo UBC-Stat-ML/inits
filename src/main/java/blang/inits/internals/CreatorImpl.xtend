@@ -25,6 +25,7 @@ import java.lang.reflect.Method
 import blang.inits.ProvidesFactory
 import java.lang.reflect.InvocationTargetException
 import blang.inits.Implementations
+import briefj.BriefMaps
 
 package class CreatorImpl implements Creator {
   val package Map<Class<?>, Object> globals = new HashMap
@@ -61,7 +62,7 @@ package class CreatorImpl implements Creator {
   
   override String csvReport() {
     checkInitialized()
-    return logger.csvReport(lastArgs)
+    return logger.csvReport()
   }
   
   override String usage() {
@@ -247,11 +248,17 @@ package class CreatorImpl implements Creator {
         InputDependency : {
           logger.inputsTypeUsage.put(argument.QName, typeOrOptional)
           logger.inputsDescriptions.put(argument.QName, dep.inputDescription)
+          if (argument.argumentValue.present) {
+            BriefMaps.getOrPutList(logger.readValues, argument.QName).addAll(argument.argumentValue.get)
+          }
         }
         RecursiveDependency : {
           if (isCLILoadedInterface(dep.type)) {
             logger.inputsTypeUsage.put(argument.QName.child(dep.name), dep.type) 
             logger.inputsDescriptions.put(argument.QName.child(dep.name), interfaceUsageString(dep.type))
+            if (argument.child(dep.name).argumentValue.present) {
+              logger.readValues.put(argument.QName.child(dep.name), argument.child(dep.name).argumentValue.get)
+            }
           }
           
           if (dep.defaultArguments.present) {

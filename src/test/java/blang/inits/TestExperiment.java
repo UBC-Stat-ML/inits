@@ -11,6 +11,15 @@ public class TestExperiment extends Experiment
   
   @GlobalArg
   public ExperimentResults result;
+  
+  @Arg @DefaultValue({"--test", "123"})
+  public Custom c;
+  
+  public static class Custom
+  {
+    @Arg
+    int test;
+  }
 
   @Override
   public void run()

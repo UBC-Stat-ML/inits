@@ -23,6 +23,7 @@ package class Logger {
   val package Map<QualifiedName, String> dependencyDescriptions = new LinkedHashMap
   val package Map<QualifiedName, TypeLiteral<?>> allTypes = new LinkedHashMap
   val package Map<QualifiedName, String> defaultValues = new LinkedHashMap
+  val package Map<QualifiedName, List<String>> readValues = new LinkedHashMap
   
   def void addAll(Logger another) {
     inputsTypeUsage.putAll(another.inputsTypeUsage)
@@ -30,6 +31,7 @@ package class Logger {
     dependencyDescriptions.putAll(another.dependencyDescriptions)
     allTypes.putAll(another.allTypes)
     defaultValues.putAll(another.defaultValues)
+    readValues.putAll(another.readValues)
   }
   
   @Accessors(PUBLIC_GETTER)
@@ -43,34 +45,6 @@ package class Logger {
     }
     return false
   }
-  
-  def void reportType(TypeLiteral<?> typeOrOptional, Arguments argument) {
-    allTypes.put(argument.QName, typeOrOptional)
-  }
-  
-
-  
-//  def void reportTypeUsage(TypeLiteral<?> typeOrOptional, Arguments argument, List<InitDependency> dependencies) {
-//    allTypes.put(argument.QName, typeOrOptional)
-//    for (InitDependency dep : dependencies) {
-//      switch (dep) {
-//        InputDependency : {
-//          inputsTypeUsage.put(argument.QName, typeOrOptional)
-//          inputsDescriptions.put(argument.QName, dep.inputDescription)
-//        }
-//        RecursiveDependency : {
-//          
-//          if (dep.defaultArguments.present) {
-//            defaultValues.put(argument.QName.child(dep.name), dep.defaultArguments.get.toString)
-//          }
-//          if (dep.description.present) { 
-//            dependencyDescriptions.put(argument.QName.child(dep.name), dep.description.get)
-//          }
-//        }
-//        // do not report the other ones (globals, etc)
-//      }
-//    }
-//  }
   
   def void addError(QualifiedName name, InputException exception) {
     errors.put(name, exception)
@@ -86,7 +60,6 @@ package class Logger {
   def String usage() { 
     return fullReport(null)
   }
-  
   
   def String formatArgName(QualifiedName qName, String prefix) {
     if (qName.root)
@@ -160,26 +133,22 @@ package class Logger {
     return "mandatory"
   }
   
-  def String csvReport(Arguments arguments) {
+  def String csvReport() {
     var List<String> result = new ArrayList
-    val LinkedHashMap<QualifiedName,List<String>> argumentsAsMap = arguments.asMap
+//    val LinkedHashMap<QualifiedName,List<String>> argumentsAsMap = arguments.asMap
     val LinkedHashSet<QualifiedName> possibleInputsCopy = sortedPossibleInputs()
     // start by reporting the known options
     for (QualifiedName qName : possibleInputsCopy) {
-      val List<String> readValue = argumentsAsMap.get(qName)
+      val List<String> readValue = readValues.get(qName) //argumentsAsMap.get(qName)
       val TypeLiteral<?> currentType = inputsTypeUsage.get(qName)
       val boolean isOptional = InitStaticUtils::isOptional(currentType)
       val String value = 
         if (readValue != null) {
           readValue.join(" ")
         } else if (isOptional) {   
-          "<optional>"
+          "<optional>" 
         } else if (someParentOptional(qName)) {
           "<parent optional>"
-        } else if (defaultValues.containsKey(qName)) {
-          defaultValues.get(qName)
-        } else if (someParentHasDefault(qName).isPresent) {
-          someParentHasDefault(qName).get
         } else {
           "<missing>"
         }
@@ -192,7 +161,7 @@ package class Logger {
    * Reports the information, inputs and errors all in the one string.
    * Useful as the basis of config file, e.g. the first time a complex command is ran.
    */
-  def String fullReport(Arguments _arguments) {
+  def String fullReport(Arguments _arguments) {  // TODO: remove dep on _arg via readValues, use boolean switch instead
     
     val printDetails = _arguments != null
     val String on  = if (printDetails) " " else ""

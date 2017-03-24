@@ -5,6 +5,7 @@ import blang.inits.parsing.QualifiedName
 import com.google.inject.TypeLiteral
 import blang.inits.InputExceptions.InputException
 import com.google.common.collect.ListMultimap
+import java.util.Map
 
 /**
  * The main tool provided by this repo. 
@@ -33,8 +34,18 @@ interface Creator {
   def String errorReport() 
   def ListMultimap<QualifiedName,InputException> errors() 
   
+  /**
+   * A detailed, human readable report containing
+   * - instructions
+   * - values used by last invocation, and whether they come from defaults or input
+   * - errors
+   */
   def String fullReport()
-  def String csvReport()
+  
+  /**
+   * All (key,value) pairs used in last invocation, whether they come from default or input
+   */
+  def Map<String,String> asMap()
   
   def void addFactories(Class<?> factoryFile) 
   

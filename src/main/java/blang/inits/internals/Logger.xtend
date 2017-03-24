@@ -133,11 +133,9 @@ package class Logger {
     return "mandatory"
   }
   
-  def String csvReport() {
-    var List<String> result = new ArrayList
-//    val LinkedHashMap<QualifiedName,List<String>> argumentsAsMap = arguments.asMap
+  def Map<String,String> asMap() {
+    var Map<String,String> result = new LinkedHashMap
     val LinkedHashSet<QualifiedName> possibleInputsCopy = sortedPossibleInputs()
-    // start by reporting the known options
     for (QualifiedName qName : possibleInputsCopy) {
       val List<String> readValue = readValues.get(qName) //argumentsAsMap.get(qName)
       val TypeLiteral<?> currentType = inputsTypeUsage.get(qName)
@@ -156,9 +154,9 @@ package class Logger {
         } else {
           "<missing>"
         }
-      result += "" + qName + ", " + value
+      result.put(qName.toString, value)
     }
-    return result.join("\n") 
+    return result
   }
   
   /**

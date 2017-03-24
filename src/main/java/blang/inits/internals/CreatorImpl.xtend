@@ -60,9 +60,9 @@ package class CreatorImpl implements Creator {
     return logger.fullReport(lastArgs)
   }
   
-  override String csvReport() {
+  override Map<String,String> asMap() {
     checkInitialized()
-    return logger.csvReport()
+    return logger.asMap()
   }
   
   override String usage() {

@@ -20,6 +20,7 @@ import static briefj.run.ExecutionInfoFiles.getFile;
 import java.io.File;
 import java.lang.management.ManagementFactory;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
@@ -121,12 +122,18 @@ public abstract class Experiment implements Runnable
     results.closeAll();
   }
   
-  public static final String CSV_ARGUMENT_FILE = "arguments.csv";
+  public static final String CSV_ARGUMENT_FILE = "arguments.tsv";
   public static final String DETAILED_ARGUMENT_FILE = "arguments-details.txt";
   
   private static void recordArguments(Creator creator, ExperimentResults results)
   {
-    BriefIO.write(results.getFileInResultFolder(CSV_ARGUMENT_FILE), creator.csvReport());
+    BriefIO.write(results.getFileInResultFolder(CSV_ARGUMENT_FILE), 
+        creator
+          .asMap()
+          .entrySet()
+          .stream()
+          .map(e -> e.getKey() + "\t" + e.getValue())
+          .collect(Collectors.joining("\n")));
     BriefIO.write(results.getFileInResultFolder(DETAILED_ARGUMENT_FILE), creator.fullReport());
   }
 

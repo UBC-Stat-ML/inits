@@ -149,6 +149,10 @@ package class Logger {
           "<optional>" 
         } else if (someParentOptional(qName)) {
           "<parent optional>"
+        } else if (defaultValues.containsKey(qName)) {
+          defaultValues.get(qName)
+        } else if (someParentHasDefault(qName).isPresent) {
+          someParentHasDefault(qName).get
         } else {
           "<missing>"
         }

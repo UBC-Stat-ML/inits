@@ -195,6 +195,18 @@ public abstract class Experiment implements Runnable
     if (!expConfigs.managedExecutionFolder)
       Results.initResultFolder(new File(".").getAbsolutePath());
     return new ExperimentResults(Results.getResultFolder());
+    
+    /*
+     * TODO: this could be improved to allow creating 'sub-experiments'?
+     * Would involve checking first if Results is already initialized (may require updating briefj)
+     * DANGER: this will lead to undesirable situations in backward compatibility mode, just think 
+     * of the current way the run parameters are saved, which uses the backward compatibility mode.
+     *   Would need to get rid of backward compatibility first probably, at very least for the 
+     *   context stuff. 
+     * 
+     * In some cases, e.g. loading parts of options e.g. for a saved model etc, make use of Inits.* 
+     * methods instead. 
+     */
   }
 
   private static ExperimentConfigs preloadExperimentsConfigs(Arguments arguments)

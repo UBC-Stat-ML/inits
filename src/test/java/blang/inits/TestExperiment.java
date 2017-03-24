@@ -15,10 +15,24 @@ public class TestExperiment extends Experiment
   @Arg @DefaultValue({"--test", "123"})
   public Custom c;
   
+  @Arg @DefaultValue("AnImpl")
+  public AnInter a;
+  
   public static class Custom
   {
     @Arg
     int test;
+  }
+  
+  @Implementations(AnImpl.class)
+  public static interface AnInter
+  {
+    
+  }
+  
+  public static class AnImpl implements AnInter
+  {
+    
   }
 
   @Override

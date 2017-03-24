@@ -17,11 +17,12 @@ public class ExperimentResults
 
   public ExperimentResults()
   {
-    this.resultsFolder = new File(".");
+    this(new File("."));
   }
   
   public ExperimentResults(File resultsFolder)
   {
+    resultsFolder.mkdirs();
     this.resultsFolder = resultsFolder;
   }
   
@@ -65,6 +66,16 @@ public class ExperimentResults
     ExperimentResults result = new ExperimentResults(childFile);
     children.add(result);
     return result;
+  }
+  
+  public ExperimentResults child(String key, String value)
+  {
+    return child(key + "=" + value);
+  }
+  
+  public ExperimentResults child(String key, Number value)
+  {
+    return child(key + "=" + value);
   }
   
   // called by Experiment.start(..)

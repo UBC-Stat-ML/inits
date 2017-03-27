@@ -50,15 +50,27 @@ public abstract class Experiment implements Runnable
   private static final String EXP_CONFIG_FIELD_NAME = "experimentConfigs";
   
   @GlobalArg
-  public ExperimentResults results = new ExperimentResults(new File("."));
+  public ExperimentResults results = new ExperimentResults();
   
-  public static void start(
+  public static int start(
       String [] args)
   {
-    start(args, new ParsingConfigs());
+    return start(args, new ParsingConfigs());
   }
+  
+  public static void startAutoExit(String [] args)
+  {
+    System.exit(start(args));
+  }
+  
+  public static final int SUCCESS_CODE = 0;
+  public static final int BAD_EXP_CONFIG_CODE = 1;
+  public static final int CLI_PARSING_ERROR_CODE = 2;
+  public static final int EXCEPTION_CODE = 3;
+  
+  public static final String PARSING_ERROR_FILE = "parsing-errors.txt";
 
-  public static void start(
+  public static int start(
       String [] args,
       ParsingConfigs configs)
   {
@@ -66,7 +78,7 @@ public abstract class Experiment implements Runnable
     
     ExperimentConfigs expConfigs = preloadExperimentsConfigs(arguments.child(EXP_CONFIG_FIELD_NAME));
     if (expConfigs == null)
-      return;
+      return BAD_EXP_CONFIG_CODE;
     
     ExperimentResults results = createExperimentResultsObject(expConfigs);
     configs.creator.addGlobal(ExperimentResults.class, results);
@@ -79,11 +91,19 @@ public abstract class Experiment implements Runnable
     catch (Exception e) 
     {
       if (arguments.childrenKeys().contains(Inits.HELP_STRING)) 
+      {
+        cleanEmptyResultFolder(results, expConfigs);
         System.out.println(configs.creator.usage());
+        return SUCCESS_CODE;
+      }
       else
+      {
+        write(
+            getFile(PARSING_ERROR_FILE),
+            configs.creator.fullReport());
         System.err.println(configs.creator.fullReport());
-      cleanEmptyResultFolder(results, expConfigs);
-      return;
+        return CLI_PARSING_ERROR_CODE;
+      }
     }
     
     // report command line options and some more
@@ -104,22 +124,37 @@ public abstract class Experiment implements Runnable
           getFile(START_TIME_FILE),
           "" + startTime);
     
-    experiment.run();
-    long endTime = System.currentTimeMillis();
-    
-    if (expConfigs.recordExecutionInfo)
-      write(
-          getFile(END_TIME_FILE),
-          "" + endTime);
-    
-    if (tees != null)
-      tees.close();
-    
-    System.out.println("executionMilliseconds : " + (endTime - startTime));
-    System.out.println("outputFolder : " + Results.getResultFolder().getAbsolutePath());
-    
-    // close all streams
-    results.closeAll();
+    boolean success = true;
+    try 
+    {
+      experiment.run();
+    }
+    catch (Exception e)
+    {
+      String errorMessage = ExceptionUtils.getStackTrace(e);
+      write(getFile(EXCEPTION_FILE), errorMessage);
+      System.err.println(errorMessage);
+      success = false;
+    }
+    finally
+    {
+      long endTime = System.currentTimeMillis();
+      
+      if (expConfigs.recordExecutionInfo)
+        write(
+            getFile(END_TIME_FILE),
+            "" + endTime);
+      
+      if (tees != null)
+        tees.close();
+      
+      System.out.println("executionMilliseconds : " + (endTime - startTime));
+      System.out.println("outputFolder : " + Results.getResultFolder().getAbsolutePath());
+      
+      // close all streams
+      results.closeAll();
+    }
+    return success ? SUCCESS_CODE : EXCEPTION_CODE;
   }
   
   public static final String CSV_ARGUMENT_FILE = "arguments.tsv";

@@ -33,7 +33,7 @@ class CoreProviders {
   @ProvidesFactory
   def static int parse_int(@Input String s) {
     if (s == INF_STR) return Integer.MAX_VALUE
-    try { return Integer.parseInt(s) }
+    try { return Integer.parseInt(s.replace("_", "")) }
     catch (Exception e) {
       // try for thing like 5e10 that look like doubles
       val double asDouble = Double.parseDouble(s)
@@ -53,7 +53,7 @@ class CoreProviders {
   @ProvidesFactory
   def static double parse_double(@Input String s) {
     if (s == INF_STR) return Double.POSITIVE_INFINITY
-    return Double.parseDouble(s)
+    return Double.parseDouble(s.replace("_", ""))
   }
   
   @ProvidesFactory
@@ -76,7 +76,7 @@ class CoreProviders {
   @ProvidesFactory
   def static long parse_long(@Input String s) {
     if (s == INF_STR) return Long.MAX_VALUE
-    return Long.parseLong(s)
+    return Long.parseLong(s.replace("_", ""))
   }
   
   @ProvidesFactory

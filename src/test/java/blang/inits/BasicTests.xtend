@@ -54,7 +54,7 @@ class BasicTests {
     val Arguments maxArg = Posix.parse("INF") 
     Assert.assertEquals(c.init(Long, maxArg), Long.MAX_VALUE)
     Assert.assertEquals(c.<Double>init(Double, maxArg), Double.POSITIVE_INFINITY, 0.0)
-    Assert.assertEquals(c.<Integer>init(Integer, maxArg), Integer.MAX_VALUE)   
+    Assert.assertEquals(c.<Integer>init(Integer, maxArg), Integer.MAX_VALUE)  
   }
   
   @Test 

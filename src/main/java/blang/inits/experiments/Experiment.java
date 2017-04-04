@@ -19,6 +19,8 @@ import static briefj.run.ExecutionInfoFiles.getFile;
 
 import java.io.File;
 import java.lang.management.ManagementFactory;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -33,7 +35,10 @@ import blang.inits.Creators;
 import blang.inits.GlobalArg;
 import blang.inits.Inits;
 import blang.inits.parsing.Arguments;
+import blang.inits.parsing.Arguments.ArgumentItem;
+import blang.inits.parsing.CSVFile;
 import blang.inits.parsing.Posix;
+import blang.inits.parsing.QualifiedName;
 import briefj.BriefIO;
 import briefj.BriefStrings;
 import briefj.repo.RepositoryUtils;
@@ -82,6 +87,9 @@ public abstract class Experiment implements Runnable
     
     ExperimentResults results = createExperimentResultsObject(expConfigs);
     configs.creator.addGlobal(ExperimentResults.class, results);
+    
+    if (expConfigs.configFile.isPresent())
+      arguments = addConfigFileArguments(arguments, CSVFile.parseTSV(expConfigs.configFile.get()));
     
     Runnable experiment = null;
     try 
@@ -157,6 +165,23 @@ public abstract class Experiment implements Runnable
     return success ? SUCCESS_CODE : EXCEPTION_CODE;
   }
   
+  private static Arguments addConfigFileArguments(Arguments fromCLI, Arguments fromConfig)
+  {
+    LinkedHashMap<QualifiedName, List<String>> 
+      cliMap  = fromCLI.asMap(),
+      confMap = fromConfig.asMap();
+    
+    for (QualifiedName name : confMap.keySet())
+      if (!cliMap.containsKey(name))
+        cliMap.put(name, confMap.get(name));
+    
+    List<ArgumentItem> items = new ArrayList<Arguments.ArgumentItem>();
+    for (QualifiedName name : cliMap.keySet())
+      items.add(new ArgumentItem(name.getPath(), cliMap.get(name)));
+    
+    return Arguments.parse(items);
+  } 
+
   public static final String CSV_ARGUMENT_FILE = "arguments.tsv";
   public static final String DETAILED_ARGUMENT_FILE = "arguments-details.txt";
   

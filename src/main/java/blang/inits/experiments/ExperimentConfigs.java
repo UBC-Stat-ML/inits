@@ -1,5 +1,8 @@
 package blang.inits.experiments;
 
+import java.io.File;
+import java.util.Optional;
+
 import blang.inits.Arg;
 import blang.inits.DefaultValue;
 
@@ -16,4 +19,7 @@ public class ExperimentConfigs
   @Arg(description = "Record information such as timing, main class, code version, etc for this run?") 
   @DefaultValue("true")
   public boolean recordExecutionInfo = true;
+  
+  @Arg(description = "If set, use those arguments in provided file that do not appear in the provided arguments.")
+  public Optional<File> configFile = Optional.empty();
 }

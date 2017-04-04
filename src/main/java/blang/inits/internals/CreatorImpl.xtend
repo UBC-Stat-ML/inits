@@ -262,7 +262,8 @@ package class CreatorImpl implements Creator {
           }
           
           if (dep.defaultArguments.present) {
-            logger.defaultValues.put(argument.QName.child(dep.name), dep.defaultArguments.get.toString)
+            logger.defaultValues.put(argument.QName.child(dep.name), dep.defaultArguments.toString)
+            logger.defaultValuesRecursive.put(argument.QName.child(dep.name), dep.defaultArguments.isRecursive)
           }
           if (dep.description.present) { 
             logger.dependencyDescriptions.put(argument.QName.child(dep.name), dep.description.get)

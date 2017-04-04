@@ -52,7 +52,7 @@ package class InitStaticUtils {
       throw InputExceptions.malformedAnnotation(e.message, childType, element) 
     }
     val Annotation annotation = annotations.key
-    val Optional<Arguments> defaultArguments = defaultArguments(annotations.value)
+    val ParsedDefaults defaultArguments = defaultArguments(annotations.value)
     return switch (annotation) {
       Arg : {
         new RecursiveDependency(childType, name.get, optionalizeString(annotation.description), defaultArguments)
@@ -81,12 +81,22 @@ package class InitStaticUtils {
     }
   }
   
-  def static Optional<Arguments> defaultArguments(Optional<DefaultValue> defaultValueAnnotation) {
+  def static ParsedDefaults defaultArguments(Optional<DefaultValue> defaultValueAnnotation) {
     if (defaultValueAnnotation.isPresent) {
-      return Optional.of(Posix.parse(defaultValueAnnotation.get.value))
+      val boolean isRecursive = isRecursive(defaultValueAnnotation.get)
+      if (isRecursive) {
+        return ParsedDefaults.createRecursive(Posix.parse(defaultValueAnnotation.get.value))
+      } else {
+        return ParsedDefaults.createNonRecursive(defaultValueAnnotation.get.value)
+      }
     } else {
-      return Optional.empty
+      return ParsedDefaults.createEmpty
     }
+  }
+  
+  def static boolean isRecursive(DefaultValue value) {
+    val Arguments parsed = Posix.parse(value.value)
+    return !parsed.childrenKeys.isEmpty
   }
   
   def static List<String> implementations(TypeLiteral<?> type) {

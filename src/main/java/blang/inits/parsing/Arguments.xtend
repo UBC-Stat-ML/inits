@@ -66,6 +66,15 @@ class Arguments {
   }
   
   /**
+   * Return a deep copy with the provided alternative value
+   */
+  def Arguments withValue(List<String> value) {
+    val Arguments result = new Arguments(Optional.of(value), qName)
+    result.children.putAll(this.children)
+    return result
+  }
+  
+  /**
    * Pops the first item in the list of strings at that node, 
    * returns a copy of the structure without that string, taking care 
    * of empty optionals and list in the obvious way.

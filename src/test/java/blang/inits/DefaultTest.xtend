@@ -13,7 +13,7 @@ class DefaultTest {
     @Arg @DefaultValue("some input")
     CustomType t1
     
-    @Arg @DefaultValue("--subArg", "true")
+    @Arg @DefaultValue("--subArg", "false")
     ComplexType t2
   }
   
@@ -37,8 +37,8 @@ class DefaultTest {
     val MyTest instance = try {
       c.init(MyTest, Posix.parse(
 //        "--test", "123", 
-//        "--t1", "blah", 
-//        "--t2.subArg", "true"
+//        "--t1", "blah",
+        "--t2.subArg", "true"
         ))
     } catch (Exception e) {
       throw new RuntimeException(c.errorReport)

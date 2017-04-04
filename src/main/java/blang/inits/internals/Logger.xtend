@@ -15,6 +15,8 @@ import java.util.ArrayList
 import com.google.common.base.Splitter
 import blang.inits.InputExceptions.InputExceptionCategory
 import java.util.Optional
+import java.util.TreeMap
+import java.util.SortedMap
 
 package class Logger {
     
@@ -23,6 +25,7 @@ package class Logger {
   val package Map<QualifiedName, String> dependencyDescriptions = new LinkedHashMap
   val package Map<QualifiedName, TypeLiteral<?>> allTypes = new LinkedHashMap
   val package Map<QualifiedName, String> defaultValues = new LinkedHashMap
+  val package Map<QualifiedName, Boolean> defaultValuesRecursive = new LinkedHashMap
   val package Map<QualifiedName, List<String>> readValues = new LinkedHashMap
   
   def void addAll(Logger another) {
@@ -31,6 +34,7 @@ package class Logger {
     dependencyDescriptions.putAll(another.dependencyDescriptions)
     allTypes.putAll(another.allTypes)
     defaultValues.putAll(another.defaultValues)
+    defaultValuesRecursive.putAll(another.defaultValuesRecursive)
     readValues.putAll(another.readValues)
   }
   
@@ -88,7 +92,7 @@ package class Logger {
   }
   
   def Optional<String> someParentHasDefault(QualifiedName qName) {
-    if (defaultValues.containsKey(qName)) {
+    if (defaultValues.containsKey(qName) && defaultValuesRecursive.get(qName)) {
       return Optional.of("parent " + qName + " has default value: " + defaultValues.get(qName))
     }
     if (qName.isRoot) {
@@ -174,7 +178,7 @@ package class Logger {
       _arguments
     }
     
-    var List<String> result = new ArrayList
+    val SortedMap<String,String> entries = new TreeMap
     val LinkedHashMap<QualifiedName,List<String>> argumentsAsMap = arguments.asMap
     val ListMultimap<QualifiedName,InputException> errorsCopy = ArrayListMultimap.create(errors)
     val LinkedHashSet<QualifiedName> possibleInputsCopy = sortedPossibleInputs()
@@ -201,9 +205,16 @@ package class Logger {
         }
       }
       
-      result += current
+      entries.put(qName.toString, current)
       errorsCopy.removeAll(qName)
     }
+    
+    // make sure everything sorted by key
+    var List<String> result = new ArrayList
+    for (String key : entries.keySet()) {
+      result += entries.get(key)
+    }
+    
     // then the unassociated errors
     if (!errorsCopy.isEmpty() && printDetails) {
       result += "### Errors:\n"

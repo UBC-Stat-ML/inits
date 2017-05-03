@@ -124,7 +124,7 @@ class Arguments {
     
     for (ArgumentItem item : items) {
       if (visitedKeys.contains(item.fullyQualifiedName)) {
-        throw new RuntimeException // TODO: show culpit
+        throw new RuntimeException("Argument duplicated: " + item.fullyQualifiedName)
       }
       val Arguments node = root.getOrCreateDesc(item.fullyQualifiedName)
       if (node.argumentValue.present) {

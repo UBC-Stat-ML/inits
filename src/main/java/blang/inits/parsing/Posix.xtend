@@ -23,13 +23,13 @@ class Posix {
     var List<String> currentValue = new ArrayList
     
     for (String arg : args) {
-      if (arg.matches("[-][-].*")) {
+      if (trim(arg).matches("[-][-].*")) {
         // process previous (unless it's the empty root)
         if (!currentKey.isEmpty || !currentValue.isEmpty) {
           items.add(new ArgumentItem(currentKey, currentValue))
         }
         // start next
-        currentKey = readKey(arg)
+        currentKey = readKey(trim(arg))
         currentValue = new ArrayList
       } else {
         currentValue += arg
@@ -42,6 +42,13 @@ class Posix {
     }
     
     return Arguments.parse(items)
+  }
+  
+  def static String trim(String s) {
+    var result = s.trim
+    // handle cases like "\n--key .." which was found to arise frequently when 
+    // pasting nextflow configs into eclipse 'run as'
+    return result.replace("\n", "")
   }
   
   def static List<String> readKey(String string) {

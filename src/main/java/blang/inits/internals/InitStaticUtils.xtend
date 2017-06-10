@@ -138,6 +138,9 @@ package class InitStaticUtils {
     if (deOptionized.rawType.isPrimitive) {
       return false // to get around annoying bug in Java SDK: primitive types t => Modifier.isAbstract(t) = true
     }
+    if (deOptionized.rawType.isEnum) {
+      return false // we don't want enums with interfaces to be treated like standard interfaces
+    }
     // otherwise, abstract classes and interface need to be resolved
     return deOptionized.rawType.isInterface() ||        
            Modifier.isAbstract(deOptionized.rawType.modifiers)

@@ -119,16 +119,12 @@ class Arguments {
   }
   
   def static Arguments parse(List<ArgumentItem> items) {
-    val Set<List<String>> visitedKeys = new HashSet
     val Arguments root = createEmpty()
     
     for (ArgumentItem item : items) {
-      if (visitedKeys.contains(item.fullyQualifiedName)) {
-        throw new RuntimeException("Argument duplicated: " + item.fullyQualifiedName)
-      }
       val Arguments node = root.getOrCreateDesc(item.fullyQualifiedName)
       if (node.argumentValue.present) {
-        throw new RuntimeException
+        throw new RuntimeException("Argument duplicated: " + item.fullyQualifiedName.join("."))
       }
       node.argumentValue = Optional.of(item.value)
     }
@@ -204,8 +200,8 @@ class Arguments {
     }
   }
   
-//  def getQName() {
-//    return qName
-//  }
+  def static void main(String [] args) {
+    Posix.parse(args)
+  }
   
 }

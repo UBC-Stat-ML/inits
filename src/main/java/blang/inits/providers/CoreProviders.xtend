@@ -21,6 +21,11 @@ class CoreProviders {
   }
   
   @ProvidesFactory
+  def static bayonet.distributions.Random parseBayonetRandom(@Input String s) {
+    return new bayonet.distributions.Random(parse_long(s))
+  }
+  
+  @ProvidesFactory
   def static File parseFile(@Input String s) {
     return new File(s)
   }

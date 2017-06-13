@@ -25,7 +25,7 @@ xtend {
 uploadArchives {
   repositories.mavenDeployer {
     repository(url: "file:///Users/bouchard/artifacts/")
-    pom.version = "2.6.2"
+    pom.version = "2.6.3"
     pom.artifactId = "inits"
     pom.groupId = "ca.ubc.stat"
   }
@@ -53,6 +53,7 @@ dependencies {
   testCompile group: 'junit', name: 'junit', version: '4.12'
   compile group: 'junit', name: 'junit', version: '4.12'
   compile "ca.ubc.stat.blang:ca.ubc.stat.blang:3.9.5"
+  compile group: 'ca.ubc.stat', name: 'bayonet', version: '4.0.2' 
   compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
   compile 'com.google.code.gson:gson:2.7'
   compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.10.0'

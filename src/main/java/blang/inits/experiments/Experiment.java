@@ -156,11 +156,11 @@ public abstract class Experiment implements Runnable
       if (tees != null)
         tees.close();
       
-      System.out.println("executionMilliseconds : " + (endTime - startTime));
-      System.out.println("outputFolder : " + Results.getResultFolder().getAbsolutePath());
-      
       // close all streams
       results.closeAll();
+      
+      System.out.println("executionMilliseconds : " + (endTime - startTime));
+      System.out.println("outputFolder : " + Results.getResultFolder().getAbsolutePath());
     }
     return success ? SUCCESS_CODE : EXCEPTION_CODE;
   }

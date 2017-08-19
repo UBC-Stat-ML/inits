@@ -16,6 +16,20 @@ class CoreProviders {
   }
   
   @ProvidesFactory
+  def static Character parseCharacter(@Input String s) {
+    return new Character(parse_char(s))
+  }
+  
+  @ProvidesFactory
+  def static char parse_char(@Input String s) {
+    val String trimmed = s.trim
+    if (trimmed.length != 1) {
+      throw new RuntimeException("This should be a single character: " + trimmed)
+    }
+    return s.charAt(0)
+  }
+  
+  @ProvidesFactory
   def static Random parseRandom(@Input String s) {
     return new Random(parse_long(s))
   }

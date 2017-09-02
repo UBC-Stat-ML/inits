@@ -79,9 +79,15 @@ public abstract class Experiment implements Runnable
       String [] args,
       ParsingConfigs configs)
   {
-    Arguments arguments = Posix.parse(args);
-    
-    ExperimentConfigs expConfigs = preloadExperimentsConfigs(arguments.child(EXP_CONFIG_FIELD_NAME));
+    return start(args, Posix.parse(args), configs);
+  }
+  
+  public static int start(
+      String [] rawArgs,
+      Arguments parsedArgs,
+      ParsingConfigs configs)
+  {
+    ExperimentConfigs expConfigs = preloadExperimentsConfigs(parsedArgs.child(EXP_CONFIG_FIELD_NAME));
     if (expConfigs == null)
       return BAD_EXP_CONFIG_CODE;
     
@@ -89,16 +95,16 @@ public abstract class Experiment implements Runnable
     configs.creator.addGlobal(ExperimentResults.class, results);
     
     if (expConfigs.configFile.isPresent())
-      arguments = addConfigFileArguments(arguments, CSVFile.parseTSV(expConfigs.configFile.get()));
+      parsedArgs = addConfigFileArguments(parsedArgs, CSVFile.parseTSV(expConfigs.configFile.get()));
     
     Runnable experiment = null;
     try 
     {
-      experiment = configs.creator.init(configs.findExperimentClass(), arguments);
+      experiment = configs.creator.init(configs.findExperimentClass(), parsedArgs);
     } 
     catch (Exception e) 
     {
-      if (arguments.childrenKeys().contains(Inits.HELP_STRING)) 
+      if (parsedArgs.childrenKeys().contains(Inits.HELP_STRING)) 
       {
         cleanEmptyResultFolder(results, expConfigs);
         System.out.println(configs.creator.usage());
@@ -122,7 +128,7 @@ public abstract class Experiment implements Runnable
     if (expConfigs.recordExecutionInfo) 
     {
       recordArguments(configs.creator, results);
-      recordExecutionInfo(experiment, args);
+      recordExecutionInfo(experiment, rawArgs);
     }
     
     long startTime = System.currentTimeMillis();

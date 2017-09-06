@@ -12,6 +12,8 @@ import com.google.common.base.Joiner;
 
 abstract class AbstractTabularWriter<T extends AbstractTabularWriter<T>> implements TabularWriter
 {
+  private final int depth;
+  
   // block 1: root
   protected List<Object> referenceKeys = null; // null only until a first write is done
   
@@ -20,10 +22,11 @@ abstract class AbstractTabularWriter<T extends AbstractTabularWriter<T>> impleme
   protected final Object key;
   protected final Object value;
   
-  public AbstractTabularWriter(T parent, Object key, Object value) {
+  public AbstractTabularWriter(T parent, Object key, Object value, int depth) {
     this.parent = parent;
     this.key = key;
     this.value = value;
+    this.depth = depth;
   }
 
   @Override
@@ -45,8 +48,8 @@ abstract class AbstractTabularWriter<T extends AbstractTabularWriter<T>> impleme
         break loop;
       else 
       {
-        values.add(value);
-        keys.add(key);
+        values.add(writer.value);
+        keys.add(writer.key);
         writer = writer.parent;
       }
     Collections.reverse(values);
@@ -74,6 +77,8 @@ abstract class AbstractTabularWriter<T extends AbstractTabularWriter<T>> impleme
       throw new RuntimeException();
     }
   }
+  
+  public int depth() { return depth; }
   
   public abstract void writeImplementation(List<Object> keys, List<Object> values, T root);
 }

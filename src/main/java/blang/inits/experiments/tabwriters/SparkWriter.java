@@ -18,7 +18,6 @@ public class SparkWriter extends AbstractTabularWriter<SparkWriter>
 {
   private final ExperimentResults result;
   private Writer out = null;
-  private final int depth;
   
   public SparkWriter(ExperimentResults results)
   {
@@ -26,15 +25,14 @@ public class SparkWriter extends AbstractTabularWriter<SparkWriter>
   }
 
   public SparkWriter(ExperimentResults result, SparkWriter parent, Object key, Object value, int depth) {
-    super(parent, key, value);
+    super(parent, key, value, depth);
     this.result = result;
-    this.depth = depth;
   }
 
   @Override
   public SparkWriter child(Object key, Object value) 
   {
-    return new SparkWriter(result.child(key.toString(), value.toString()), this, key, value, depth + 1);
+    return new SparkWriter(result.child(key.toString(), value.toString()), this, key, value, depth() + 1);
   }
 
   @Override
@@ -43,9 +41,9 @@ public class SparkWriter extends AbstractTabularWriter<SparkWriter>
     if (out == null)
     {
       out = result.getAutoClosedBufferedWriter(LEAF_CSV_NAME);
-      root.lowLevelWrite(this.out, keys.subList(depth, keys.size()));
+      root.lowLevelWrite(this.out, keys.subList(depth(), keys.size()));
     }
-    root.lowLevelWrite(out, values.subList(depth, values.size())); 
+    root.lowLevelWrite(out, values.subList(depth(), values.size())); 
   }
 
   public static final String LEAF_CSV_NAME = "data.csv"; // Do not change, assumed by scala

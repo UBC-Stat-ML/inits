@@ -23,4 +23,6 @@ public interface TabularWriter
   
   void write(Object key, Object value);
   void write(Pair<?, ?> ... entries);
+  
+  int depth();
 }

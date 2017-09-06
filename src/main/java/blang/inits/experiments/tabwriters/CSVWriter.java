@@ -10,19 +10,19 @@ public class CSVWriter extends AbstractTabularWriter<CSVWriter>
   
   public CSVWriter(Writer out)
   {
-    this(out, null, null, null);
+    this(out, null, null, null, 0);
   }
 
-  private CSVWriter(Writer out, CSVWriter parent, Object key, Object value) 
+  private CSVWriter(Writer out, CSVWriter parent, Object key, Object value, int depth) 
   {
-    super(parent, key, value);
+    super(parent, key, value, depth);
     this.out = out;
   }
 
   @Override
   public CSVWriter child(Object key, Object value) 
   {
-    return new CSVWriter(null, this, key, value);
+    return new CSVWriter(null, this, key, value, depth() + 1);
   }
 
   @Override

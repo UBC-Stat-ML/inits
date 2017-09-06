@@ -267,7 +267,7 @@ public abstract class Experiment implements Runnable
     // Note: this is done so as to be backward compatible with Results
     if (!expConfigs.managedExecutionFolder)
       Results.initResultFolder(new File(".").getAbsolutePath());
-    return new ExperimentResults(Results.getResultFolder());
+    return new ExperimentResults(Results.getResultFolder(), expConfigs.tabularWriter);
     
     /*
      * TODO: this could be improved to allow creating 'sub-experiments'?

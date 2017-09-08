@@ -5,6 +5,8 @@ import blang.inits.experiments.tabwriters.TidySerializer
 import blang.inits.experiments.tabwriters.TabularWriter
 import java.util.Arrays
 import blang.inits.experiments.ExperimentResults
+import blang.inits.experiments.tabwriters.TidySerializer.ProvidesTidySerialization
+import blang.inits.experiments.tabwriters.TidySerializer.Context
 
 class TestTidySerializer extends Experiment {
   
@@ -26,12 +28,26 @@ class TestTidySerializer extends Experiment {
       val double [][] test = #[ #[2.0, 40.0], #[2.0, 40.0]]
       tidy.serialize(test, "test2") 
     }
+    
+    tidy.serialize(new AnotherCustomClass, "test3")
   }
   
   static class SomeCustomClass
   {
     Object o1
     Object o2
+  }
+  
+  static class AnotherCustomClass implements ProvidesTidySerialization {
+    val list1 = #[1, 2, 3]
+    val list2 = #[4, 5, 6]
+    override serialize(Context context) {
+      context => [
+        recurse(list1, "field_idx", 1)
+        recurse(list2, "field_idx", 2)
+      ]
+    }
+    
   }
   
   static class CustomTidy extends TidySerializer

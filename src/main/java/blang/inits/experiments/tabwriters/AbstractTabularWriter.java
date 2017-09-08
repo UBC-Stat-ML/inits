@@ -10,6 +10,8 @@ import org.eclipse.xtext.xbase.lib.Pair;
 
 import com.google.common.base.Joiner;
 
+import briefj.CSV;
+
 abstract class AbstractTabularWriter<T extends AbstractTabularWriter<T>> implements TabularWriter
 {
   private final int depth;
@@ -27,12 +29,6 @@ abstract class AbstractTabularWriter<T extends AbstractTabularWriter<T>> impleme
     this.key = key;
     this.value = value;
     this.depth = depth;
-  }
-
-  @Override
-  public void write(Object key, Object value) 
-  {
-    write(Pair.of(key, value));
   }
   
   @Override
@@ -71,9 +67,10 @@ abstract class AbstractTabularWriter<T extends AbstractTabularWriter<T>> impleme
   {
     try 
     {
-      // TODO: add option to process for quotations etc (via briefj's CSV for example)
-      out.append(Joiner.on(",").join(strings) + "\n");
-    } catch (IOException e) {
+      out.append(CSV.toCSV(strings) + "\n");
+    } 
+    catch (IOException e) 
+    {
       throw new RuntimeException();
     }
   }

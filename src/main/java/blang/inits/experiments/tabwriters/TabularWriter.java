@@ -21,7 +21,10 @@ public interface TabularWriter
    */
   TabularWriter child(Object key, Object value);
   
-  void write(Object key, Object value);
+  default void write(Object key, Object value) {
+    write(Pair.of(key, value));
+  }
+  
   void write(Pair<?, ?> ... entries);
   
   int depth();

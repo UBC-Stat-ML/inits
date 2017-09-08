@@ -3,21 +3,76 @@ package blang.inits.experiments.tabwriters
 import blang.inits.GlobalArg
 import blang.inits.experiments.ExperimentResults
 import blang.inits.experiments.tabwriters.TabularWriter
-import java.util.Collection
 import java.util.Map
 import blang.inits.DesignatedConstructor
+import org.eclipse.xtend.lib.annotations.Data
+import org.eclipse.xtend.lib.annotations.Accessors
+import java.util.HashMap
 
 class TidySerializer {
   
   val ExperimentResults result
+  val Map<String,TabularWriter> tabularWriters = new HashMap 
   
   @DesignatedConstructor
   new(@GlobalArg ExperimentResults result) {
     this.result = result
   }
   
-  def void serialize(Object object, String name) {
-    serializeImplementation(object, result.getTabularWriter(name))
+  def void serialize(Object object, String name, Pair<Object,Object> ... globalContext) {
+    var TabularWriter tabularWriter = tabularWriters.get(name)
+    if (tabularWriter == null) {
+      tabularWriter = result.getTabularWriter(name)
+      tabularWriters.put(name, tabularWriter)
+    }
+    if (!globalContext.empty) {
+      tabularWriter = new TabularWriterWithGlobals(tabularWriter, globalContext) 
+    }
+    serializeImplementation(object, tabularWriter)
+  }
+  
+  @Data
+  private static class TabularWriterWithGlobals implements TabularWriter {
+    
+    val TabularWriter enclosed
+    val Pair<Object,Object> [] globalContext
+    
+    override child(Object key, Object value) {
+      return new TabularWriterWithGlobals(enclosed.child(key, value), globalContext)
+    }
+    
+    override depth() {
+      return enclosed.depth
+    }
+    
+    override write(Pair<?, ?>... entries) {
+      val Pair<Object,Object> [] extendedEntries = newArrayOfSize(entries.size + globalContext.size) 
+      var int i = 0;
+      for (Pair<Object,Object> p : globalContext) {
+        extendedEntries.set(i++, p)
+      }
+      for (Pair p : entries) {
+        extendedEntries.set(i++, p)
+      }
+      enclosed.write(extendedEntries)
+    }
+  }
+  
+  public static interface ProvidesTidySerialization {
+    def void serialize(Context context)
+  }
+  
+  @Data
+  public static class Context {
+    @Accessors(NONE) val TidySerializer serializer
+    @Accessors(NONE) val TabularWriter writer
+    def void recurse(Object child, Object key, Object value) {
+      serializer.recurse(child, key, value, writer) 
+    }
+  } 
+  
+  def dispatch protected void serializeImplementation(ProvidesTidySerialization object, TabularWriter writer) {
+    object.serialize(new Context(this, writer)) 
   }
   
   def dispatch protected void serializeImplementation(Object object, TabularWriter writer) {
@@ -25,28 +80,19 @@ class TidySerializer {
   }
   
   def dispatch protected void serializeImplementation(Object [] array, TabularWriter writer) {
-    for (var int i = 0; i < array.length; i++) {
-      recurse(array.get(i), "array_index_" + writer.depth, i, writer)
-    }
+    serializeIterable(array, writer)
   }
   
   def dispatch protected void serializeImplementation(double [] array, TabularWriter writer) {
-    for (var int i = 0; i < array.length; i++) {
-      recurse(array.get(i), "array_index_" + writer.depth, i, writer)
-    }
+    serializeIterable(array, writer)
   }
   
   def dispatch protected void serializeImplementation(int [] array, TabularWriter writer) {
-    for (var int i = 0; i < array.length; i++) {
-      recurse(array.get(i), "array_index_" + writer.depth, i, writer)
-    }
+    serializeIterable(array, writer)
   }
   
-  def dispatch protected void serializeImplementation(Collection<?> collection, TabularWriter writer) {
-    var int i = 0
-    for (Object item : collection) {
-      recurse(item, "list_index_" + writer.depth, i++, writer)
-    }
+  def dispatch protected void serializeImplementation(Iterable<?> collection, TabularWriter writer) {
+    serializeIterable(collection, writer)
   }
   
   def dispatch protected void serializeImplementation(Map<?,?> map, TabularWriter writer) {
@@ -59,4 +105,11 @@ class TidySerializer {
     serializeImplementation(child, writer.child(key, value))
   }
   
+  // RATIONALE: non-dispatch used to avoid repeating array code
+  def private void serializeIterable(Iterable<?> collection, TabularWriter writer) {
+    var int i = 0
+    for (Object item : collection) {
+      recurse(item, "index_" + writer.depth, i++, writer)
+    }
+  }
 }

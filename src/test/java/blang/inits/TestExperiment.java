@@ -2,6 +2,7 @@ package blang.inits;
 
 import java.util.Arrays;
 
+import org.eclipse.xtext.xbase.lib.Pair;
 import org.junit.Assert;
 
 import blang.inits.GlobalArg;
@@ -63,7 +64,7 @@ public class TestExperiment extends Experiment
         printSomeResults(csv.child("iteration", i));
       
       try {
-        csv.write("label", "xx");
+        csv.write(Pair.of("label", "xx"));
         System.out.println("SHOULD NOT GET HERE!");
       }
       catch (Exception e) {
@@ -87,7 +88,7 @@ public class TestExperiment extends Experiment
   private void printSomeResults(TabularWriter writer) 
   {
     for (String label : new String[]{"one", "two"})
-      writer.write("label", label);
+      writer.write(Pair.of("label", label));
   }
   
 

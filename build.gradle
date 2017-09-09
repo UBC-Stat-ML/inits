@@ -1,5 +1,5 @@
 plugins {
-  id 'org.xtext.xtend' version '1.0.12'
+  id 'org.xtext.xtend' version '1.0.19'
   id 'java'
   id 'eclipse'
   id 'maven'
@@ -20,6 +20,8 @@ xtend {
     javaSourceLevel = 1.8
   }
 }
+
+
 
 
 uploadArchives {

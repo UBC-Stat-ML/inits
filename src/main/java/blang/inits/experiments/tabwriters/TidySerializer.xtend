@@ -76,7 +76,7 @@ class TidySerializer {
   }
   
   def dispatch protected void serializeImplementation(Object object, TabularWriter writer) {
-    writer.write("value", object.toString)
+    writer.write(Pair.of("value", object.toString))
   }
   
   def dispatch protected void serializeImplementation(Object [] array, TabularWriter writer) {

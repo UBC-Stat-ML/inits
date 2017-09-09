@@ -3,11 +3,15 @@ Summary [![Build Status](https://travis-ci.org/UBC-Stat-ML/inits.png?branch=mast
 
 
 
-``inits`` is a library used to create ("init") a tree-structured object graph from a parse tree. The main motivation is that this parse tree comes from command line arguments/config file.
+``inits`` is a framework for performing scientific simulations.  
+
+An important component is a library used to create ("init") a tree-structured object graph from a parse tree. The main motivation is that this parse tree comes from command line arguments/config file.
 
 The project was born as a need to automatically setup inputs/command line arguments for ``blang``, but ``inits`` also be useful on its own. 
 
 ``inits`` can be viewed as a dependency injection framework tailored to complex and hierarchical command line arguments/config files. Hence, ``inits`` provides more facilities to the objects being initialized than most command line parsing frameworks (features such as typed globals, access to non-erased generic type information, coherent qualified names for instantiated objects, support for interfaces, etc).
+
+``inits`` also contains services to organize experiments outputs, including automatically producing tidy csv or spark-readable files from complex data types. 
 
 
 Installation
@@ -56,6 +60,7 @@ Usage
 
 See:
 
+- [Example of an Experiment, the simples point of entry](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/TestExperiment.java)
 - [Simple example](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/BasicExample.xtend)
 - [Complex types](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/ComplexTypesExample.xtend)
 - [Custom type parsers](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/ComplexTypesExample.xtend)
@@ -64,5 +69,6 @@ See:
 - [Initialization service for complex use cases](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/InitServiceExample.xtend)
 - [Example of full reporting](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/FullReportExample.xtend)
 - [Example of reading config file](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/ConfigTest.xtend)
+- [Example of tidy output](https://github.com/UBC-Stat-ML/inits/blob/master/src/test/java/blang/inits/TestTidySerializer.xtend)
 
 

@@ -8,8 +8,6 @@ import java.util.List;
 
 import org.eclipse.xtext.xbase.lib.Pair;
 
-import com.google.common.base.Joiner;
-
 import briefj.CSV;
 
 abstract class AbstractTabularWriter<T extends AbstractTabularWriter<T>> implements TabularWriter

@@ -24,6 +24,8 @@ import blang.inits.parsing.Arguments
 import blang.inits.parsing.Posix
 import blang.inits.Implementations
 import java.util.Collections
+import java.util.ArrayList
+import java.util.Arrays
 
 package class InitStaticUtils {
   
@@ -102,7 +104,7 @@ package class InitStaticUtils {
   def static List<String> implementations(TypeLiteral<?> type) {
     val TypeLiteral<?> deOptionizedType = InitStaticUtils::deOptionize(type)
     val Implementations annotation = deOptionizedType.rawType.getAnnotation(Implementations)
-    if (annotation == null) {
+    if (annotation === null) {
       return Collections::emptyList
     } else {
       return annotation.value.map[it.simpleName]
@@ -160,7 +162,14 @@ package class InitStaticUtils {
    */
   def static Optional<Executable> findBuilder(TypeLiteral<?> type) {
     var Optional<Executable> found = Optional.empty
-    val execCollections = #[type.rawType.constructors, type.rawType.methods]
+    val List<List<Executable>> execCollections = new ArrayList
+    execCollections.add(type.rawType.constructors)
+    execCollections.add(type.rawType.methods)
+    var currentClass = type.rawType
+    while (currentClass.enclosingClass !== null) {
+      execCollections.add(currentClass.enclosingClass.methods)
+      currentClass = currentClass.enclosingClass
+    }
     for (execCollection : execCollections) {
       for (Executable exec : execCollection) {
         if (!exec.getAnnotationsByType(DesignatedConstructor).empty) {

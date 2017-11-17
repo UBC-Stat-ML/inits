@@ -11,7 +11,7 @@ import org.apache.commons.lang3.exception.ExceptionUtils
 
 class InputExceptions {
   
-  val public static final RuntimeException FAILED_INIT = new RuntimeException("Failed to init object. Use creator.errorReport and creator.errors for detail.")
+  val public static final InputException FAILED_INIT = new InputException(InputExceptionCategory.COMPOUND, "Failed to init object. Use creator.errorReport and creator.errors for detail.")
   
   def static InputException malformedBuilder(TypeLiteral<?> type) {
     return new InputException(
@@ -46,7 +46,7 @@ class InputExceptions {
       InputExceptionCategory.MALFORMED_INTERFACE_IMPLEMENTATION, 
       "The input should point to an implementation of " + type + "\n" +
       "  specified either with a fully qualified string" +
-      if (implementations == null) {
+      if (implementations === null || implementations.empty) {
         ""
       } else {
         ", or a case insensitive simple name from: \n" +
@@ -114,7 +114,8 @@ class InputExceptions {
     MALFORMED_ANNOTATION,
     MALFORMED_OPTIONAL, 
     MISSING_GLOBAL,
-    MALFORMED_INTERFACE_IMPLEMENTATION
+    MALFORMED_INTERFACE_IMPLEMENTATION,
+    COMPOUND
   }
   
   private new() {}

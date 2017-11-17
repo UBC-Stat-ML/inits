@@ -34,6 +34,7 @@ import blang.inits.Creator;
 import blang.inits.Creators;
 import blang.inits.GlobalArg;
 import blang.inits.Inits;
+import blang.inits.InputExceptions.InputException;
 import blang.inits.parsing.Arguments;
 import blang.inits.parsing.Arguments.ArgumentItem;
 import blang.inits.parsing.CSVFile;
@@ -102,7 +103,7 @@ public abstract class Experiment implements Runnable
     {
       experiment = configs.creator.init(configs.findExperimentClass(), parsedArgs);
     } 
-    catch (Exception e) 
+    catch (InputException e) 
     {
       if (parsedArgs.childrenKeys().contains(Inits.HELP_STRING)) 
       {
@@ -118,6 +119,11 @@ public abstract class Experiment implements Runnable
         System.err.println(configs.creator.fullReport());
         return CLI_PARSING_ERROR_CODE;
       }
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
+      return CLI_PARSING_ERROR_CODE;
     }
     
     // report command line options and some more
@@ -289,9 +295,14 @@ public abstract class Experiment implements Runnable
     {
       return c.init(ExperimentConfigs.class, arguments);
     }
-    catch (Exception e) 
+    catch (InputException e) 
     {
       System.err.println(c.fullReport());
+      return null;
+    }
+    catch (Exception e)
+    {
+      e.printStackTrace();
       return null;
     }
   }

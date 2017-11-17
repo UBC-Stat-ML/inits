@@ -27,17 +27,24 @@ package class IntrospectionSchema implements Schema {
     val List<InitDependency> result = new ArrayList
     // parameters
     val List<Parameter> parameters = builder.parameters
-    val List<TypeLiteral<?>> parameterTypes = typeDeclaringBuilder.getParameterTypes(builder)
+    val List<TypeLiteral<?>> parameterTypes = parameterTypes(typeDeclaringBuilder, builder)
     for (var int i = 0; i < parameters.size; i++) {
       result.add(InitStaticUtils::findDependency(typeToBuild, parameterTypes.get(i), parameters.get(i), Optional.empty))
     }
     // fields
-    if (typeToBuild == typeDeclaringBuilder) {
-      for (Field field : fieldsToInstantiate()) {
-        result.add(InitStaticUtils::findDependency(typeToBuild, typeToBuild.getFieldType(field), field, Optional.of(field.name)))
-      }
+    for (Field field : fieldsToInstantiate()) {
+      result.add(InitStaticUtils::findDependency(typeToBuild, typeToBuild.getFieldType(field), field, Optional.of(field.name)))
     }
     return result
+  }
+  
+  def static List<TypeLiteral<?>> parameterTypes(TypeLiteral<?> typeDeclaringBuilder, Executable builder) {
+    try {
+      return typeDeclaringBuilder.getParameterTypes(builder)
+    } catch (IllegalArgumentException e) {
+      val Class<?> enclosing = typeDeclaringBuilder.rawType.enclosingClass
+      return parameterTypes(TypeLiteral.get(enclosing), builder)
+    }
   }
   
   def private List<Field> fieldsToInstantiate() {

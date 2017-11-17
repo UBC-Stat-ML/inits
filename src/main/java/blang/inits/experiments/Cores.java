@@ -14,19 +14,19 @@ public class Cores
   public final int available;
   
   @DesignatedConstructor
-  public Cores(@Input(formatDescription = "Integer - skip to use max available") Optional<String> input)
+  public Cores(@Input(formatDescription = "Integer - skip or " + MAX + " to use max available") Optional<String> input)
   {
-    this(input.isPresent() ? 
+    this(isFixed(input) ? 
         Integer.parseInt(input.get()) : 
         Runtime.getRuntime().availableProcessors()
         );
   }
   
-  public Cores(int n) 
+  public Cores(int number) 
   {
-    if (n < 1)
+    if (number < 1)
       throw new RuntimeException("Number of cores cannot be less than 1.");
-    this.available = n;
+    this.available = number;
   }
   
   public static Cores maxAvailable()
@@ -39,4 +39,15 @@ public class Cores
   {
     return "" + available + " cores";
   }
+  
+  private static boolean isFixed(Optional<String> input)
+  {
+    if (!input.isPresent())
+      return false;
+    if (input.get().trim().equals(MAX))
+      return false;
+    return true;
+  }
+  
+  private static final String MAX = "MAX";
 }

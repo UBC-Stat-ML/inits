@@ -43,7 +43,7 @@ package class CreatorImpl implements Creator {
   override <T> T init(
     TypeLiteral<T> type,  
     Arguments args) {
-    if (type == null || args == null) {
+    if (type === null || args === null) {
       throw new RuntimeException
     }
     // empty logs
@@ -210,7 +210,7 @@ package class CreatorImpl implements Creator {
     }
     // else, use an introspection based scheme
     val pair = factories.get(currentType.rawType)
-    if (pair != null) {
+    if (pair !== null) {
       // use the database of factories in priority
       return new IntrospectionSchema(currentType, pair.value, pair.key)
     } else {
@@ -299,7 +299,7 @@ package class CreatorImpl implements Creator {
     // TODO: find factories and add them
     val TypeLiteral<?> lit = TypeLiteral.get(factoryFile)
     for (Method m : factoryFile.declaredMethods) {
-      if (m.getAnnotation(ProvidesFactory) != null) {
+      if (m.getAnnotation(ProvidesFactory) !== null) {
         factories.put(m.returnType, m -> lit)
       }
     }

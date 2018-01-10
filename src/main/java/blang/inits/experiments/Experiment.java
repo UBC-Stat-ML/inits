@@ -134,7 +134,7 @@ public abstract class Experiment implements Runnable
     if (expConfigs.recordExecutionInfo) 
     {
       recordArguments(configs.creator, results);
-      recordExecutionInfo(experiment, rawArgs);
+      recordExecutionInfo(experiment, rawArgs, expConfigs);
     }
     
     long startTime = System.currentTimeMillis();
@@ -209,7 +209,7 @@ public abstract class Experiment implements Runnable
     BriefIO.write(results.getFileInResultFolder(DETAILED_ARGUMENT_FILE), creator.fullReport());
   }
 
-  private static void recordExecutionInfo(Runnable mainClass, String [] args)
+  private static void recordExecutionInfo(Runnable mainClass, String [] args, ExperimentConfigs configs)
   {
     // record main class
     write(
@@ -233,20 +233,21 @@ public abstract class Experiment implements Runnable
       getFile(JAVA_ARGUMENTS),
       Joiner.on(" ").join(args));
     
-    try
-    {
-      if (!exists(REPOSITORY_INFO))
-        if (!RepositoryUtils.recordCodeVersion(mainClass))
-          // if there were dirty file (i.e. not in version control) write a random string to avoid collisions
-          write(
-            getFile(DIRTY_FILE_RANDOM_HASH), 
-            HashUtils.HASH_FUNCTION.hashUnencodedChars(BriefStrings.generateUniqueId()).toString());
-    }
-    catch (RuntimeException e)
-    {
-      System.err.println("WARNING: Bare Repository has neither a working tree, nor an index.");
-      write(getFile(EXCEPTION_FILE), ExceptionUtils.getStackTrace(e));
-    }
+    if (configs.recordGitInfo)
+      try
+      {
+        if (!exists(REPOSITORY_INFO))
+          if (!RepositoryUtils.recordCodeVersion(mainClass))
+            // if there were dirty file (i.e. not in version control) write a random string to avoid collisions
+            write(
+              getFile(DIRTY_FILE_RANDOM_HASH), 
+              HashUtils.HASH_FUNCTION.hashUnencodedChars(BriefStrings.generateUniqueId()).toString());
+      }
+      catch (RuntimeException e)
+      {
+        System.err.println("WARNING: Bare Repository has neither a working tree, nor an index.");
+        write(getFile(EXCEPTION_FILE), ExceptionUtils.getStackTrace(e));
+      }
 
     if (!exists(CLASSPATH_INFO))
       DependencyUtils.recordClassPath();

@@ -17,6 +17,9 @@ public class ExperimentConfigs
   @Arg(description = "Save combined standard out and err into a file?") 
                         @DefaultValue("true")
   public boolean saveStandardStreams = true;
+  
+  @Arg            @DefaultValue("true")
+  public boolean recordGitInfo = true;
 
   @Arg(description = "Record information such as timing, main class, code version, etc for this run?") 
                         @DefaultValue("true")

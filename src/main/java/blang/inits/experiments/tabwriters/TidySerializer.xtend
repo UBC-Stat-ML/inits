@@ -21,7 +21,7 @@ class TidySerializer {
   
   def void serialize(Object object, String name, Pair<Object,Object> ... globalContext) {
     var TabularWriter tabularWriter = tabularWriters.get(name)
-    if (tabularWriter == null) {
+    if (tabularWriter === null) {
       tabularWriter = result.getTabularWriter(name)
       tabularWriters.put(name, tabularWriter)
     }

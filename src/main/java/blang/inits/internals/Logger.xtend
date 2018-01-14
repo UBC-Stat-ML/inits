@@ -134,7 +134,7 @@ package class Logger {
       return parentDefault.get
     }
     
-    return "mandatory"
+    return null
   }
   
   def Map<String,String> asMap() {
@@ -194,7 +194,7 @@ package class Logger {
         current += " " + readValue.join(" ") + "    #"
       }
       current += " " + typeFormatString(qName)  
-      current += " (" + enforcementString(qName) + ")"
+      current += if (enforcementString(qName) === null) "" else " (" + enforcementString(qName) + ")" // sometimes mandatory was mis-used
       current += "\n"
       if (dependencyDescriptions.containsKey(qName)) {
         current += '''«off»   description: «dependencyDescriptions.get(qName)»''' + "\n"

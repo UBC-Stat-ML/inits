@@ -5,8 +5,8 @@ import blang.inits.experiments.tabwriters.TidySerializer
 import blang.inits.experiments.tabwriters.TabularWriter
 import java.util.Arrays
 import blang.inits.experiments.ExperimentResults
-import blang.inits.experiments.tabwriters.TidySerializer.ProvidesTidySerialization
 import blang.inits.experiments.tabwriters.TidySerializer.Context
+import blang.inits.experiments.tabwriters.TidilySerializable
 
 class TestTidySerializer extends Experiment {
   
@@ -38,7 +38,7 @@ class TestTidySerializer extends Experiment {
     Object o2
   }
   
-  static class AnotherCustomClass implements ProvidesTidySerialization {
+  static class AnotherCustomClass implements TidilySerializable {
     val list1 = #[1, 2, 3]
     val list2 = #[4, 5, 6]
     override serialize(Context context) {

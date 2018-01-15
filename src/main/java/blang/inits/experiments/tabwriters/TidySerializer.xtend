@@ -58,10 +58,6 @@ class TidySerializer {
     }
   }
   
-  public static interface ProvidesTidySerialization {
-    def void serialize(Context context)
-  }
-  
   @Data
   public static class Context {
     @Accessors(NONE) val TidySerializer serializer
@@ -71,7 +67,7 @@ class TidySerializer {
     }
   } 
   
-  def dispatch protected void serializeImplementation(ProvidesTidySerialization object, TabularWriter writer) {
+  def dispatch protected void serializeImplementation(TidilySerializable object, TabularWriter writer) {
     object.serialize(new Context(this, writer)) 
   }
   

@@ -24,7 +24,7 @@ xtend {
 uploadArchives {
   repositories.mavenDeployer {
     repository(url: "file:///Users/bouchard/artifacts/")
-    pom.version = "2.7.2"
+    pom.version = "2.7.3"
     pom.artifactId = "inits"
     pom.groupId = "ca.ubc.stat"
   }

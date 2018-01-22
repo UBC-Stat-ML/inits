@@ -101,7 +101,7 @@ class Arguments {
     return Pair.of(result, popped)
   }
   
-  def private Arguments getOrCreateDesc(List<String> path) {
+  def Arguments getOrCreateDesc(List<String> path) {
     var Arguments result = this
     for (var int i = 0; i < path.size; i++) {
       val String currentChildName = path.get(i)

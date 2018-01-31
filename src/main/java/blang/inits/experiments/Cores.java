@@ -87,11 +87,8 @@ public interface Cores
         double systemLoad = getLoadStatistic("getSystemCpuLoad");
         double currentProcessLoad = getLoadStatistic("getProcessCpuLoad");
         double outsideLoad = systemLoad - currentProcessLoad;
-        if (outsideLoad < 0.0)
-        {
-          BriefLog.warnOnce("Bad estimation of system load. Backing off to all cores available");
+        if (!(outsideLoad >= 0.0 && outsideLoad <= 1.0))
           return nCores;
-        }
         return (1.0 - outsideLoad) * nCores;
       }
       catch (Exception e)
@@ -112,7 +109,8 @@ public interface Cores
         method.setAccessible(true);
         if (method.getName().equals(methodName)) 
         {
-          try {
+          try 
+          {
             return (double) method.invoke(operatingSystemMXBean);
           } 
           catch (Exception e) 

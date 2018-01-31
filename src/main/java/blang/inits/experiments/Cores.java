@@ -58,6 +58,9 @@ public interface Cores
     @Arg                  @DefaultValue("true")
     public boolean ignoreUtilizedCores = true;
     
+    @Arg      @DefaultValue("false")
+    public boolean verbose = false;
+    
     public Dynamic() {}
     
     public Dynamic(double fraction, boolean ignoreUtilizedCores) {
@@ -71,7 +74,10 @@ public interface Cores
       double nCores = Runtime.getRuntime().availableProcessors();
       if (ignoreUtilizedCores)
         nCores = ignoreUtilizedCores(nCores);
-      return Math.max(1, (int) (fraction * nCores));
+      int result = Math.max(1, (int) (fraction * nCores));
+      if (verbose)
+        System.out.println("Allocated " + result + " cores");
+      return result;
     }
 
     private double ignoreUtilizedCores(double nCores) 

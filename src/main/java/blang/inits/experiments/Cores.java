@@ -1,74 +1,123 @@
 package blang.inits.experiments;
 
-import java.util.Optional;
+import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
+import java.lang.reflect.Method;
 
-import blang.inits.DesignatedConstructor;
-import blang.inits.Input;
-import blang.inits.providers.CoreProviders;
+import blang.inits.Arg;
+import blang.inits.DefaultValue;
+import blang.inits.Implementations;
+import briefj.BriefLog;
 
 /**
- * Specifies either an explicit number of cores to use from a command line
- * argument, or the maximum number available if no argument is provided.
+ * Specifies either an explicit number of cores to use, or dynamically 
+ * by picking a fraction of 
+ * the number of cores available (optionally, taking out those being 
+ * utilized).
  */
-public class Cores 
+@Implementations({Cores.Dynamic.class, Cores.Fixed.class})
+public interface Cores 
 {
-  public final int available;
+  public int numberAvailable();
   
-  @DesignatedConstructor
-  public Cores(
-      @Input(formatDescription = "Integer - skip or "
-          + "" + HALF + " to use half available; "
-          + "" + MAX  + " to use max") Optional<String> input)
+  public static Cores max() 
   {
-    this(isFixed(input) ?
-        CoreProviders.parse_int(input.get()) :
-        resolveSpecial(input));
+    return new Dynamic(1.0, false);
   }
   
-  private static int resolveSpecial(Optional<String> input) 
+  public static Cores allUnutilized()
   {
-    int maxAvailable = Runtime.getRuntime().availableProcessors();
-    if (!input.isPresent() || input.get().equals(HALF))
-      return Math.max(1, maxAvailable / 2);
-    if (input.get().equals(MAX))
-      return maxAvailable;
-    else
-      throw new RuntimeException();
+    return new Dynamic(1.0, true);
   }
   
-  public Cores(int number) 
+  public static Cores dynamic()
   {
-    if (number < 1)
-      throw new RuntimeException("Number of cores cannot be less than 1.");
-    this.available = number;
+    return halfUnutilized();
   }
   
-  public static Cores maxAvailable()
+  public static Cores halfUnutilized()
   {
-    return new Cores(Optional.of(MAX));
+    return new Dynamic(0.5, true);
   }
   
-  public static Cores halfAvailable()
+  public static Cores fixed(int n) 
   {
-    return new Cores(Optional.of(HALF));
+    return new Fixed(n);
   }
+  
+  public static Cores single()
+  {
+    return fixed(1);
+  }
+  
+  public static class Dynamic implements Cores
+  {
+    @Arg      @DefaultValue("0.5")
+    public double fraction = 0.5;
+    
+    @Arg                  @DefaultValue("true")
+    public boolean ignoreUtilizedCores = true;
+    
+    public Dynamic() {}
+    
+    public Dynamic(double fraction, boolean ignoreUtilizedCores) {
+      this.fraction = fraction;
+      this.ignoreUtilizedCores = ignoreUtilizedCores;
+    }
 
-  @Override
-  public String toString() 
-  {
-    return "" + available + " cores";
+    @Override
+    public int numberAvailable() 
+    {
+      double nCores = Runtime.getRuntime().availableProcessors();
+      if (ignoreUtilizedCores)
+        nCores = ignoreUtilizedCores(nCores);
+      return Math.max(1, (int) (fraction * nCores));
+    }
+
+    private double ignoreUtilizedCores(double nCores) 
+    {
+      // Based on: https://stackoverflow.com/questions/47177/how-do-i-monitor-the-computers-cpu-memory-and-disk-usage-in-java?rq=1
+      final String COULD_NOT_ESTIMATE_SYSTEM_CPU_USAGE = 
+          "could not estimate system CPU load (available on Oracle JVM only) - "
+              + "ignoring other processes for dynamic allocation of the number of cores";
+      OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
+      for (Method method : operatingSystemMXBean.getClass().getDeclaredMethods()) 
+      {
+        method.setAccessible(true);
+        if (method.getName().equals("getSystemCpuLoad")) 
+        {
+          try {
+            double result = (double) method.invoke(operatingSystemMXBean);
+            return (1.0 - result) * nCores;
+          } 
+          catch (Exception e) 
+          {
+            BriefLog.warnOnce(COULD_NOT_ESTIMATE_SYSTEM_CPU_USAGE);
+            return nCores;
+          } 
+        } 
+      } 
+      BriefLog.warnOnce(COULD_NOT_ESTIMATE_SYSTEM_CPU_USAGE);
+      return nCores;
+    }
   }
   
-  private static boolean isFixed(Optional<String> input)
+  public static class Fixed implements Cores
   {
-    if (!input.isPresent())
-      return false;
-    final String trimmed = input.get().trim();
-    if (trimmed.equals(MAX) || trimmed.equals(HALF))
-      return false;
-    return true;
+    @Arg @DefaultValue("1")
+    public int number = 1;
+
+    public Fixed() {}
+    
+    public Fixed(int number) 
+    {
+      this.number = number;
+    }
+
+    @Override
+    public int numberAvailable() 
+    {
+      return number;
+    }
   }
-  
-  private static final String MAX = "MAX";
-  private static final String HALF = "HALF";
 }

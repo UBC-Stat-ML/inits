@@ -82,29 +82,48 @@ public interface Cores
 
     private double ignoreUtilizedCores(double nCores) 
     {
-      // Based on: https://stackoverflow.com/questions/47177/how-do-i-monitor-the-computers-cpu-memory-and-disk-usage-in-java?rq=1
+      try 
+      {
+        double systemLoad = getLoadStatistic("getSystemCpuLoad");
+        double currentProcessLoad = getLoadStatistic("getProcessCpuLoad");
+        double outsideLoad = systemLoad - currentProcessLoad;
+        if (outsideLoad < 0.0)
+        {
+          BriefLog.warnOnce("Bad estimation of system load. Backing off to all cores available");
+          return nCores;
+        }
+        return (1.0 - outsideLoad) * nCores;
+      }
+      catch (Exception e)
+      {
+        return nCores;
+      }
+    }
+    
+    // Based on: https://stackoverflow.com/questions/47177/how-do-i-monitor-the-computers-cpu-memory-and-disk-usage-in-java?rq=1
+    private double getLoadStatistic(String methodName) 
+    {
+      OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
       final String COULD_NOT_ESTIMATE_SYSTEM_CPU_USAGE = 
           "could not estimate system CPU load (available on Oracle JVM only) - "
               + "ignoring other processes for dynamic allocation of the number of cores";
-      OperatingSystemMXBean operatingSystemMXBean = ManagementFactory.getOperatingSystemMXBean();
       for (Method method : operatingSystemMXBean.getClass().getDeclaredMethods()) 
       {
         method.setAccessible(true);
-        if (method.getName().equals("getSystemCpuLoad")) 
+        if (method.getName().equals(methodName)) 
         {
           try {
-            double result = (double) method.invoke(operatingSystemMXBean);
-            return (1.0 - result) * nCores;
+            return (double) method.invoke(operatingSystemMXBean);
           } 
           catch (Exception e) 
           {
             BriefLog.warnOnce(COULD_NOT_ESTIMATE_SYSTEM_CPU_USAGE);
-            return nCores;
+            throw new RuntimeException();
           } 
         } 
-      } 
+      }
       BriefLog.warnOnce(COULD_NOT_ESTIMATE_SYSTEM_CPU_USAGE);
-      return nCores;
+      throw new RuntimeException();
     }
   }
   

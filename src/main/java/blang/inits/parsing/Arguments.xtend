@@ -6,7 +6,6 @@ import java.util.Map
 import java.util.HashMap
 import org.eclipse.xtend.lib.annotations.Data
 import java.util.ArrayList
-import java.util.HashSet
 import com.google.common.base.Joiner
 import java.util.Optional
 import org.eclipse.xtend.lib.annotations.Accessors

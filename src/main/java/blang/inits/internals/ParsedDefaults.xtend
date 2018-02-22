@@ -28,22 +28,22 @@ class ParsedDefaults {
   }
   
   def isRecursivePresent() {
-    return arguments != null
+    return arguments !== null
   }
   
   def isNonRecursivePresent() {
-    return values != null
+    return values !== null
   }
   
   def isPresent() {
-    return arguments != null || values != null
+    return arguments !== null || values !== null
   }
   
   def isRecursive() {
     if (!isPresent()) {
       throw new RuntimeException
     }
-    return arguments != null
+    return arguments !== null
   }
   
   override String toString() {

@@ -25,7 +25,6 @@ import blang.inits.parsing.Posix
 import blang.inits.Implementations
 import java.util.Collections
 import java.util.ArrayList
-import java.util.Arrays
 
 package class InitStaticUtils {
   

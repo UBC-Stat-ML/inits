@@ -78,7 +78,7 @@ package class Logger {
   
   def boolean someParentOptional(QualifiedName qName) {
     val TypeLiteral<?> currentType = allTypes.get(qName)
-    if (currentType != null) {
+    if (currentType !== null) {
       val boolean isOptional = InitStaticUtils::isOptional(currentType)
       if (isOptional) {
         return true
@@ -145,7 +145,7 @@ package class Logger {
       val TypeLiteral<?> currentType = inputsTypeUsage.get(qName)
       val boolean isOptional = InitStaticUtils::isOptional(currentType)
       val String value = 
-        if (readValue != null) {
+        if (readValue !== null) {
           readValue.join(" ")
         } else if (isOptional) {   
           "<optional>" 
@@ -169,10 +169,10 @@ package class Logger {
    */
   def String fullReport(Arguments _arguments) {  // TODO: remove dep on _arg via readValues, use boolean switch instead
     
-    val printDetails = _arguments != null
+    val printDetails = _arguments !== null
     val String on  = if (printDetails) " " else ""
     val String off = if (printDetails) "#" else ""
-    val Arguments arguments = if (_arguments == null) {
+    val Arguments arguments = if (_arguments === null) {
       Arguments.createEmpty
     } else {
       _arguments

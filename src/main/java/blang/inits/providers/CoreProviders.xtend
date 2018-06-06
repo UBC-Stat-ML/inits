@@ -107,6 +107,6 @@ class CoreProviders {
     return parse_long(s)
   }
 
-  val public static final String INF_STR = "INF"
+  val public static final String INF_STR = "inf"
   
 }

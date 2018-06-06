@@ -126,11 +126,14 @@ package class CreatorImpl implements Creator {
     Arguments currentArguments
   ) {
     val boolean optional = InitStaticUtils::isOptional(declaredType)
+    if (optional && currentArguments.isNull()) { // only allow empty if no child argument were provided
+      return (Optional.empty as Object) as T
+    }
     val Schema schema = findSchema(actualType)
     val List<InitDependency> deps = schema.dependencies()
     val List<Object> instantiatedChildren = new ArrayList
     for (InitDependency initDependency : deps) {
-      instantiatedChildren.add(initDependency.resolve(this, currentArguments))
+      instantiatedChildren.add(initDependency.resolve(this, currentArguments)) 
     } 
     checkNoUnrecognizedArguments(currentArguments, deps)
     reportTypeUsage(declaredType, currentArguments, deps)
@@ -149,16 +152,10 @@ package class CreatorImpl implements Creator {
         return null
       }
     } else {
-      return (
-        if (optional && currentArguments.isNull()) { // only allow empty if no child argument were provided
-          (Optional.empty as Object)
-        } else {
-          if (!deps.filter(InputDependency).empty && !currentArguments.argumentValue.present) {
-            logger.addError(currentArguments.QName, InputExceptions::missingInput(actualType))     
-          }
-          null
-        }
-      ) as T
+      if (!deps.filter(InputDependency).empty && !currentArguments.argumentValue.present) {
+        logger.addError(currentArguments.QName, InputExceptions::missingInput(actualType))     
+      } 
+      return null
     }
   }
   

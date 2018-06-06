@@ -50,7 +50,8 @@ class CoreProviders {
   }
   
   @ProvidesFactory
-  def static int parse_int(@Input String s) {
+  def static int parse_int(@Input String _s) {
+    val s = _s.trim.toLowerCase
     if (s == INF_STR) return Integer.MAX_VALUE
     try { return Integer.parseInt(s.replace("_", "")) }
     catch (Exception e) {
@@ -70,7 +71,8 @@ class CoreProviders {
   }
   
   @ProvidesFactory
-  def static double parse_double(@Input String s) {
+  def static double parse_double(@Input String _s) {
+    val s = _s.trim.toLowerCase
     if (s == INF_STR) return Double.POSITIVE_INFINITY
     return Double.parseDouble(s.replace("_", ""))
   }
@@ -81,7 +83,8 @@ class CoreProviders {
   }
   
   @ProvidesFactory
-  def static boolean parse_boolean(@Input String s) {
+  def static boolean parse_boolean(@Input String _s) {
+    val s = _s.trim.toLowerCase
     if      (s == "true") return true
     else if (s == "false") return false
     else throw new RuntimeException("Could not parse as boolean: '" + s + "'; should be 'true' or 'false'")
@@ -93,7 +96,8 @@ class CoreProviders {
   }
   
   @ProvidesFactory
-  def static long parse_long(@Input String s) {
+  def static long parse_long(@Input String _s) {
+    val s = _s.trim.toLowerCase
     if (s == INF_STR) return Long.MAX_VALUE
     return Long.parseLong(s.replace("_", ""))
   }

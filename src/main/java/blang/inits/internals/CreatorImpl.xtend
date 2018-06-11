@@ -26,6 +26,7 @@ import blang.inits.ProvidesFactory
 import java.lang.reflect.InvocationTargetException
 import blang.inits.Implementations
 import briefj.BriefMaps
+import blang.inits.InputExceptions.InputExceptionCategory
 
 package class CreatorImpl implements Creator {
   val package Map<Class<?>, Object> globals = new HashMap
@@ -127,7 +128,15 @@ package class CreatorImpl implements Creator {
   ) {
     val boolean optional = InitStaticUtils::isOptional(declaredType)
 
-    val Schema schema = findSchema(actualType)
+    val Schema schema = 
+      try {
+        findSchema(actualType) 
+      } catch (InputException ie) {
+        if (ie.category == InputExceptionCategory.MALFORMED_BUILDER && optional)
+          return (Optional.empty as Object) as T
+        else 
+          throw ie
+      }
     val List<InitDependency> deps = schema.dependencies()
     val List<Object> instantiatedChildren = new ArrayList
     for (InitDependency initDependency : deps) {

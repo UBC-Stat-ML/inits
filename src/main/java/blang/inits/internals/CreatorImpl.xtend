@@ -314,20 +314,13 @@ package class CreatorImpl implements Creator {
   }
   
   override <T> void addGlobal(Class<T> type, T object) {
-    checkNotInitialized()
     globals.put(type, object)
   }
   
   def boolean isInitialized() {
     return logger !== null
   }
-  
-  def void checkNotInitialized() {
-    if (isInitialized()) {
-      throw new RuntimeException("The method init(..) must be called only after all setup-related functions are called.")
-    }
-  }
-  
+    
   def void checkInitialized() {
     if (!isInitialized()) {
       throw new RuntimeException("The method init(..) must be called before accessing result-related information.")

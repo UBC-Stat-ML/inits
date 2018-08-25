@@ -16,6 +16,11 @@ class CoreProviders {
   }
   
   @ProvidesFactory
+  def static Class<?> parseClass(@Input String s) {
+    return Class.forName(s)
+  }
+  
+  @ProvidesFactory
   def static Character parseCharacter(@Input String s) {
     return new Character(parse_char(s))
   }

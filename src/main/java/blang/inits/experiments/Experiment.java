@@ -38,6 +38,7 @@ import blang.inits.InputExceptions.InputException;
 import blang.inits.parsing.Arguments;
 import blang.inits.parsing.Arguments.ArgumentItem;
 import blang.inits.parsing.CSVFile;
+import blang.inits.parsing.ConfigFile;
 import blang.inits.parsing.Posix;
 import blang.inits.parsing.QualifiedName;
 import briefj.BriefIO;
@@ -83,6 +84,7 @@ public abstract class Experiment implements Runnable
     return start(args, Posix.parse(args), configs);
   }
   
+  @SuppressWarnings({ "unchecked", "rawtypes" })
   public static int start(
       String [] rawArgs,
       Arguments parsedArgs,
@@ -94,6 +96,20 @@ public abstract class Experiment implements Runnable
     
     ExperimentResults results = createExperimentResultsObject(expConfigs);
     configs.creator.addGlobal(ExperimentResults.class, results);
+    
+    if (expConfigs.globalsClasses.size() != expConfigs.globalsConfigFiles.size()) {
+      throw new RuntimeException("globalsClasses and globalsConfigFiles should have same length.");
+    }
+    for (int i = 0; i < expConfigs.globalsClasses.size(); i++) {
+      try {
+        Arguments globalConfig = ConfigFile.parse(expConfigs.globalsConfigFiles.get(i));
+        Object global = configs.creator.init(expConfigs.globalsClasses.get(i), globalConfig);
+        configs.creator.addGlobal((Class) expConfigs.globalsClasses.get(i), global);
+      } catch (Exception e) {
+        System.err.println("Bad global: " + configs.creator.fullReport()); 
+        return BAD_EXP_CONFIG_CODE;
+      }
+    }
     
     if (expConfigs.configFile.isPresent())
       parsedArgs = addConfigFileArguments(parsedArgs, CSVFile.parseTSV(expConfigs.configFile.get()));

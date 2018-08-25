@@ -56,13 +56,6 @@ class InputExceptions {
     )
   }
   
-  def static InputException missingGlobal(TypeLiteral<?> type) {
-    return new InputException(
-      InputExceptionCategory.MISSING_GLOBAL,
-      "Missing global of type " + type
-    )
-  }
-  
   def static InputException failedInstantiation(TypeLiteral<?> type, Optional<List<String>> input, Throwable e) {
     return new InputException(
       InputExceptionCategory.FAILED_INSTANTIATION,
@@ -113,7 +106,6 @@ class InputExceptions {
     UNKNOWN_INPUT,
     MALFORMED_ANNOTATION,
     MALFORMED_OPTIONAL, 
-    MISSING_GLOBAL,
     MALFORMED_INTERFACE_IMPLEMENTATION,
     COMPOUND
   }

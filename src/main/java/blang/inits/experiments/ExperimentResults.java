@@ -102,8 +102,9 @@ public class ExperimentResults
     return factory.build(this, name);
   }
   
-  // called by Experiment.start(..)
-  void closeAll()
+  // called by Experiment.start(..), but in certain scenarios might have to call manually, 
+  // e.g. if calling programmatically an Experiment
+  public void closeAll()
   {
     for (Writer writer : writers)
       try

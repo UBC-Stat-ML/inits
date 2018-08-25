@@ -1,8 +1,6 @@
 package blang.inits.experiments;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 import blang.inits.Arg;
@@ -32,10 +30,4 @@ public class ExperimentConfigs
   
   @Arg                             @DefaultValue("CSV")
   public TabularWriterFactory tabularWriter = new CSV();
-  
-  @Arg @DefaultValue("")
-  public List<Class<?>> globalsClasses = new ArrayList<>();
-  
-  @Arg @DefaultValue("")
-  public List<File> globalsConfigFiles = new ArrayList<>();
 }

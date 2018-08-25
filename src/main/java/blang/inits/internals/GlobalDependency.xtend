@@ -4,6 +4,7 @@ import blang.inits.parsing.Arguments
 import blang.inits.internals.CreatorImpl
 import org.eclipse.xtend.lib.annotations.Data
 import com.google.inject.TypeLiteral
+import blang.inits.InputExceptions
 
 @Data
 /**
@@ -14,6 +15,9 @@ package class GlobalDependency implements InitDependency {
   val TypeLiteral<?> type
   override Object resolve(CreatorImpl creator, Arguments currentArguments) {
     val Object result = creator.globals.get(type.rawType)
+    if (result === null) {
+      throw InputExceptions::missingGlobal(type)
+    }
     return result
   }
 }

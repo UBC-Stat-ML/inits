@@ -6,8 +6,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 import blang.inits.experiments.tabwriters.TabularWriter;
 import blang.inits.experiments.tabwriters.TabularWriterFactory;
@@ -18,9 +18,6 @@ public class ExperimentResults
   public final File resultsFolder;
   private final TabularWriterFactory defaultTabularWriterFactory;
   
-  private List<Writer> writers = new ArrayList<>();
-  private List<ExperimentResults> children = new ArrayList<>();
-
   public ExperimentResults()
   {
     this(new File("."));
@@ -43,16 +40,20 @@ public class ExperimentResults
     return new File(resultsFolder, name);
   }
   
+  private Map<String,BufferedWriter> writers = new LinkedHashMap<>();
+
   /**
    * @param name
    * @return A BufferedWriter which is automatically closed when acquired via Experiment.start(..)
    */
   public BufferedWriter getAutoClosedBufferedWriter(String name)
   {
+    if (writers.containsKey(name))
+      return writers.get(name);
     try
     {
       BufferedWriter writer = new BufferedWriter(new FileWriter(getFileInResultFolder(name)));
-      writers.add(writer);
+      writers.put(name, writer);
       return writer;
     } 
     catch (IOException e)
@@ -69,16 +70,20 @@ public class ExperimentResults
    * @param name
    * @returnA PrintWriter which is automatically closed when acquired via Experiment.start(..)
    */
+  @Deprecated
   public PrintWriter getAutoClosedPrintWriter(String name)
   {
     return new PrintWriter(getAutoClosedBufferedWriter(name));
   }
   
+  private Map<String, ExperimentResults> children = new LinkedHashMap<>();
   public ExperimentResults child(String childName)
   {
+    if (children.containsKey(childName))
+      return children.get(childName);
     File childFile = getFileInResultFolder(childName);
     ExperimentResults result = new ExperimentResults(childFile, this.defaultTabularWriterFactory);
-    children.add(result);
+    children.put(childName, result);
     return result;
   }
   
@@ -92,6 +97,7 @@ public class ExperimentResults
     return child(key + "=" + value);
   }
   
+  private Map<String, TabularWriter> tabularWriters = new LinkedHashMap<>();
   public TabularWriter getTabularWriter(String name)
   {
     return getTabularWriter(name, defaultTabularWriterFactory);
@@ -99,14 +105,18 @@ public class ExperimentResults
   
   public TabularWriter getTabularWriter(String name, TabularWriterFactory factory)
   {
-    return factory.build(this, name);
+    if (tabularWriters.containsKey(name))
+      return tabularWriters.get(name);
+    TabularWriter result = factory.build(this, name);
+    tabularWriters.put(name, result);
+    return result;
   }
   
   // called by Experiment.start(..), but in certain scenarios might have to call manually, 
   // e.g. if calling programmatically an Experiment
   public void closeAll()
   {
-    for (Writer writer : writers)
+    for (Writer writer : writers.values())
       try
       {
         writer.close();
@@ -115,7 +125,7 @@ public class ExperimentResults
       {
         e.printStackTrace();
       }
-    for (ExperimentResults child : children)
+    for (ExperimentResults child : children.values())
       child.closeAll();
   }
 }

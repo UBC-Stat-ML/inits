@@ -1,5 +1,6 @@
 package blang.inits.experiments.tabwriters;
 
+import java.io.File;
 import java.io.Writer;
 import java.util.List;
 
@@ -8,21 +9,21 @@ public class CSVWriter extends AbstractTabularWriter<CSVWriter>
   private final Writer out;
   private boolean wroteFirstLine = false;
   
-  public CSVWriter(Writer out)
+  public CSVWriter(Writer out, File descriptionFile)
   {
-    this(out, null, null, null, 0);
+    this(out, null, null, null, 0, descriptionFile);
   }
 
-  private CSVWriter(Writer out, CSVWriter parent, Object key, Object value, int depth) 
+  private CSVWriter(Writer out, CSVWriter parent, Object key, Object value, int depth, File descriptionFile) 
   {
-    super(parent, key, value, depth);
+    super(parent, key, value, depth, descriptionFile);
     this.out = out;
   }
 
   @Override
   public CSVWriter child(Object key, Object value) 
   {
-    return new CSVWriter(null, this, key, value, depth() + 1);
+    return new CSVWriter(null, this, key, value, depth() + 1, null);
   }
 
   @Override

@@ -8,11 +8,35 @@ import blang.inits.DesignatedConstructor
 import org.eclipse.xtend.lib.annotations.Data
 import org.eclipse.xtend.lib.annotations.Accessors
 import java.util.HashMap
+import java.io.File
+import java.util.LinkedHashMap
+import briefj.BriefIO
 
 class TidySerializer {
   
   val ExperimentResults result
   val Map<String,TabularWriter> tabularWriters = new HashMap 
+  
+  public static val VALUE = "value" // used as convention for main variable
+  
+  def static File descriptionFile(File directory, String name)
+  {
+    return new File(directory, "." + name + ".types.tsv");
+  }
+  
+  def static Map<String,Class<?>> types(File tidySerialized) 
+  {
+    val name = tidySerialized.name.replaceFirst("[.]csv$", "")
+    val result = new LinkedHashMap
+    val directory = tidySerialized.parentFile
+    for (String line : BriefIO.readLines(descriptionFile(directory, name))) {
+      val split = line.split("\t")
+      val key = split.get(0)
+      val value = Class.forName(split.get(1))
+      result.put(key, value)
+    }
+    return result
+  }
   
   @DesignatedConstructor
   new(@GlobalArg ExperimentResults result) {
@@ -72,7 +96,7 @@ class TidySerializer {
   }
   
   def dispatch protected void serializeImplementation(Object object, TabularWriter writer) {
-    writer.write(Pair.of("value", object.toString))
+    writer.write(Pair.of(VALUE, object))
   }
   
   def dispatch protected void serializeImplementation(Object [] array, TabularWriter writer) {

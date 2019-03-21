@@ -7,6 +7,7 @@ import java.util.Arrays
 import blang.inits.experiments.ExperimentResults
 import blang.inits.experiments.tabwriters.TidySerializer.Context
 import blang.inits.experiments.tabwriters.TidilySerializable
+import java.io.File
 
 class TestTidySerializer extends Experiment {
   
@@ -30,6 +31,8 @@ class TestTidySerializer extends Experiment {
     }
     
     tidy.serialize(new AnotherCustomClass, "test3")
+    
+    println(TidySerializer::types(new File(results.resultsFolder, "test3.csv")))
   }
   
   static class SomeCustomClass

@@ -1,5 +1,6 @@
 package blang.inits.experiments.tabwriters;
 
+import java.io.File;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
@@ -21,13 +22,13 @@ public class SparkWriter extends AbstractTabularWriter<SparkWriter>
   private Writer out = null;
   private Map<Object, SparkWriter> children = new HashMap<>();
   
-  public SparkWriter(ExperimentResults results)
+  public SparkWriter(ExperimentResults results, File descriptionFile)
   {
-    this(results, null, null, null, 0);
+    this(results, null, null, null, 0, descriptionFile);
   }
 
-  public SparkWriter(ExperimentResults result, SparkWriter parent, Object key, Object value, int depth) {
-    super(parent, key, value, depth);
+  public SparkWriter(ExperimentResults result, SparkWriter parent, Object key, Object value, int depth, File descriptionFile) {
+    super(parent, key, value, depth, descriptionFile);
     this.result = result;
   }
 
@@ -36,7 +37,7 @@ public class SparkWriter extends AbstractTabularWriter<SparkWriter>
   {
     if (children.containsKey(value))
       return children.get(value);
-    SparkWriter child = new SparkWriter(result.child(key.toString(), value.toString()), this, key, value, depth() + 1); 
+    SparkWriter child = new SparkWriter(result.child(key.toString(), value.toString()), this, key, value, depth() + 1, null); 
     children.put(value, child);
     return child;
   }

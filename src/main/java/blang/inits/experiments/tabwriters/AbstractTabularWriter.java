@@ -1,5 +1,6 @@
 package blang.inits.experiments.tabwriters;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
@@ -8,6 +9,9 @@ import java.util.List;
 
 import org.eclipse.xtext.xbase.lib.Pair;
 
+import com.google.common.base.Joiner;
+
+import briefj.BriefIO;
 import briefj.CSV;
 
 abstract class AbstractTabularWriter<T extends AbstractTabularWriter<T>> implements TabularWriter
@@ -16,17 +20,19 @@ abstract class AbstractTabularWriter<T extends AbstractTabularWriter<T>> impleme
   
   // block 1: root
   protected List<Object> referenceKeys = null; // null only until a first write is done
+  private File descriptionFile; // null when not wanted/already done
   
   // block 2: non-root
   protected final T parent;
   protected final Object key;
   protected final Object value;
   
-  public AbstractTabularWriter(T parent, Object key, Object value, int depth) {
+  public AbstractTabularWriter(T parent, Object key, Object value, int depth, File descriptionFile) {
     this.parent = parent;
     this.key = key;
     this.value = value;
     this.depth = depth;
+    this.descriptionFile = descriptionFile;
   }
   
   @Override
@@ -59,8 +65,20 @@ abstract class AbstractTabularWriter<T extends AbstractTabularWriter<T>> impleme
     else if (!writer.referenceKeys.equals(keys))
       throw new RuntimeException("Set of keys inconsistent with a tabular format: " + writer.referenceKeys + " vs " + keys);
     writeImplementation(keys, values, writer);
+    writer.writeDescription(keys, values);
   }
   
+  protected void writeDescription(List<Object> keys, List<Object> values) 
+  {
+    if (descriptionFile == null)
+      return;
+    List<String> description = new ArrayList<>();
+    for (int i = 0; i < keys.size(); i++) 
+      description.add(keys.get(i) + "\t" + values.get(i).getClass().getTypeName());
+    BriefIO.write(descriptionFile, Joiner.on("\n").join(description));
+    descriptionFile = null; // signal that the job is done
+  }
+
   protected void lowLevelWrite(Writer out, List<Object> strings) 
   {
     try 

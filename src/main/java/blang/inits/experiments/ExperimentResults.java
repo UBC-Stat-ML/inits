@@ -114,18 +114,33 @@ public class ExperimentResults
   
   // called by Experiment.start(..), but in certain scenarios might have to call manually, 
   // e.g. if calling programmatically an Experiment
-  public void closeAll()
+  public void closeAll() 
+  {
+    callAll(true);
+  }
+  
+  public void flushAll()
+  {
+    callAll(false);
+  }
+  
+  private void callAll(boolean close) // else, flush
   {
     for (Writer writer : writers.values())
       try
       {
-        writer.close();
+        if (close)
+          writer.close();
+        else
+          writer.flush();
       } 
       catch (IOException e)
       {
         e.printStackTrace();
       }
     for (ExperimentResults child : children.values())
-      child.closeAll();
+      child.callAll(close);
   }
+  
+
 }

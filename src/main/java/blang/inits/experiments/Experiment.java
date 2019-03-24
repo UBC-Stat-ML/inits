@@ -144,6 +144,8 @@ public abstract class Experiment implements Runnable
           getFile(START_TIME_FILE),
           "" + startTime);
     
+    blang.System.out.maxIndentationToPrint = expConfigs.maxIndentationToPrint;
+    
     boolean success = true;
     try 
     {

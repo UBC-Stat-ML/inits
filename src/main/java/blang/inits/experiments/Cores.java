@@ -15,7 +15,7 @@ import briefj.BriefLog;
  * the number of cores available (optionally, taking out those being 
  * utilized).
  */
-@Implementations({Cores.Dynamic.class, Cores.Fixed.class, Cores.Max.class})
+@Implementations({Cores.Single.class, Cores.Max.class, Cores.Dynamic.class, Cores.Fixed.class})
 public interface Cores 
 {
   public int numberAvailable();
@@ -48,6 +48,15 @@ public interface Cores
   public static Cores single()
   {
     return fixed(1);
+  }
+  
+  public static class Single implements Cores 
+  {
+    @Override
+    public int numberAvailable() 
+    {
+      return 1;
+    }
   }
   
   public static class Max implements Cores 

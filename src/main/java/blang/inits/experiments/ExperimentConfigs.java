@@ -28,6 +28,10 @@ public class ExperimentConfigs
   @Arg(description = "If set, use those arguments in provided file that do not appear in the provided arguments.")
   public Optional<File> configFile = Optional.empty();
   
+  @Arg(description = "Use -1 to silence all HLogs output")                        
+                              @DefaultValue("inf")
+  public int maxIndentationToPrint = Integer.MAX_VALUE;
+  
   @Arg                             @DefaultValue("CSV")
   public TabularWriterFactory tabularWriter = new CSV();
 }

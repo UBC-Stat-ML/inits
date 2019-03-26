@@ -110,6 +110,8 @@ class System {
       } else {
         val level = stack.pollLast
         level.watch.stop
+        if (!stack.empty)
+          stack.last.nErrors += level.nErrors
         level.reportPop
         return level
       }

@@ -162,6 +162,7 @@ public abstract class Experiment implements Runnable
     {
       long endTime = System.currentTimeMillis();
       
+      blang.System.out.popAll();
       if (expConfigs.recordExecutionInfo)
         write(
             getFile(END_TIME_FILE),

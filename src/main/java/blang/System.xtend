@@ -102,7 +102,9 @@ class System {
       block.run
       popIndent
     }
-  
+    
+    def int currentIndentLevel() { return stack.size }
+    
     def Level popIndent() {
       return if (stack.empty) {
         java.lang.System.err.println("Encountered negative indentation")
@@ -115,6 +117,11 @@ class System {
         level.reportPop
         return level
       }
+    }
+    
+    def void popAll() {
+      while (currentIndentLevel > 0)
+        popIndent
     }
   }
   

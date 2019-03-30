@@ -15,4 +15,12 @@ class Formats {
   def dispatch String format(Stopwatch watch) {
     return watch.toString.replace(" ", "")
   }
+  
+  def dispatch String format(Double x) {
+    if (x == 0.0)
+      return "0.0"
+    if (Math.abs(x) < 1e-3) // Scientific notation (close to 0)
+      return String.format("%.2e", x)
+    return String.format("%.3f", x);
+  }
 }

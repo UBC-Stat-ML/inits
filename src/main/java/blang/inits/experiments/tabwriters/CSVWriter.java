@@ -9,21 +9,21 @@ public class CSVWriter extends AbstractTabularWriter<CSVWriter>
   private final Writer out;
   private boolean wroteFirstLine = false;
   
-  public CSVWriter(Writer out, File descriptionFile)
+  public CSVWriter(String name, Writer out, File descriptionFile)
   {
-    this(out, null, null, null, 0, descriptionFile);
+    this(name, out, null, null, null, 0, descriptionFile);
   }
 
-  private CSVWriter(Writer out, CSVWriter parent, Object key, Object value, int depth, File descriptionFile) 
+  private CSVWriter(String name, Writer out, CSVWriter parent, Object key, Object value, int depth, File descriptionFile) 
   {
-    super(parent, key, value, depth, descriptionFile);
+    super(name, parent, key, value, depth, descriptionFile);
     this.out = out;
   }
 
   @Override
   public CSVWriter child(Object key, Object value) 
   {
-    return new CSVWriter(null, this, key, value, depth() + 1, null);
+    return new CSVWriter(name, null, this, key, value, depth() + 1, null);
   }
 
   @Override

@@ -14,6 +14,6 @@ public class CSV implements TabularWriterFactory
   public TabularWriter build(ExperimentResults root, String name) 
   {
     File descriptionFile = TidySerializer.descriptionFile(root.resultsFolder, name);
-    return new CSVWriter(root.getAutoClosedBufferedWriter(name + ".csv"), descriptionFile); 
+    return new CSVWriter(name, root.getAutoClosedBufferedWriter(name + ".csv"), descriptionFile); 
   }
 }

@@ -16,6 +16,8 @@ import briefj.CSV;
 
 abstract class AbstractTabularWriter<T extends AbstractTabularWriter<T>> implements TabularWriter
 {
+  public final String name;
+  
   private final int depth;
   
   // block 1: root
@@ -27,12 +29,19 @@ abstract class AbstractTabularWriter<T extends AbstractTabularWriter<T>> impleme
   protected final Object key;
   protected final Object value;
   
-  public AbstractTabularWriter(T parent, Object key, Object value, int depth, File descriptionFile) {
+  public AbstractTabularWriter(String name, T parent, Object key, Object value, int depth, File descriptionFile) {
+    this.name = name;
     this.parent = parent;
     this.key = key;
     this.value = value;
     this.depth = depth;
     this.descriptionFile = descriptionFile;
+  }
+  
+  @Override
+  public String name() 
+  {
+    return name;
   }
   
   @Override

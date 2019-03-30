@@ -80,6 +80,7 @@ class TidySerializer {
       }
       enclosed.write(extendedEntries)
     }
+    override name() { enclosed.name }
   }
   
   @Data

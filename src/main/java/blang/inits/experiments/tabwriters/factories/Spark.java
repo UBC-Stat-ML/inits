@@ -14,6 +14,6 @@ public class Spark implements TabularWriterFactory
   public TabularWriter build(ExperimentResults root, String name) 
   {
     File descriptionFile = TidySerializer.descriptionFile(root.resultsFolder, name);
-    return new SparkWriter(root.child(name), descriptionFile);
+    return new SparkWriter(name, root.child(name), descriptionFile);
   }
 }

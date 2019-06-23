@@ -1,5 +1,5 @@
 plugins {
-  id 'org.xtext.xtend' version '1.0.19'
+  id 'org.xtext.xtend' version '2.0.4'
   id 'java'
   id 'eclipse'
   id 'maven'
@@ -15,16 +15,24 @@ repositories {
   jcenter()
 }
 
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
 xtend {
   generator{
     javaSourceLevel = 1.8
   }
 }
 
+configurations.archives.with {
+  artifacts.remove artifacts.find { it.file =~ 'tar' }
+  artifacts.remove artifacts.find { it.file =~ 'zip' }
+}
+
 uploadArchives {
   repositories.mavenDeployer {
     repository(url: "file:///Users/bouchard/artifacts/")
-    pom.version = "2.18.1"
+    pom.version = "2.18.2"
     pom.artifactId = "inits"
     pom.groupId = "ca.ubc.stat"
   }
@@ -55,7 +63,7 @@ dependencies {
   compile group: 'ca.ubc.stat', name: 'bayonet', version: '4.1.0' 
   compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
   compile 'com.google.code.gson:gson:2.7'
-  compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.10.0'
+  compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.16.0'
   compile group: 'ca.ubc.stat', name: 'briefj', version: '2.5.0'
   compile group: 'org.apache.commons', name: 'commons-csv', version: '1.4'
 }

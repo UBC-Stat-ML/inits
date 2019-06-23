@@ -8,9 +8,9 @@ import com.google.common.base.Stopwatch
 
 class System {
   
-  private static LinkedList<Level> stack = new LinkedList
+  static LinkedList<Level> stack = new LinkedList
   public static HierarchicalPrintStream out = setup(true)
-  public static PrintStream err = setup(false)
+  public static HierarchicalPrintStream err = setup(false)
   
   def private static HierarchicalPrintStream setup(boolean out) {
     val result = new HierarchicalPrintStream(if (out) java.lang.System.out else java.lang.System.err, stack, !out)
@@ -18,7 +18,7 @@ class System {
     return result
   }
   
-  public static class HierarchicalPrintStream extends PrintStream {
+  static class HierarchicalPrintStream extends PrintStream {
     
     public Formats formats = new Formats
     
@@ -92,15 +92,15 @@ class System {
     }
     
     def Level indent(Runnable block) {
-      indent
-      block.run
-      popIndent
+      indentWithTiming(null, block)
     }
     
     def Level indentWithTiming(String blockName, Runnable block) {
-      indentWithTiming(blockName)
-      block.run
-      popIndent
+      if (blockName === null) indent else indentWithTiming(blockName)
+      var Level result = null
+      try { block.run }
+      finally { result = popIndent }
+      return result
     }
     
     def int currentIndentLevel() { return stack.size }
@@ -125,9 +125,19 @@ class System {
     }
   }
   
-  public static class Level {
+  static class Level {
     public val Stopwatch watch = Stopwatch::createStarted
     public var int nErrors = 0
     def void reportPop() {}
   }
+  
+  def static currentTimeMillis() { return java.lang.System.currentTimeMillis }
+  def static nanoTime() { return java.lang.System.nanoTime }
+  def static exit(int code) { 
+    out.popAll
+    out.flush
+    err.flush
+    java.lang.System.exit(code)
+  }
+  
 }

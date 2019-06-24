@@ -1,6 +1,5 @@
 plugins {
-  id 'org.xtext.xtend' version '2.0.4'
-  id 'org.xtext.builder' version '2.0.4'
+  id 'org.xtext.xtend' version '2.0.5'
   id 'java'
   id 'eclipse'
   id 'maven'
@@ -58,20 +57,17 @@ repositories {
 
 
 dependencies {
-  compile group: 'org.ow2.asm', name: 'asm', version: '7.1'
   compile group: 'com.google.guava', name: 'guava', version: '19.0'
   testCompile group: 'junit', name: 'junit', version: '4.12'
   compile group: 'junit', name: 'junit', version: '4.12'
-  compile "ca.ubc.stat.blang:ca.ubc.stat.blang:3.25.1"
+  compile "ca.ubc.stat.blang:ca.ubc.stat.blang:4.0.0"
   compile group: 'ca.ubc.stat', name: 'bayonet', version: '4.1.0' 
   compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
   compile 'com.google.code.gson:gson:2.7'
-  compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.18.0'
+  compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.16.0'
   compile group: 'ca.ubc.stat', name: 'briefj', version: '2.5.0'
   compile group: 'org.apache.commons', name: 'commons-csv', version: '1.4'
 }
-
-
 
 task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'

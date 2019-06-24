@@ -24,6 +24,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import blang.System;
+
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.google.common.base.Joiner;
@@ -155,14 +157,14 @@ public abstract class Experiment implements Runnable
     {
       String errorMessage = ExceptionUtils.getStackTrace(e);
       write(getFile(EXCEPTION_FILE), errorMessage);
-      System.err.println(errorMessage);
+      printException(e);
       success = false;
     }
     finally
     {
       long endTime = System.currentTimeMillis();
       
-      blang.System.out.popAll();
+      System.out.popAll();
       if (expConfigs.recordExecutionInfo)
         write(
             getFile(END_TIME_FILE),
@@ -178,6 +180,17 @@ public abstract class Experiment implements Runnable
       System.out.println("outputFolder : " + Results.getResultFolder().getAbsolutePath());
     }
     return success ? SUCCESS_CODE : EXCEPTION_CODE;
+  }
+  
+  public static void printException(Throwable t) {
+    System.err.indentWithTiming("Error");
+    System.err.println("Details:");
+    t.printStackTrace();
+    System.err.println("Error of type " + t.getClass().getSimpleName());
+    String message = t.getMessage();
+    if (message != null && !message.isEmpty())
+      System.err.println("Description of the error: " + message);
+    System.err.popIndent();
   }
   
   private static Arguments addConfigFileArguments(Arguments fromCLI, Arguments fromConfig)
@@ -229,7 +242,7 @@ public abstract class Experiment implements Runnable
     if (!exists(WORKING_DIR))
       write(
         getFile(WORKING_DIR),
-        System.getProperty("user.dir"));
+        java.lang.System.getProperty("user.dir"));
     
     // record raw arguments
     write(

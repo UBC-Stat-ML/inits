@@ -124,15 +124,14 @@ public class ExperimentResults
     callAll(false);
   }
   
-  private void callAll(boolean close) // else, flush
+  private void callAll(boolean close) // always flush too
   {
     for (Writer writer : writers.values())
       try
       {
+        writer.flush();
         if (close)
           writer.close();
-        else
-          writer.flush();
       } 
       catch (IOException e)
       {

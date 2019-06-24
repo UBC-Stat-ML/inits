@@ -18,8 +18,8 @@ public class ExperimentConfigs
                         @DefaultValue("true")
   public boolean saveStandardStreams = true;
   
-  @Arg            @DefaultValue("true")
-  public boolean recordGitInfo = true;
+  @Arg            @DefaultValue("false")
+  public boolean recordGitInfo = false;
 
   @Arg(description = "Record information such as timing, main class, code version, etc for this run?") 
                         @DefaultValue("true")

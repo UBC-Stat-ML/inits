@@ -18,6 +18,9 @@ public class ExperimentConfigs
                         @DefaultValue("true")
   public boolean saveStandardStreams = true;
   
+  @Arg              @DefaultValue("true")
+  public boolean resultsHTMLPage = true;
+  
   @Arg            @DefaultValue("false")
   public boolean recordGitInfo = false;
 
@@ -31,7 +34,7 @@ public class ExperimentConfigs
   @Arg(description = "Documentation for this run.")
   public Optional<String> description = Optional.empty();
   
-  @Arg(description = "Use -1 to silence all output")                        
+  @Arg(description = "Use -1 to silence all output done through blang.System.*")                        
                               @DefaultValue("inf")
   public int maxIndentationToPrint = Integer.MAX_VALUE;
   

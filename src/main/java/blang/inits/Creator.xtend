@@ -6,6 +6,7 @@ import com.google.inject.TypeLiteral
 import blang.inits.InputExceptions.InputException
 import com.google.common.collect.ListMultimap
 import java.util.Map
+import java.io.File
 
 /**
  * The main tool provided by this repo. 
@@ -41,6 +42,8 @@ interface Creator {
    * - errors
    */
   def String fullReport()
+  
+  def void csvReport(File rec, File unrec)
   
   /**
    * All (key,value) pairs used in last invocation, whether they come from default or input

@@ -17,6 +17,9 @@ import blang.inits.InputExceptions.InputExceptionCategory
 import java.util.Optional
 import java.util.TreeMap
 import java.util.SortedMap
+import java.io.File
+import briefj.BriefIO
+import briefj.CSV
 
 package class Logger {
     
@@ -39,7 +42,7 @@ package class Logger {
   }
   
   @Accessors(PUBLIC_GETTER)
-  val private ListMultimap<QualifiedName,InputException> errors = ArrayListMultimap.create
+  val ListMultimap<QualifiedName,InputException> errors = ArrayListMultimap.create
   
   def boolean hasUnknownArgument() {
     for (error : errors.values) {
@@ -58,7 +61,7 @@ package class Logger {
     val TypeLiteral<?> currentType = inputsTypeUsage.get(qName)
     val TypeLiteral<?> deOptionized = InitStaticUtils::deOptionize(currentType)
     val String formatDescription = inputsDescriptions.get(qName)
-    return '''<«deOptionized.rawType.simpleName»«IF !formatDescription.empty»: «formatDescription»«ENDIF»>'''
+    return '''«deOptionized.rawType.simpleName»«IF !formatDescription.empty»: «formatDescription»«ENDIF»'''
   }
   
   def String usage() { 
@@ -193,7 +196,7 @@ package class Logger {
       if (present) {
         current += " " + readValue.join(" ") + "    #"
       }
-      current += " " + typeFormatString(qName)  
+      current += " <" + typeFormatString(qName) + ">" 
       current += if (enforcementString(qName) === null) "" else " (" + enforcementString(qName) + ")" // sometimes mandatory was mis-used
       current += "\n"
       if (dependencyDescriptions.containsKey(qName)) {
@@ -225,6 +228,42 @@ package class Logger {
       }
     }
     return result.join("\n") 
+  }
+  
+  def void csvReport(Arguments arguments, File recognized, File unrecognized) {  
+    val SortedMap<String,String> entries = new TreeMap
+    val LinkedHashMap<QualifiedName,List<String>> argumentsAsMap = arguments.asMap
+    val ListMultimap<QualifiedName,InputException> errorsCopy = ArrayListMultimap.create(errors)
+    val LinkedHashSet<QualifiedName> possibleInputsCopy = sortedPossibleInputs()
+    // start by reporting the known options
+    for (QualifiedName qName : possibleInputsCopy) {
+      val List<String> readValue = argumentsAsMap.get(qName)
+      val boolean present = readValue !== null
+      val enforcement = enforcementString(qName) ?: ""
+      val description = (dependencyDescriptions.get(qName) ?: "").replace("\n", " ")
+      val formattedErrs = errors.get(qName).map[message.replace("\n","")].join("; ")
+      entries.put(qName.toString, CSV::toCSV(qName, typeFormatString(qName), present, enforcement, description, formattedErrs))
+      errorsCopy.removeAll(qName)
+    }
+    
+    // make sure everything sorted by key
+    val recOutput = BriefIO::output(recognized)
+    recOutput.println("name,type,provided,enforcement,description,errors")
+    for (String key : entries.keySet()) {
+      recOutput.println(entries.get(key))
+    }
+    recOutput.close
+    
+    // then the unassociated errors
+    if (!errorsCopy.isEmpty()) {
+      val unRecOutput = BriefIO::output(unrecognized)
+      unRecOutput.println("name,errors")
+      for (QualifiedName qName : errorsCopy.keySet()) {
+        val formattedErrs = errors.get(qName).map[message.replace("\n","")].join("; ")
+        unRecOutput.println(CSV.toCSV(qName, formattedErrs))
+      }
+      unRecOutput.close
+    }
   }
   
   def private String formatErrorBlock(List<InputException> exceptions) {

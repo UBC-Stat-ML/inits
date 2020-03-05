@@ -27,6 +27,7 @@ import java.lang.reflect.InvocationTargetException
 import blang.inits.Implementations
 import briefj.BriefMaps
 import blang.inits.InputExceptions.InputExceptionCategory
+import java.io.File
 
 package class CreatorImpl implements Creator {
   val package Map<Class<?>, Object> globals = new HashMap
@@ -59,6 +60,10 @@ package class CreatorImpl implements Creator {
    
   override String fullReport() {
     return logger.fullReport(lastArgs)
+  }
+  
+  override void csvReport(File rec, File unrec) {
+    logger.csvReport(lastArgs, rec, unrec)
   }
   
   override Map<String,String> asMap() {

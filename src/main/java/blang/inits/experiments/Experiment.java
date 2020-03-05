@@ -18,14 +18,22 @@ import static briefj.run.ExecutionInfoFiles.getExecutionInfoFolder;
 import static briefj.run.ExecutionInfoFiles.getFile;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.management.ManagementFactory;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
 import blang.System;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import com.google.common.base.Joiner;
@@ -37,6 +45,7 @@ import blang.inits.Creators;
 import blang.inits.GlobalArg;
 import blang.inits.Inits;
 import blang.inits.InputExceptions.InputException;
+import blang.inits.experiments.doc.MakeExperimentHTMLDoc;
 import blang.inits.parsing.Arguments;
 import blang.inits.parsing.Arguments.ArgumentItem;
 import blang.inits.parsing.CSVFile;
@@ -178,10 +187,56 @@ public abstract class Experiment implements Runnable
       
       System.out.println("executionMilliseconds : " + (endTime - startTime));
       System.out.println("outputFolder : " + Results.getResultFolder().getAbsolutePath());
+      
+      if (expConfigs.resultsHTMLPage) {
+        try {
+          ensureHMTLSupportFiles(results.resultsFolder.getParentFile().getParentFile());
+          MakeExperimentHTMLDoc.buildExperimentWebsite(results.resultsFolder);
+        } catch (Exception e) {
+          System.err.println("Error when creating results html page: " + e.getMessage());
+        }
+      }
     }
     return success ? SUCCESS_CODE : EXCEPTION_CODE;
   }
   
+  
+  public static String HTML_SUPPORT_FILES = ".html_support";
+  private static void ensureHMTLSupportFiles(File execPoolDirectory) throws IOException {
+    File destination = new File(execPoolDirectory, HTML_SUPPORT_FILES);
+    if (destination.exists()) return;
+    File zipFile = new File(execPoolDirectory, HTML_SUPPORT_FILES + ".zip");
+    InputStream in = new ExperimentResults().getClass().getResourceAsStream("/blang/html_support");
+    OutputStream out = new FileOutputStream(zipFile);
+    IOUtils.copy(in, out);
+    unzip(zipFile, execPoolDirectory);
+    new File(execPoolDirectory, "html_support").renameTo(destination);
+    zipFile.delete();
+  }
+  
+  public static void unzip(File _zipFile, File destination) throws IOException {
+    ZipFile zipFile = new ZipFile(_zipFile);
+    try {
+      Enumeration<? extends ZipEntry> entries = zipFile.entries();
+      while (entries.hasMoreElements()) {
+        ZipEntry entry = entries.nextElement();
+        File entryDestination = new File(destination,  entry.getName());
+        if (entry.isDirectory()) {
+            entryDestination.mkdirs();
+        } else {
+            entryDestination.getParentFile().mkdirs();
+            InputStream in = zipFile.getInputStream(entry);
+            OutputStream out = new FileOutputStream(entryDestination);
+            IOUtils.copy(in, out);
+            IOUtils.closeQuietly(in);
+            out.close();
+        }
+      }
+    } finally {
+      zipFile.close();
+    }
+  }
+
   public static void printException(Throwable t) {
     System.err.indentWithTiming("Error");
     System.err.println("Details:");
@@ -212,6 +267,8 @@ public abstract class Experiment implements Runnable
 
   public static final String CSV_ARGUMENT_FILE = "arguments.tsv";
   public static final String DETAILED_ARGUMENT_FILE = "arguments-details.txt";
+  public static final String DETAILED_ARGUMENT_FILE_CSV = "arguments-details.csv";
+  public static final String DETAILED_UNREC_ARGUMENT_FILE_CSV = "arguments-details.csv";
   
   private static void recordArguments(Creator creator, ExperimentResults results)
   {
@@ -223,6 +280,7 @@ public abstract class Experiment implements Runnable
           .map(e -> e.getKey() + "\t" + e.getValue())
           .collect(Collectors.joining("\n")));
     BriefIO.write(results.getFileInResultFolder(DETAILED_ARGUMENT_FILE), creator.fullReport());
+    creator.csvReport(results.getFileInResultFolder(DETAILED_ARGUMENT_FILE_CSV), results.getFileInResultFolder(DETAILED_UNREC_ARGUMENT_FILE_CSV));
   }
 
   private static void recordExecutionInfo(Runnable mainClass, String [] args, ExperimentConfigs configs)

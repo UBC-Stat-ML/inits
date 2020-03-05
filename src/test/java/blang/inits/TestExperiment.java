@@ -3,7 +3,6 @@ package blang.inits;
 import java.util.Arrays;
 
 import org.eclipse.xtext.xbase.lib.Pair;
-import org.junit.Assert;
 
 import blang.inits.GlobalArg;
 import blang.inits.experiments.Experiment;

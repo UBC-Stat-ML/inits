@@ -182,7 +182,7 @@ class BootstrapHTMLRenderer implements Renderer  {
           <h3 class="panel-title">«embed.file.name»</h3>
         </div>
         <div class="panel-body text-center">
-          <embed src="«embed.file»" type="«type»" width="100%" height="300px">
+          <embed src="«embed.file»" type="«type»" width="100%" height="450px">
         </div>
       </div>
     '''
@@ -391,7 +391,7 @@ class BootstrapHTMLRenderer implements Renderer  {
           «categoryName»
           <span class="caret"></span>
         </a>
-        <ul class="dropdown-menu" aria-labelledby="«id»">
+        <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="«id»">
           «FOR document : documents»
             <li><a href="«document.fileName»">«document.name»</a></li>
           «ENDFOR»

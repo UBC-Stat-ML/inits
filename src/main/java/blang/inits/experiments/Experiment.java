@@ -45,7 +45,7 @@ import blang.inits.Creators;
 import blang.inits.GlobalArg;
 import blang.inits.Inits;
 import blang.inits.InputExceptions.InputException;
-import blang.inits.experiments.doc.MakeExperimentHTMLDoc;
+import blang.inits.experiments.doc.ExperimentHTMLDoc;
 import blang.inits.parsing.Arguments;
 import blang.inits.parsing.Arguments.ArgumentItem;
 import blang.inits.parsing.CSVFile;
@@ -190,8 +190,12 @@ public abstract class Experiment implements Runnable
       
       if (expConfigs.resultsHTMLPage) {
         try {
-          ensureHMTLSupportFiles(results.resultsFolder.getParentFile().getParentFile());
-          MakeExperimentHTMLDoc.buildExperimentWebsite(results.resultsFolder);
+          if (expConfigs.recordExecutionInfo) {
+            ensureHMTLSupportFiles(results.resultsFolder.getParentFile().getParentFile());
+            ExperimentHTMLDoc.build(results.resultsFolder);
+          } else {
+            System.err.println("You need to set the option --expConfigs.recordExecutionInfo true");
+          }
         } catch (Exception e) {
           System.err.println("Error when creating results html page: " + e.getMessage());
         }
@@ -199,7 +203,6 @@ public abstract class Experiment implements Runnable
     }
     return success ? SUCCESS_CODE : EXCEPTION_CODE;
   }
-  
   
   public static String HTML_SUPPORT_FILES = ".html_support";
   private static void ensureHMTLSupportFiles(File execPoolDirectory) throws IOException {

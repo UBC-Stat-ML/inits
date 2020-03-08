@@ -65,10 +65,6 @@ abstract class DocElement {
     children += new Embed(new File(path))
   }
   
-  def void embed(File file) {
-    children += new Embed(file)
-  }
-  
   def void clipboard(String contents) {
     children += new Clipboard(contents)
   }
@@ -77,8 +73,8 @@ abstract class DocElement {
     children += table
   }
   
-  def void table(blang.xdoc.components.Table table) {
-    children += table
+  def void table(List<Map<String,String>> table) {
+    children += new blang.xdoc.components.Table(table)
   }
   
   def void keyValues(Pair<?,?> ... items) {

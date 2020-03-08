@@ -46,6 +46,7 @@ import blang.inits.GlobalArg;
 import blang.inits.Inits;
 import blang.inits.InputExceptions.InputException;
 import blang.inits.experiments.doc.ExperimentHTMLDoc;
+import blang.inits.experiments.doc.OrganizeExperimentsHTMLDoc;
 import blang.inits.parsing.Arguments;
 import blang.inits.parsing.Arguments.ArgumentItem;
 import blang.inits.parsing.CSVFile;
@@ -191,8 +192,10 @@ public abstract class Experiment implements Runnable
       if (expConfigs.resultsHTMLPage) {
         try {
           if (expConfigs.recordExecutionInfo) {
-            ensureHMTLSupportFiles(results.resultsFolder.getParentFile().getParentFile());
+            File poolFolder = results.resultsFolder.getParentFile().getParentFile();
+            ensureHMTLSupportFiles(poolFolder);
             ExperimentHTMLDoc.build(results.resultsFolder);
+            OrganizeExperimentsHTMLDoc.build(poolFolder);
           } else {
             System.err.println("You need to set the option --expConfigs.recordExecutionInfo true");
           }

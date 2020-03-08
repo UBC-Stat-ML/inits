@@ -20,7 +20,7 @@ class OrganizeExperimentsHTMLDoc extends BootstrapHTMLRenderer {
   val Multimap<String,ParsedExperiment> organized
   
   new(File execPool) {
-    super(execPool.parentFile.name)
+    super(execPool.absoluteFile.parentFile.name)
     this.execPool = execPool
     
     // efficiency idea: only do it for the past week; to do full list run the command manually
@@ -62,7 +62,7 @@ class OrganizeExperimentsHTMLDoc extends BootstrapHTMLRenderer {
       var Map<String,String> prev = null
       for (exec : organized.get(main)) {
         val row = new LinkedHashMap()
-        row.put("Exec", ExperimentHTMLDoc::id(exec.execDir))
+        row.put("Exec", formatId(exec.execDir))
         row.put("Start time", "" + (exec.startDate ?: ""))
         row.put("End time", "" + (exec.endDate ?: ""))
         row.put("Execution time", exec.timing ?: "")
@@ -76,6 +76,13 @@ class OrganizeExperimentsHTMLDoc extends BootstrapHTMLRenderer {
       }
       table(list)
     ]
+  }
+  
+  def static String formatId(DocElement it, File execDir) {
+    val index = new File(execDir, "index.html")
+    LINK("../all/" + execDir.name + "/" + if (index.exists) "site/index.html" else "") + 
+      ExperimentHTMLDoc::id(execDir) + 
+      ENDLINK
   }
   
   def static String formatArg(DocElement it, String key, Map<String,String> args, Map<String,String> prev) {
@@ -103,7 +110,7 @@ class OrganizeExperimentsHTMLDoc extends BootstrapHTMLRenderer {
   override htmlSupportFilesPrefix() { "../.html_support" }
   
   def static void build(File poolDir) {
-    if (!poolDir.exists || !poolDir.directory) throw new RuntimeException("Invalid pool dir: " + poolDir.path)
+    if (!poolDir.exists || !poolDir.directory) throw new RuntimeException("Invalid pool dir (should contain all/ folder): " + poolDir.path)
     val destination = new File(poolDir, "site")
     destination.mkdir
     val mkDoc = new OrganizeExperimentsHTMLDoc(poolDir) 

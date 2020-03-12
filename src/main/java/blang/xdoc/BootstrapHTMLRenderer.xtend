@@ -179,10 +179,10 @@ class BootstrapHTMLRenderer implements Renderer  {
     return '''
       <div class="panel panel-default">
         <div class="panel-heading">
-          <h3 class="panel-title">«embed.file.name»</h3>
+          <h3 class="panel-title">«render(embed.title)»</h3>
         </div>
         <div class="panel-body text-center">
-          <embed src="«embed.file»" type="«type»" width="100%" height="450px">
+          <embed src="«embed.file»" type="«type»" width="«embed.width»" height="«embed.height»">
         </div>
       </div>
     '''

@@ -238,17 +238,19 @@ package class Logger {
     // start by reporting the known options
     for (QualifiedName qName : possibleInputsCopy) {
       val List<String> readValue = argumentsAsMap.get(qName)
+      
       val boolean present = readValue !== null
+      val value = if (present) readValue.join(" ") else ""
       val enforcement = enforcementString(qName) ?: ""
       val description = (dependencyDescriptions.get(qName) ?: "").replace("\n", " ")
       val formattedErrs = errors.get(qName).map[message.replace("\n","")].join("; ")
-      entries.put(qName.toString, CSV::toCSV(qName, typeFormatString(qName), present, enforcement, description, formattedErrs))
+      entries.put(qName.toString, CSV::toCSV(qName, value, typeFormatString(qName), present, enforcement, description, formattedErrs))
       errorsCopy.removeAll(qName)
     }
     
     // make sure everything sorted by key
     val recOutput = BriefIO::output(recognized)
-    recOutput.println("name,type,provided,enforcement,description,errors")
+    recOutput.println("name,value,type,provided,enforcement,description,errors")
     for (String key : entries.keySet()) {
       recOutput.println(entries.get(key))
     }

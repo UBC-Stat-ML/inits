@@ -202,9 +202,13 @@ class BootstrapHTMLRenderer implements Renderer  {
         <tbody> 
           «FOR r : table.rows»
           <tr> 
-            «FOR v : r.values»
-            <td>«render(v)»</td> 
-            «ENDFOR»
+            «IF r.keySet.size === 1 && r.keySet.get(0) === null»
+              <td colspan="«table.rows.get(0).keySet.size»">«render(r.values.get(0))»</td>
+            «ELSE»
+              «FOR v : r.values»
+              <td>«render(v)»</td> 
+              «ENDFOR»
+            «ENDIF»
           </tr> 
           «ENDFOR»
         </tbody> 

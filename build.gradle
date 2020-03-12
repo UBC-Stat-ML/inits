@@ -3,6 +3,7 @@ plugins {
   id 'java'
   id 'eclipse'
   id 'maven'
+  id 'application'
 }
 
 repositories {
@@ -32,7 +33,7 @@ configurations.archives.with {
 uploadArchives {
   repositories.mavenDeployer {
     repository(url: "file:///Users/bouchard/artifacts/")
-    pom.version = "3.0.0"
+    pom.version = "3.1.0"
     pom.artifactId = "inits"
     pom.groupId = "ca.ubc.stat"
   }
@@ -54,7 +55,6 @@ repositories {
     url "https://www.stat.ubc.ca/~bouchard/maven/"
   }
 }
-
 
 dependencies {
   compile group: 'com.google.guava', name: 'guava', version: '19.0'
@@ -79,12 +79,35 @@ task javadocJar(type: Jar, dependsOn: javadoc) {
     from 'build/docs/javadoc'
 }
 
+def createScript(project, mainClass, name) {
+  project.tasks.create(name: name, type: CreateStartScripts) {
+    outputDir       = new File(project.buildDir, 'scripts')
+    mainClassName   = mainClass
+    applicationName = name
+    classpath       = project.tasks[JavaPlugin.JAR_TASK_NAME].outputs.files + project.configurations.runtime
+  }
+  project.tasks[name].dependsOn(project.jar)
+
+  project.applicationDistribution.with {
+    into("bin") {
+      from(project.tasks[name])
+      fileMode = 0755
+    }
+  }
+}
+
+startScripts.enabled = false
+run.enabled = false
+
+createScript(project, 'blang.inits.experiments.doc.OrganizeExperimentsHTMLDoc', 'organize-experiments')
+createScript(project, 'blang.inits.experiments.doc.ExperimentHTMLDoc',          'experiment-html-doc')
+
+
 artifacts {
     archives jar
     archives sourcesJar
     archives javadocJar
 }
-
 
 if (JavaVersion.current().isJava8Compatible()) {
     allprojects {

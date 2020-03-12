@@ -16,12 +16,10 @@ import com.google.common.collect.LinkedHashMultimap
 import blang.xdoc.components.DocElement
 
 class OrganizeExperimentsHTMLDoc extends BootstrapHTMLRenderer {
-  val File execPool
   val Multimap<String,ParsedExperiment> organized
   
   new(File execPool) {
     super(execPool.absoluteFile.parentFile.name)
-    this.execPool = execPool
     
     // efficiency idea: only do it for the past week; to do full list run the command manually
     // also, make it calleable with just one main
@@ -73,6 +71,8 @@ class OrganizeExperimentsHTMLDoc extends BootstrapHTMLRenderer {
         if (args !== null)
           prev = args
         list.add(row)
+        if (exec.hasNotes) 
+          list.add(#{null -> EMPH + exec.notes + EMPH})
       }
       table(list)
     ]
@@ -82,7 +82,7 @@ class OrganizeExperimentsHTMLDoc extends BootstrapHTMLRenderer {
     val index = new File(execDir, "index.html")
     LINK("../all/" + execDir.name + "/" + if (index.exists) "site/index.html" else "") + 
       ExperimentHTMLDoc::id(execDir) + 
-      ENDLINK
+    ENDLINK
   }
   
   def static String formatArg(DocElement it, String key, Map<String,String> args, Map<String,String> prev) {
@@ -110,7 +110,6 @@ class OrganizeExperimentsHTMLDoc extends BootstrapHTMLRenderer {
   override htmlSupportFilesPrefix() { "../.html_support" }
   
   def static void build(File poolDir) {
-    if (!poolDir.exists || !poolDir.directory) throw new RuntimeException("Invalid pool dir (should contain all/ folder): " + poolDir.path)
     val destination = new File(poolDir, "site")
     destination.mkdir
     val mkDoc = new OrganizeExperimentsHTMLDoc(poolDir) 
@@ -120,11 +119,7 @@ class OrganizeExperimentsHTMLDoc extends BootstrapHTMLRenderer {
   }
   
   def static void main(String [] args) {
-    if (args.length !== 1) {
-      System.err.println("One argument: path to execution pool")
-      System.exit(1)
-    }
-    build(new File(args.get(0)))
+    ExperimentHTMLDoc::lightMain(args, [build(it)], "One argument: path to execution pool (should contain all/ folder); or invoke inside with no args)")
   }
   
 }

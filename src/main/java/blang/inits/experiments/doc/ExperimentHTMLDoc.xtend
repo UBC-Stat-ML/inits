@@ -18,6 +18,7 @@ import org.eclipse.xtext.xbase.lib.Functions.Function0
 import java.util.Map
 import java.util.LinkedHashMap
 import au.com.bytecode.opencsv.CSVParser
+import org.eclipse.xtext.xbase.lib.Procedures.Procedure1
 
 class ExperimentHTMLDoc extends BootstrapHTMLRenderer {
   
@@ -65,6 +66,20 @@ class ExperimentHTMLDoc extends BootstrapHTMLRenderer {
         BriefIO.fileToString(file)
       else
         null
+    }
+    
+    def boolean hasNotes() {
+      val notes = notes
+      if (notes === null) return false
+      return notes.length > 0
+    }
+    
+    def String notes() {
+      val file = new File(execDir, "notes.txt")
+      if (file.exists) 
+        BriefIO.fileToString(file)
+      else
+        return null
     }
     
     // private stuff 
@@ -142,7 +157,6 @@ class ExperimentHTMLDoc extends BootstrapHTMLRenderer {
   }
 
   def static void build(File execDir) {
-    if (!execDir.exists || !execDir.directory) throw new RuntimeException("Invalid exec dir: " + execDir.path)
     val destination = new File(execDir, "site")
     destination.mkdir
     val mkDoc = new ExperimentHTMLDoc(execDir)
@@ -152,11 +166,26 @@ class ExperimentHTMLDoc extends BootstrapHTMLRenderer {
   }
   
   def static void main(String [] args) {
-    if (args.length !== 1) {
-      System.err.println("One argument: path to .exec file")
+    lightMain(args, [build(it)], "One argument: path to .exec file (or invoke inside with no args)")
+  }
+  
+  def static void lightMain(String [] args, Procedure1<File> builder, String error) {
+    val file = 
+      if (args.empty)
+        new File(".").absoluteFile.canonicalFile
+      else {
+        if (args.length !== 1) {
+          System.err.println(error)
+          System.exit(1)
+          throw new RuntimeException
+        } else
+          new File(args.get(0))
+      }
+    if (!file.exists || !file.directory) {
+      System.err.println(error)
       System.exit(1)
-    }
-    build(new File(args.get(0)))
+    } else
+      builder.apply(file)
   }
   
   def static String getDurationBreakdown(long millis) {

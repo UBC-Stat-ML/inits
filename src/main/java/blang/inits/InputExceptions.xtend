@@ -68,7 +68,8 @@ class InputExceptions {
       InputExceptionCategory.FAILED_INSTANTIATION,
       "Failed to build type <" + type + ">, possibly a parsing error\n" + 
       "  input: " + input.orElse(#[]).join(" ") + "\n" +
-      "  cause: " + ExceptionUtils.getMessage(e)
+      "  cause: " + ExceptionUtils.getMessage(e) + "\n" +
+      "  details:\n" + ExceptionUtils.getStackTrace(e).split("\n").map["    " + it].join("\n")
     )
   }
   

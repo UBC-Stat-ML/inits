@@ -204,7 +204,7 @@ package class Logger {
       }
       if (printDetails) {
         if (!errors.get(qName).isEmpty()) {
-          current += formatErrorBlock(errors.get(qName)) + "\n"
+          current += formatErrorBlock(qName) + "\n"
         }
       }
       
@@ -223,7 +223,7 @@ package class Logger {
       result += "### Errors:\n"
       for (QualifiedName qName : errorsCopy.keySet()) {
         var String current = "#   error " + formatArgName(qName, "@ ") + "\n"
-        current += formatErrorBlock(errorsCopy.get(qName)) + "\n"
+        current += formatErrorBlock(qName) + "\n"
         result += current
       }
     }
@@ -268,7 +268,11 @@ package class Logger {
     }
   }
   
-  def private String formatErrorBlock(List<InputException> exceptions) {
+  def private String formatErrorBlock(QualifiedName qName) {
+    
+   val TypeLiteral<?> currentType = inputsTypeUsage.get(qName)
+    val boolean uncertainError = try { InitStaticUtils::isOptional(currentType) || someParentOptional(qName) } catch (Exception e) { false }
+    val List<InputException> exceptions = errors.get(qName)
     val List<String> excFmtLines = new ArrayList
     for (InputException exception : exceptions) {
       val List<String> errorLines = Splitter.on("\n").splitToList(exception.message)
@@ -276,7 +280,7 @@ package class Logger {
         var String current = ""
         current += "# "
         if (i == 0) {
-          current += "! "
+          current += if (uncertainError) "? " else "! "
         } else {
           current += "  "
         }

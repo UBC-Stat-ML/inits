@@ -29,12 +29,14 @@ class TidySerializer {
     val name = tidySerialized.name.replaceFirst("[.]csv$", "")
     val result = new LinkedHashMap
     val directory = tidySerialized.parentFile
-    for (String line : BriefIO.readLines(descriptionFile(directory, name))) {
-      val split = line.split("\t")
-      val key = split.get(0)
-      val value = Class.forName(split.get(1))
-      result.put(key, value)
-    }
+    val descriptionFile = descriptionFile(directory, name)
+    if (descriptionFile.exists)
+      for (String line : BriefIO.readLines(descriptionFile)) {
+        val split = line.split("\t")
+        val key = split.get(0)
+        val value = Class.forName(split.get(1))
+        result.put(key, value)
+      }
     return result
   }
   

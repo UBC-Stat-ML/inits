@@ -191,13 +191,13 @@ public abstract class Experiment implements Runnable
       
       if (expConfigs.resultsHTMLPage) {
         try {
-          if (expConfigs.recordExecutionInfo) {
+          if (expConfigs.recordExecutionInfo && expConfigs.managedExecutionFolder) {
             File poolFolder = results.resultsFolder.getParentFile().getParentFile();
             ensureHMTLSupportFiles(poolFolder);
             ExperimentHTMLDoc.build(results.resultsFolder);
             OrganizeExperimentsHTMLDoc.build(poolFolder);
           } else {
-            System.err.println("You need to set the option --expConfigs.recordExecutionInfo true");
+            System.err.println("Note: a web report was requested (resultsHTMLPage is true by default) but this is only possible when recordExecutionInfo and managedExecutionFolder are both set to true");
           }
         } catch (Exception e) {
           System.err.println("Error when creating results html page: " + e.getMessage());

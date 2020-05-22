@@ -76,9 +76,35 @@ public abstract class Experiment implements Runnable
     return start(args, new ParsingConfigs());
   }
   
+  /**
+   * Assumed to be called as the only thing in a main inside 
+   * an Experiment implementation. E.g. use as follows
+   * 
+   * public class MyExperiment extends Experiment {
+   *   ...
+   *   public static void main(String [] args) {
+   *     Experiment.startAutoExit(args);
+   *   }
+   * }
+   * 
+   * Tricks with the stack trace will be used to find the 
+   * identity of MyExperiment and do the rest of the plumbing.
+   */
   public static void startAutoExit(String [] args)
   {
-    System.exit(start(args));
+    int returnCode = start(args);
+    /* Here, we are NOT using System.exit() 
+     * Because in normal situation when returnCode 
+     * was 0, calling exit was stopping intensive 
+     * pxviz background threads.
+     */
+    System.out.popAll();
+    System.out.flush();
+    System.err.flush();
+    if (returnCode != 0)
+      java.lang.System.exit(returnCode);
+    else
+      {}
   }
   
   public static final int SUCCESS_CODE = 0;

@@ -24,9 +24,13 @@ class TidySerializer {
     return new File(directory, "." + name + ".types.tsv");
   }
   
+  def static String serializerName(File file) {
+    return file.name.replaceFirst("[.]gz$", "").replaceFirst("[.]csv$", "")
+  }
+  
   def static Map<String,Class<?>> types(File tidySerialized) 
   {
-    val name = tidySerialized.name.replaceFirst("[.]csv$", "")
+    val name = serializerName(tidySerialized)
     val result = new LinkedHashMap
     val directory = tidySerialized.parentFile
     val descriptionFile = descriptionFile(directory, name)

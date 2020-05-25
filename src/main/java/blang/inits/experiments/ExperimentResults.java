@@ -12,6 +12,7 @@ import java.util.Map;
 import blang.inits.experiments.tabwriters.TabularWriter;
 import blang.inits.experiments.tabwriters.TabularWriterFactory;
 import blang.inits.experiments.tabwriters.factories.CSV;
+import briefj.BriefIO;
 
 public class ExperimentResults
 {
@@ -50,16 +51,10 @@ public class ExperimentResults
   {
     if (writers.containsKey(name))
       return writers.get(name);
-    try
-    {
-      BufferedWriter writer = new BufferedWriter(new FileWriter(getFileInResultFolder(name)));
-      writers.put(name, writer);
-      return writer;
-    } 
-    catch (IOException e)
-    {
-      throw new RuntimeException(e);
-    }
+    BufferedWriter writer = BriefIO.writer(getFileInResultFolder(name));
+    writers.put(name, writer);
+    return writer;
+
   }
   
   /**
@@ -135,7 +130,10 @@ public class ExperimentResults
       } 
       catch (IOException e)
       {
-        e.printStackTrace();
+        if (close)
+          ; // igored: gz streams might have to be closed earlier, so when this is called at the end an error is shown even though normally behaving
+        else
+          e.printStackTrace();
       }
     for (ExperimentResults child : children.values())
       child.callAll(close);

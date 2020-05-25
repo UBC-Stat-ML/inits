@@ -53,5 +53,5 @@ public class SparkWriter extends AbstractTabularWriter<SparkWriter>
     root.lowLevelWrite(out, values.subList(depth(), values.size())); 
   }
 
-  public static final String LEAF_CSV_NAME = "data.csv"; // Do not change, assumed by scala
+  public static final String LEAF_CSV_NAME = "data.csv"; // Do not change, assumed by spark
 }

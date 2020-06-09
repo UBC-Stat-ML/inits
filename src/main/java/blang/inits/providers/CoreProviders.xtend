@@ -6,7 +6,7 @@ import java.nio.file.Path
 import java.nio.file.Paths
 import blang.inits.ProvidesFactory
 import blang.inits.Input
-
+import binc.Command
 
 class CoreProviders {
   
@@ -37,6 +37,11 @@ class CoreProviders {
   @ProvidesFactory
   def static bayonet.distributions.Random parseBayonetRandom(@Input String s) {
     return new bayonet.distributions.Random(parse_long(s))
+  }
+  
+  @ProvidesFactory
+  def static Command parseCommand(@Input String s) {
+    return Command::cmd(s)
   }
   
   @ProvidesFactory

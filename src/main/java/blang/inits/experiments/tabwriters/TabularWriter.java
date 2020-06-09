@@ -29,6 +29,10 @@ public interface TabularWriter
   
   void write(Pair<?, ?> ... entries);
   
+  void close();
+  
+  void flush();
+  
   int depth();
   
   @SuppressWarnings({"unchecked", "rawtypes"})

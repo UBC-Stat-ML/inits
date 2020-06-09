@@ -1,6 +1,7 @@
 package blang.inits.experiments.tabwriters;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Writer;
 import java.util.List;
 
@@ -35,5 +36,23 @@ public class CSVWriter extends AbstractTabularWriter<CSVWriter>
       root.wroteFirstLine = true;
     }
     root.lowLevelWrite(root.out, values);
+  }
+
+  @Override
+  public void close() {
+    try {
+      out.close();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  @Override
+  public void flush() {
+    try {
+      out.flush();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

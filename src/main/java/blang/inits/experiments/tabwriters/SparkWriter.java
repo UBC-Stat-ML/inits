@@ -1,10 +1,13 @@
 package blang.inits.experiments.tabwriters;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.Writer;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.management.RuntimeErrorException;
 
 import blang.inits.experiments.ExperimentResults;
 
@@ -54,4 +57,26 @@ public class SparkWriter extends AbstractTabularWriter<SparkWriter>
   }
 
   public static final String LEAF_CSV_NAME = "data.csv"; // Do not change, assumed by spark
+
+  @Override
+  public void close() {
+    try {
+      out.close();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    for (SparkWriter child : children.values())
+      child.close();
+  }
+
+  @Override
+  public void flush() {
+    try {
+      out.flush();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    for (SparkWriter child : children.values())
+      child.flush();
+  }
 }

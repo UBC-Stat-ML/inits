@@ -79,6 +79,7 @@ class CoreProviders {
   def static double parse_double(@Input String _s) {
     val s = _s.trim.toLowerCase
     if (s == INF_STR) return Double.POSITIVE_INFINITY
+    if (s == NaN_STR) return Double.NaN
     return Double.parseDouble(s.replace("_", ""))
   }
   
@@ -113,5 +114,6 @@ class CoreProviders {
   }
 
   val public static final String INF_STR = "inf"
+  val public static final String NaN_STR = "nan"
   
 }

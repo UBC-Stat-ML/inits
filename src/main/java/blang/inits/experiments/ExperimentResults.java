@@ -129,7 +129,7 @@ public class ExperimentResults
         else
           writer.flush();
       } 
-      catch (IOException e)
+      catch (Exception e)
       {
         // igored: gz streams might have to be closed earlier, so when this is called at the end an error is shown even though normally behaving
       }

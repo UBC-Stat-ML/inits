@@ -124,16 +124,14 @@ public class ExperimentResults
     for (Writer writer : writers.values())
       try
       {
-        writer.flush();
         if (close)
           writer.close();
+        else
+          writer.flush();
       } 
       catch (IOException e)
       {
-        if (close)
-          ; // igored: gz streams might have to be closed earlier, so when this is called at the end an error is shown even though normally behaving
-        else
-          e.printStackTrace();
+        // igored: gz streams might have to be closed earlier, so when this is called at the end an error is shown even though normally behaving
       }
     for (ExperimentResults child : children.values())
       child.callAll(close);

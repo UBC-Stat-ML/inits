@@ -53,7 +53,7 @@ dependencies {
   compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.4'
   compile 'com.google.code.gson:gson:2.7'
   compile 'org.eclipse.xtend:org.eclipse.xtend.lib:2.16.0'
-  compile group: 'com.github.UBC-Stat-ML', name: 'briefj', version: '2.6.2'
+  compile group: 'com.github.UBC-Stat-ML', name: 'briefj', version: '2.6.3'
   compile group: 'org.apache.commons', name: 'commons-csv', version: '1.4'
 }
 

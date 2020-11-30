@@ -21,6 +21,9 @@ public class ExperimentConfigs
   @Arg              @DefaultValue("true")
   public boolean resultsHTMLPage = true;
   
+  @Arg
+  public Optional<String> uniqueExperimentDirectoryName = Optional.empty();
+  
   @Arg            @DefaultValue("false")
   public boolean recordGitInfo = false;
 

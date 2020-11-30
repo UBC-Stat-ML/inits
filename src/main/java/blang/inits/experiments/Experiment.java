@@ -380,6 +380,9 @@ public abstract class Experiment implements Runnable
     // Note: this is done so as to be backward compatible with Results
     if (!expConfigs.managedExecutionFolder)
       Results.initResultFolder(new File(".").getAbsolutePath());
+    if (expConfigs.uniqueExperimentDirectoryName.isPresent()) {
+      Results.initResultFolder(expConfigs.uniqueExperimentDirectoryName.get());
+    }
     return new ExperimentResults(Results.getResultFolder(), expConfigs.tabularWriter);
     
     /*

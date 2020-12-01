@@ -443,6 +443,16 @@ class BootstrapHTMLRenderer implements Renderer  {
     
         <title>«document.name»</title>
         
+«««        <!-- note: keep \\( below as used in MATH annotations -->
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({
+            tex2jax: {
+              inlineMath: [ ['$','$'], ["\\(","\\)"] ], 
+              processEscapes: true
+            }
+          });
+        </script>
+        
         <script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML'></script>
     
         <!-- Bootstrap core CSS -->

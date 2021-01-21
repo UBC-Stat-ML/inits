@@ -19,6 +19,7 @@ import java.util.Map
 import java.util.LinkedHashMap
 import au.com.bytecode.opencsv.CSVParser
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1
+import org.apache.commons.lang3.StringUtils
 
 class ExperimentHTMLDoc extends BootstrapHTMLRenderer {
   
@@ -100,6 +101,7 @@ class ExperimentHTMLDoc extends BootstrapHTMLRenderer {
     new Document("Summary") [
       isIndex = true
       
+      
       clipboard("open " + parsed.execDir.absolutePath.toString)
       keyValues(
         "Main class" -> mainClass,
@@ -111,6 +113,7 @@ class ExperimentHTMLDoc extends BootstrapHTMLRenderer {
       )
       embed("../" + infoFileDirectoryName + "/" + STD_OUT_FILE)
       embed("../" + infoFileDirectoryName + "/" + STD_ERR_FILE)
+      embed("../" + infoFileDirectoryName + "/" + JAVA_ARGUMENTS)
       embed("../" + infoFileDirectoryName + "/" + JVM_OPTIONS)
       embed("../" + infoFileDirectoryName + "/" + CLASSPATH_INFO)
       if (Results.getFileInResultFolder(infoFileDirectoryName + "/" + REPOSITORY_DIRTY_FILES).exists)
@@ -121,10 +124,24 @@ class ExperimentHTMLDoc extends BootstrapHTMLRenderer {
   static val missingGitInfo = "Use --experimentConfigs.recordGitInfo"
   
   def Document plotPage(File folder) {
-    new Document(folder.name) [
+    new Document(StringUtils::capitalize(folder.name)) [
       category = "Plots"
       for (File pdf : BriefFiles::ls(folder, "pdf")) {
         embed("../" + folder.name + "/" + pdf.name)
+      }
+    ]
+  }
+  
+  def Document tablePage(File folder) {
+    val limit = 20
+    new Document(StringUtils::capitalize(folder.name)) [
+      category = "Tables"
+      for (File csv : BriefFiles::ls(folder, "csv")) {
+        section(csv.name) [
+          table(BriefIO::readLines(csv).indexCSV.limit(limit).toList)
+          if (BriefIO::readLines(csv).indexCSV.limit(limit+1).size > limit)
+            it += '''Skipping remaining rows...'''
+        ]
       }
     ]
   }
@@ -146,14 +163,17 @@ class ExperimentHTMLDoc extends BootstrapHTMLRenderer {
     documents => [
       add(summary)
       add(argumentsPage)
-      for (subDir : BriefFiles::ls(experimentDirectory).filter[containsPDF])
+      for (subDir : BriefFiles::ls(experimentDirectory).filter[containsExt("pdf")])
         add(plotPage(subDir))
+      for (subDir : BriefFiles::ls(experimentDirectory).filter[containsExt("csv")])
+        add(tablePage(subDir))
     ]
   }
   
-  def static boolean containsPDF(File f) {
+  
+  def static boolean containsExt(File f, String ext) {
     if (!f.isDirectory) return false
-    !BriefFiles::ls(f, "pdf").empty
+    !BriefFiles::ls(f, ext).empty
   }
 
   def static void build(File execDir) {

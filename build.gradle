@@ -32,7 +32,7 @@ configurations.archives.with {
 uploadArchives {
   repositories.mavenDeployer {
     repository(url: "file:///Users/bouchard/artifacts/")
-    pom.version = "3.3.6"
+    pom.version = "3.4.0"
     pom.artifactId = "inits"
     pom.groupId = "com.github.UBC-Stat-ML"
   }

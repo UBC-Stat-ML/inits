@@ -55,6 +55,10 @@ class DocElementExtensions {
     element += loadCode(code, null)
   } 
   
+  def static void p(DocElement element, CharSequence s) {
+    element += s
+  }
+  
   /**
    * E.g. of use: removing package declaration line.
    */

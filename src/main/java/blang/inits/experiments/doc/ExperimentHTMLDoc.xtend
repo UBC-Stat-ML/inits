@@ -19,7 +19,6 @@ import java.util.Map
 import java.util.LinkedHashMap
 import au.com.bytecode.opencsv.CSVParser
 import org.eclipse.xtext.xbase.lib.Procedures.Procedure1
-import org.apache.commons.lang3.StringUtils
 
 class ExperimentHTMLDoc extends BootstrapHTMLRenderer {
   
@@ -124,7 +123,7 @@ class ExperimentHTMLDoc extends BootstrapHTMLRenderer {
   static val missingGitInfo = "Use --experimentConfigs.recordGitInfo"
   
   def Document plotPage(File folder) {
-    new Document(StringUtils::capitalize(folder.name)) [
+    new Document(folder.name) [
       category = "Plots"
       for (File pdf : BriefFiles::ls(folder, "pdf")) {
         embed("../" + folder.name + "/" + pdf.name)
@@ -134,7 +133,7 @@ class ExperimentHTMLDoc extends BootstrapHTMLRenderer {
   
   def Document tablePage(File folder) {
     val limit = 20
-    new Document(StringUtils::capitalize(folder.name)) [
+    new Document(folder.name) [
       category = "Tables"
       for (File csv : BriefFiles::ls(folder, "csv")) {
         section(csv.name) [

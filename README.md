@@ -1,4 +1,4 @@
-Summary [![Build Status](https://travis-ci.org/UBC-Stat-ML/inits.png?branch=master)](https://travis-ci.org/UBC-Stat-ML/inits) 
+Summary 
 -------
 
 
